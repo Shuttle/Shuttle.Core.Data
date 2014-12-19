@@ -111,10 +111,10 @@ namespace Shuttle.Core.Data
 		public IDbDataParameter CreateDataParameter(IDbDataParameterFactory factory, object value)
 		{
 			return Size.HasValue
-				       ? factory.Create("@" + FlattenedColumnName(), DbType, Size.Value, value)
+				       ? factory.Create(FlattenedColumnName(), DbType, Size.Value, value)
 				       : (Precision.HasValue
-					          ? factory.Create("@" + FlattenedColumnName(), DbType, Precision.Value, Scale ?? 0, value)
-					          : factory.Create("@" + FlattenedColumnName(), DbType, value));
+					          ? factory.Create(FlattenedColumnName(), DbType, Precision.Value, Scale ?? 0, value)
+					          : factory.Create(FlattenedColumnName(), DbType, value));
 		}
 
 		public MappedColumn<T> Rename(string name)

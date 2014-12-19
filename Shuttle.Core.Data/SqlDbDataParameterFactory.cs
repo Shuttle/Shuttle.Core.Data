@@ -8,7 +8,7 @@ namespace Shuttle.Core.Data
     {
         public IDbDataParameter Create(string name, DbType type, object value)
         {
-            var result = new SqlParameter(name, value ?? DBNull.Value);
+            var result = new SqlParameter(string.Concat("@", name), value ?? DBNull.Value);
 
             try
             {
@@ -24,7 +24,7 @@ namespace Shuttle.Core.Data
 
         public IDbDataParameter Create(string name, DbType type, int size, object value)
         {
-            var result = new SqlParameter(name, value ?? DBNull.Value)
+			var result = new SqlParameter(string.Concat("@", name), value ?? DBNull.Value)
                              {
                                  Size = size
                              };
@@ -43,7 +43,7 @@ namespace Shuttle.Core.Data
 
         public IDbDataParameter Create(string name, DbType type, byte precision, byte scale, object value)
         {
-            var result = new SqlParameter(name, value ?? DBNull.Value)
+			var result = new SqlParameter(string.Concat("@", name), value ?? DBNull.Value)
                              {
                                  Precision = precision,
                                  Scale = scale
