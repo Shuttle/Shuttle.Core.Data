@@ -12,30 +12,30 @@ namespace Shuttle.Core.Data
         private readonly Dictionary<string, IDbConnectionConfiguration> dbConnectionConfigurations =
             new Dictionary<string, IDbConnectionConfiguration>();
 
-        public IDbConnectionConfiguration Get(DataSource source)
+        public IDbConnectionConfiguration Get(DataSource dataSource)
         {
-            Guard.AgainstNull(source, "source");
+            Guard.AgainstNull(dataSource, "dataSource");
 
-            if (!dbConnectionConfigurations.ContainsKey(source.Key))
+            if (!dbConnectionConfigurations.ContainsKey(dataSource.Key))
             {
                 lock(padlock)
                 {
-                    if (!dbConnectionConfigurations.ContainsKey(source.Key))
+                    if (!dbConnectionConfigurations.ContainsKey(dataSource.Key))
                     {
-                        var settings = ConfigurationManager.ConnectionStrings[source.Name];
+                        var settings = ConfigurationManager.ConnectionStrings[dataSource.Name];
 
                         if (settings == null)
                         {
                             throw new InvalidOperationException(
-                                string.Format(DataResources.ConnectionStringMissing, source.Name));
+                                string.Format(DataResources.ConnectionStringMissing, dataSource.Name));
                         }
 
-                        dbConnectionConfigurations.Add(source.Key, new DbConnectionConfiguration(source, settings.ProviderName, settings.ConnectionString));
+                        dbConnectionConfigurations.Add(dataSource.Key, new DbConnectionConfiguration(dataSource, settings.ProviderName, settings.ConnectionString));
                     }
                 }
             }
 
-            return dbConnectionConfigurations[source.Key];
+            return dbConnectionConfigurations[dataSource.Key];
         }
     }
 }

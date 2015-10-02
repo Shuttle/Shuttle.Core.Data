@@ -2,6 +2,6 @@ namespace Shuttle.Core.Data
 {
     public interface IDbConnectionConfigurationProvider
     {
-        IDbConnectionConfiguration Get(DataSource source);
+        IDbConnectionConfiguration Get(DataSource dataSource);
     }
 }

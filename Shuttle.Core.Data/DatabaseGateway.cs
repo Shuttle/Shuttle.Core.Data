@@ -27,9 +27,9 @@ namespace Shuttle.Core.Data
 			_log = Log.For(this);
 		}
 
-		public DataTable GetDataTableFor(DataSource source, IQuery query)
+		public DataTable GetDataTableFor(DataSource dataSource, IQuery query)
 		{
-			using (var reader = GetReaderUsing(source, query))
+			using (var reader = GetReaderUsing(dataSource, query))
 			{
 				var results = new DataTable();
 

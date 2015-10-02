@@ -1,14 +1,17 @@
 using System.Data;
+using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Core.Data
 {
     public class ExistingDatabaseConnection : IDatabaseConnection
     {
-        private readonly IDatabaseConnection databaseConnection;
+        private readonly IDatabaseConnection _databaseConnection;
 
         public ExistingDatabaseConnection(IDatabaseConnection databaseConnection)
         {
-            this.databaseConnection = databaseConnection;
+			Guard.AgainstNull(databaseConnection, "databaseConnection");
+
+            _databaseConnection = databaseConnection;
         }
 
         public void Dispose()
@@ -17,7 +20,7 @@ namespace Shuttle.Core.Data
 
         public IDbCommand CreateCommandToExecute(IQuery query)
         {
-            return databaseConnection.CreateCommandToExecute(query);
+            return _databaseConnection.CreateCommandToExecute(query);
         }
 
         public bool HasTransaction
@@ -27,19 +30,19 @@ namespace Shuttle.Core.Data
 
         public IDbTransaction Transaction
         {
-            get { return databaseConnection.Transaction; }
+            get { return _databaseConnection.Transaction; }
         }
 
         public IDbConnection Connection
         {
-            get { return databaseConnection.Connection; }
+            get { return _databaseConnection.Connection; }
         }
 
         public IDatabaseConnection BeginTransaction()
         {
             if (!HasTransaction)
             {
-                databaseConnection.BeginTransaction();
+                _databaseConnection.BeginTransaction();
             }
 
             return this;
@@ -49,7 +52,7 @@ namespace Shuttle.Core.Data
         {
             if (HasTransaction)
             {
-                databaseConnection.CommitTransaction();
+                _databaseConnection.CommitTransaction();
             }
         }
     }

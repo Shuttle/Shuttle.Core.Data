@@ -8,7 +8,7 @@ namespace Shuttle.Core.Data
         IDataReader GetReaderUsing(DataSource source, IQuery query);
 		int ExecuteUsing(DataSource source, IQuery query);
 		T GetScalarUsing<T>(DataSource source, IQuery query);
-		DataTable GetDataTableFor(DataSource source, IQuery query);
+		DataTable GetDataTableFor(DataSource dataSource, IQuery query);
 		IEnumerable<DataRow> GetRowsUsing(DataSource source, IQuery query);
 		DataRow GetSingleRowUsing(DataSource source, IQuery query);
     }

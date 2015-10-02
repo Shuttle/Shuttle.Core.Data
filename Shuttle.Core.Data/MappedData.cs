@@ -5,18 +5,18 @@ namespace Shuttle.Core.Data
 {
     public class MappedData
     {
-        private readonly Dictionary<string, object> data = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _data = new Dictionary<string, object>();
 
         public MappedData Add<T>(MappedRow<T> mappedRow)
         {
             var key = Key<T>();
 
-            if (data.ContainsKey(key))
+            if (_data.ContainsKey(key))
             {
-                data.Remove(key);
+                _data.Remove(key);
             }
 
-            data.Add(key, new List<MappedRow<T>> {mappedRow});
+            _data.Add(key, new List<MappedRow<T>> {mappedRow});
 
             return this;
         }
@@ -25,12 +25,12 @@ namespace Shuttle.Core.Data
         {
             var key = Key<T>();
 
-            if (data.ContainsKey(key))
+            if (_data.ContainsKey(key))
             {
-                data.Remove(key);
+                _data.Remove(key);
             }
 
-            data.Add(key, mappedRows);
+            _data.Add(key, mappedRows);
 
             return this;
         }
@@ -39,9 +39,9 @@ namespace Shuttle.Core.Data
         {
             var key = Key<T>();
 
-            if (data.ContainsKey(key))
+            if (_data.ContainsKey(key))
             {
-                return (IEnumerable<MappedRow<T>>) data[key];
+                return (IEnumerable<MappedRow<T>>) _data[key];
             }
 
             return new List<MappedRow<T>>();

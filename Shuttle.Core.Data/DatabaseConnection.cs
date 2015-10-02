@@ -6,49 +6,49 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseConnection : IDatabaseConnection
     {
-        private readonly DataSource source;
-        private readonly IDbCommandFactory dbCommandFactory;
-        private readonly IDatabaseConnectionCache databaseConnectionCache;
-        private readonly ILog log;
+        private readonly DataSource _dataSource;
+        private readonly IDbCommandFactory _dbCommandFactory;
+        private readonly IDatabaseConnectionCache _databaseConnectionCache;
+        private readonly ILog _log;
 
         private bool disposed;
 
-        public DatabaseConnection(DataSource source, IDbConnection connection, IDbCommandFactory dbCommandFactory, IDatabaseConnectionCache databaseConnectionCache)
+        public DatabaseConnection(DataSource dataSource, IDbConnection connection, IDbCommandFactory dbCommandFactory, IDatabaseConnectionCache databaseConnectionCache)
         {
-			Guard.AgainstNull(source, "source");
+			Guard.AgainstNull(dataSource, "dataSource");
 			Guard.AgainstNull(connection, "connection");
 			Guard.AgainstNull(dbCommandFactory, "dbCommandFactory");
 			Guard.AgainstNull(databaseConnectionCache, "databaseConnectionCache");
 
-            this.source = source;
-            this.dbCommandFactory = dbCommandFactory;
-            this.databaseConnectionCache = databaseConnectionCache;
+            this._dataSource = dataSource;
+            this._dbCommandFactory = dbCommandFactory;
+            this._databaseConnectionCache = databaseConnectionCache;
 
             Connection = connection;
 
-            log = Log.For(this);
+            _log = Log.For(this);
 
-            log.Verbose(string.Format(DataResources.DbConnectionCreated, source.Name));
+            _log.Verbose(string.Format(DataResources.DbConnectionCreated, dataSource.Name));
 
             try
             {
                 Connection.Open();
 
-                log.Verbose(string.Format(DataResources.DbConnectionOpened, source.Name));
+                _log.Verbose(string.Format(DataResources.DbConnectionOpened, dataSource.Name));
             }
             catch (Exception ex)
             {
-                log.Error(string.Format(DataResources.DbConnectionOpenException, source.Name, ex.Message));
+                _log.Error(string.Format(DataResources.DbConnectionOpenException, dataSource.Name, ex.Message));
 
                 throw;
             }
 
-            databaseConnectionCache.Add(source, this);
+            databaseConnectionCache.Add(dataSource, this);
         }
 
         public IDbCommand CreateCommandToExecute(IQuery query)
         {
-            var command = dbCommandFactory.CreateCommandUsing(source, Connection, query);
+            var command = _dbCommandFactory.CreateCommandUsing(_dataSource, Connection, query);
             command.Transaction = Transaction;
             return command;
         }
@@ -103,7 +103,7 @@ namespace Shuttle.Core.Data
                     Transaction.Rollback();
                 }
                 Connection.Dispose();
-                databaseConnectionCache.Remove(source);
+                _databaseConnectionCache.Remove(_dataSource);
             }
 
             Connection = null;

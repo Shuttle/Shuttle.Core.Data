@@ -4,13 +4,13 @@ namespace Shuttle.Core.Data
 {
     public class DbConnectionConfiguration : IDbConnectionConfiguration
     {
-        public DbConnectionConfiguration(DataSource source, string providerName, string connectionString)
+        public DbConnectionConfiguration(DataSource dataSource, string providerName, string connectionString)
         {
-            Guard.AgainstNull(source, "source");
+            Guard.AgainstNull(dataSource, "dataSource");
             Guard.AgainstNullOrEmptyString(providerName, "providerName");
             Guard.AgainstNullOrEmptyString(connectionString, "connectionString");
 
-            Name = source.Name;
+            Name = dataSource.Name;
             ProviderName = providerName;
             ConnectionString = connectionString;
         }
