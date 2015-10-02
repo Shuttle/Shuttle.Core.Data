@@ -169,4 +169,8 @@
     <value>Successfully opened connection string with name '{0}'.</value>
     <comment>{0} = the name of the connection</comment>
   </data>
+  <data name="DbConnectionAlreadyOpen" xml:space="preserve">
+    <value>DbConnection for connection name '{0}' is already open.</value>
+    <comment>{0} = connection name</comment>
+  </data>
 </root>

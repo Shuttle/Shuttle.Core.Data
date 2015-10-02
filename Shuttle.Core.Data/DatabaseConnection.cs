@@ -20,9 +20,9 @@ namespace Shuttle.Core.Data
 			Guard.AgainstNull(dbCommandFactory, "dbCommandFactory");
 			Guard.AgainstNull(databaseConnectionCache, "databaseConnectionCache");
 
-            this._dataSource = dataSource;
-            this._dbCommandFactory = dbCommandFactory;
-            this._databaseConnectionCache = databaseConnectionCache;
+            _dataSource = dataSource;
+            _dbCommandFactory = dbCommandFactory;
+            _databaseConnectionCache = databaseConnectionCache;
 
             Connection = connection;
 
@@ -32,9 +32,15 @@ namespace Shuttle.Core.Data
 
             try
             {
-                Connection.Open();
-
-                _log.Verbose(string.Format(DataResources.DbConnectionOpened, dataSource.Name));
+	            if (connection.State == ConnectionState.Closed)
+	            {
+		            Connection.Open();
+					_log.Verbose(string.Format(DataResources.DbConnectionOpened, dataSource.Name));
+				}
+	            else
+	            {
+					_log.Verbose(string.Format(DataResources.DbConnectionAlreadyOpen, dataSource.Name));
+	            }
             }
             catch (Exception ex)
             {
