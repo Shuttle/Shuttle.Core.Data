@@ -4,6 +4,6 @@ namespace Shuttle.Core.Data
 {
     public interface IDbConnectionFactory 
     {
-        IDbConnection CreateConnection(DataSource source);
+	    IDbConnection CreateConnection(string providerName, string connectionString);
     }
 }

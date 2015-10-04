@@ -27,11 +27,6 @@ namespace Shuttle.Core.Data.Tests
 			var mc = new MappedColumn<Guid>("Id", DbType.Guid);
 			var query = new RawQuery(sql).AddParameterValue(mc, guid);
 			var dataParameterCollection = new Mock<IDataParameterCollection>();
-			var dataParameterFactory = new Mock<IDbDataParameterFactory>();
-
-			dataParameterFactory.Setup(m => m.Create("@Id", DbType.Guid, guid));
-
-			var dataSource = new DataSource("data-source", dataParameterFactory.Object);
 
 			var command = new Mock<IDbCommand>();
 
@@ -41,10 +36,9 @@ namespace Shuttle.Core.Data.Tests
 			command.SetupSet(m => m.CommandText = sql).Verifiable();
 			command.SetupSet(m => m.CommandType = CommandType.Text).Verifiable();
 
-			query.Prepare(dataSource, command.Object);
+			query.Prepare(command.Object);
 
 			command.VerifyAll();
-			dataParameterFactory.VerifyAll();
 		}
 	}
 }

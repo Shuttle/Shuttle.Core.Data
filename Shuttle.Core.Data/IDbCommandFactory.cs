@@ -4,6 +4,6 @@ namespace Shuttle.Core.Data
 {
 	public interface IDbCommandFactory 
     {
-        IDbCommand CreateCommandUsing(DataSource source, IDbConnection connection, IQuery query);
+        IDbCommand CreateCommandUsing(IDbConnection connection, IQuery query);
     }
 }

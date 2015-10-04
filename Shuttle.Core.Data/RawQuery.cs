@@ -15,9 +15,8 @@ namespace Shuttle.Core.Data
 			parameterValues = new Dictionary<IMappedColumn, object>();
 		}
 
-		public void Prepare(DataSource source, IDbCommand command)
+		public void Prepare(IDbCommand command)
 		{
-			Guard.AgainstNull(source, "source");
 			Guard.AgainstNull(command, "command");
 
 			command.CommandText = sql;
@@ -25,7 +24,7 @@ namespace Shuttle.Core.Data
 
 			foreach (var pair in parameterValues)
 			{
-				command.Parameters.Add(pair.Key.CreateDataParameter(source.DbDataParameterFactory, pair.Value));
+				command.Parameters.Add(pair.Key.CreateDataParameter(command, pair.Value));
 			}
 		}
 

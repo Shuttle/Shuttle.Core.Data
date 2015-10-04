@@ -4,7 +4,7 @@ namespace Shuttle.Core.Data
 {
 	public interface IQuery
 	{
-		void Prepare(DataSource source, IDbCommand command);
+		void Prepare(IDbCommand command);
 		IQuery AddParameterValue(IMappedColumn column, object value);
 	}
 }

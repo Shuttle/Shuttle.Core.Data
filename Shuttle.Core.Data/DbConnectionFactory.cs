@@ -1,63 +1,34 @@
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Core.Data
 {
-    public class DbConnectionFactory : IDbConnectionFactory
-    {
-        private static readonly object padlock = new object();
+	public class DbConnectionFactory : IDbConnectionFactory
+	{
+		private readonly ILog _log;
 
-        private readonly IDbConnectionConfigurationProvider _dbConnectionConfigurationProvider;
+		public DbConnectionFactory()
+		{
+			_log = Log.For(this);
+		}
 
-        private readonly Dictionary<string, DbProviderFactory> _dbProviderFactories =
-            new Dictionary<string, DbProviderFactory>();
+		public IDbConnection CreateConnection(string providerName, string connectionString)
+		{
+			var dbProviderFactory = DbProviderFactories.GetFactory(providerName);
 
-        private readonly ILog _log;
+			var connection = dbProviderFactory.CreateConnection();
 
-        public DbConnectionFactory(IDbConnectionConfigurationProvider dbConnectionConfigurationProvider)
-        {
-			Guard.AgainstNull(dbConnectionConfigurationProvider, "dbConnectionConfigurationProvider");
+			if (connection == null)
+			{
+				throw new DataException(string.Format(DataResources.DbProviderFactoryCreateConnectionException, providerName));
+			}
 
-            _dbConnectionConfigurationProvider = dbConnectionConfigurationProvider;
+			connection.ConnectionString = connectionString;
 
-            _log = Log.For(this);
-        }
+			_log.Verbose(string.Format(DataResources.VerboseDbConnectionCreated, connection.DataSource, connection.Database));
 
-        public static IDbConnectionFactory Default()
-        {
-			return new DbConnectionFactory(new DbConnectionConfigurationProvider());
-        }
-
-        public IDbConnection CreateConnection(DataSource source)
-        {
-            var dbConnectionConfiguration = _dbConnectionConfigurationProvider.Get(source);
-
-            if (!_dbProviderFactories.ContainsKey(source.Key))
-            {
-                lock(padlock)
-                {
-                    if (!_dbProviderFactories.ContainsKey(source.Key))
-                    {
-                        var factory = DbProviderFactories.GetFactory(dbConnectionConfiguration.ProviderName);
-
-                        _dbProviderFactories.Add(source.Key, factory);
-
-						_log.Verbose(string.Format(DataResources.DbProviderFactoryCached, dbConnectionConfiguration.ProviderName));
-                    }
-                }
-            }
-
-            var dbProviderFactory = _dbProviderFactories[source.Key];
-
-            var connection = dbProviderFactory.CreateConnection();
-
-	        connection.ConnectionString = dbConnectionConfiguration.ConnectionString;
-
-			_log.Verbose(string.Format(DataResources.DbConnectionCreated, source.Name));
-
-            return connection;
-        }
-    }
+			return connection;
+		}
+	}
 }

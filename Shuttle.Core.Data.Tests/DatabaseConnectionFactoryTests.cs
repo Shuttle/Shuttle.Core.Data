@@ -9,7 +9,7 @@ namespace Shuttle.Core.Data.Tests
 		public void Should_be_able_to_create_a_database_connection()
 		{
 			var factory = DatabaseConnectionFactory.Default();
-			using (var connection = factory.Create(DefaultDataSource()))
+			using (var connection = factory.Create(DefaultConnectionStringName))
 			{
 				Assert.IsNotNull(connection);
 			}
@@ -20,8 +20,8 @@ namespace Shuttle.Core.Data.Tests
 		{
 			var factory = DatabaseConnectionFactory.Default();
 
-			using (var connection = factory.Create(DefaultDataSource()))
-			using (var existingConnection = factory.Create(DefaultDataSource()))
+			using (var connection = factory.Create(DefaultConnectionStringName))
+			using (var existingConnection = factory.Create(DefaultConnectionStringName))
 			{
 				Assert.IsNotNull(connection);
 				Assert.IsNotNull(existingConnection);

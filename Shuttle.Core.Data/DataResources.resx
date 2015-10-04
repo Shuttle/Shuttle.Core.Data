@@ -121,29 +121,17 @@
     <value>A new '{0}' QueryBuilder implementation could not be returned from the factory.</value>
     <comment>{0} = name of the builder requested</comment>
   </data>
-  <data name="DatabaseConnectionCreated" xml:space="preserve">
-    <value>DatabaseConnection created for connection name '{0}'.</value>
-    <comment>{0} = connection name</comment>
-  </data>
-  <data name="DbConnectionCreated" xml:space="preserve">
-    <value>DbConnection created for connection name '{0}'.</value>
-    <comment>{0} = connection name</comment>
-  </data>
-  <data name="DbConnectionOpened" xml:space="preserve">
-    <value>DbConnection opened for connection name '{0}'.</value>
-    <comment>{0} = connection name</comment>
+  <data name="VerboseDbConnectionOpened" xml:space="preserve">
+    <value>DbConnection opened to database '{0}'.</value>
+    <comment>{0} = database</comment>
   </data>
   <data name="DbConnectionOpenException" xml:space="preserve">
-    <value>DbConnection open failed for connection name '{0}': {1}</value>
-    <comment>{0} = connection name, {1} = exception message</comment>
-  </data>
-  <data name="DbProviderFactoryCached" xml:space="preserve">
-    <value>DbProviderFactory '{0}' has been cached.</value>
-    <comment>{0} = DbProviderFactory name</comment>
+    <value>DbConnection open failed for database '{0}': {1}</value>
+    <comment>{0} = database name, {1} = exception message</comment>
   </data>
   <data name="ExistingDatabaseConnectionReturned" xml:space="preserve">
-    <value>ExistingDatabaseConnection returned for connection name '{0}'.</value>
-    <comment>{0} = connection name</comment>
+    <value>ExistingDatabaseConnection returned for connection string name '{0}'.</value>
+    <comment>{0} = connection string name</comment>
   </data>
   <data name="DuplicateQueryFactory" xml:space="preserve">
     <value>Query factory for query data identifier '{0}' has already been registered.</value>
@@ -163,14 +151,22 @@
   </data>
   <data name="ThreadStaticDatabaseConnectionCacheMissingEntry" xml:space="preserve">
     <value>Attempt to retrieve non-existent connection name '{0}' from ThreadStaticDatabaseConnectionCache.</value>
-    <comment>{0} = connection name</comment>
+    <comment>{0} = connection string name</comment>
   </data>
   <data name="ConnectionStringApproved" xml:space="preserve">
     <value>Successfully opened connection string with name '{0}'.</value>
     <comment>{0} = the name of the connection</comment>
   </data>
-  <data name="DbConnectionAlreadyOpen" xml:space="preserve">
-    <value>DbConnection for connection name '{0}' is already open.</value>
-    <comment>{0} = connection name</comment>
+  <data name="VerboseDbConnectionAlreadyOpen" xml:space="preserve">
+    <value>DbConnection already open to database '{0}'.</value>
+    <comment>{0} = database</comment>
+  </data>
+  <data name="DbProviderFactoryCreateConnectionException" xml:space="preserve">
+    <value>Could not create a connection from provider factory '{0}'.</value>
+    <comment>{0} = provider name</comment>
+  </data>
+  <data name="VerboseDbConnectionCreated" xml:space="preserve">
+    <value>DbConnection opened to database '{0}' on data source '{1}'.</value>
+    <comment>{0} = database, {1} = data source</comment>
   </data>
 </root>

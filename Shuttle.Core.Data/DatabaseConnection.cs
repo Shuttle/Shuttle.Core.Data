@@ -6,55 +6,46 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseConnection : IDatabaseConnection
     {
-        private readonly DataSource _dataSource;
         private readonly IDbCommandFactory _dbCommandFactory;
-        private readonly IDatabaseConnectionCache _databaseConnectionCache;
         private readonly ILog _log;
 
         private bool disposed;
 
-        public DatabaseConnection(DataSource dataSource, IDbConnection connection, IDbCommandFactory dbCommandFactory, IDatabaseConnectionCache databaseConnectionCache)
+        public DatabaseConnection(IDbConnection dbConnection, IDbCommandFactory dbCommandFactory)
         {
-			Guard.AgainstNull(dataSource, "dataSource");
-			Guard.AgainstNull(connection, "connection");
+			Guard.AgainstNull(dbConnection, "dbConnection");
 			Guard.AgainstNull(dbCommandFactory, "dbCommandFactory");
-			Guard.AgainstNull(databaseConnectionCache, "databaseConnectionCache");
 
-            _dataSource = dataSource;
             _dbCommandFactory = dbCommandFactory;
-            _databaseConnectionCache = databaseConnectionCache;
 
-            Connection = connection;
+            Connection = dbConnection;
 
             _log = Log.For(this);
 
-            _log.Verbose(string.Format(DataResources.DbConnectionCreated, dataSource.Name));
-
             try
             {
-	            if (connection.State == ConnectionState.Closed)
+	            if (dbConnection.State == ConnectionState.Closed)
 	            {
 		            Connection.Open();
-					_log.Verbose(string.Format(DataResources.DbConnectionOpened, dataSource.Name));
+
+					_log.Verbose(string.Format(DataResources.VerboseDbConnectionOpened, dbConnection.Database));
 				}
 	            else
 	            {
-					_log.Verbose(string.Format(DataResources.DbConnectionAlreadyOpen, dataSource.Name));
+					_log.Verbose(string.Format(DataResources.VerboseDbConnectionAlreadyOpen, dbConnection.Database));
 	            }
             }
             catch (Exception ex)
             {
-                _log.Error(string.Format(DataResources.DbConnectionOpenException, dataSource.Name, ex.Message));
+                _log.Error(string.Format(DataResources.DbConnectionOpenException, dbConnection.Database, ex.Message));
 
                 throw;
             }
-
-            databaseConnectionCache.Add(dataSource, this);
         }
 
         public IDbCommand CreateCommandToExecute(IQuery query)
         {
-            var command = _dbCommandFactory.CreateCommandUsing(_dataSource, Connection, query);
+            var command = _dbCommandFactory.CreateCommandUsing(Connection, query);
             command.Transaction = Transaction;
             return command;
         }
@@ -109,7 +100,6 @@ namespace Shuttle.Core.Data
                     Transaction.Rollback();
                 }
                 Connection.Dispose();
-                _databaseConnectionCache.Remove(_dataSource);
             }
 
             Connection = null;

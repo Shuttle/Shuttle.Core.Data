@@ -9,27 +9,16 @@ namespace Shuttle.Core.Data
 {
 	public class DatabaseGateway : IDatabaseGateway
 	{
-		private readonly IDatabaseConnectionCache _databaseConnectionCache;
-
 		private readonly ILog _log;
 
-		public static IDatabaseGateway Default()
+		public DatabaseGateway()
 		{
-			return new DatabaseGateway(new ThreadStaticDatabaseConnectionCache());
-		}
-
-		public DatabaseGateway(IDatabaseConnectionCache databaseConnectionCache)
-		{
-			Guard.AgainstNull(databaseConnectionCache, "databaseConnectionCache");
-
-			_databaseConnectionCache = databaseConnectionCache;
-
 			_log = Log.For(this);
 		}
 
-		public DataTable GetDataTableFor(DataSource dataSource, IQuery query)
+		public DataTable GetDataTableFor(IDatabaseConnection connection, IQuery query)
 		{
-			using (var reader = GetReaderUsing(dataSource, query))
+			using (var reader = GetReaderUsing(connection, query))
 			{
 				var results = new DataTable();
 
@@ -54,14 +43,14 @@ namespace Shuttle.Core.Data
 			_log.Trace(string.Format("{0} {1}", command.CommandText, parameters));
 		}
 
-		public IEnumerable<DataRow> GetRowsUsing(DataSource source, IQuery query)
+		public IEnumerable<DataRow> GetRowsUsing(IDatabaseConnection connection, IQuery query)
 		{
-			return GetDataTableFor(source, query).Rows.Cast<DataRow>();
+			return GetDataTableFor(connection, query).Rows.Cast<DataRow>();
 		}
 
-		public DataRow GetSingleRowUsing(DataSource source, IQuery query)
+		public DataRow GetSingleRowUsing(IDatabaseConnection connection, IQuery query)
 		{
-			var table = GetDataTableFor(source, query);
+			var table = GetDataTableFor(connection, query);
 
 			if ((table == null) || (table.Rows.Count == 0))
 			{
@@ -71,9 +60,9 @@ namespace Shuttle.Core.Data
 			return table.Rows[0];
 		}
 
-		public IDataReader GetReaderUsing(DataSource source, IQuery query)
+		public IDataReader GetReaderUsing(IDatabaseConnection connection, IQuery query)
 		{
-			using (var command = _databaseConnectionCache.Get(source).CreateCommandToExecute(query))
+			using (var command = connection.CreateCommandToExecute(query))
 			{
 				if (Log.IsTraceEnabled)
 				{
@@ -84,9 +73,9 @@ namespace Shuttle.Core.Data
 			}
 		}
 
-		public int ExecuteUsing(DataSource source, IQuery query)
+		public int ExecuteUsing(IDatabaseConnection connection, IQuery query)
 		{
-			using (var command = _databaseConnectionCache.Get(source).CreateCommandToExecute(query))
+			using (var command = connection.CreateCommandToExecute(query))
 			{
 				if (Log.IsTraceEnabled)
 				{
@@ -97,9 +86,9 @@ namespace Shuttle.Core.Data
 			}
 		}
 
-		public T GetScalarUsing<T>(DataSource source, IQuery query)
+		public T GetScalarUsing<T>(IDatabaseConnection connection, IQuery query)
 		{
-			using (var command = _databaseConnectionCache.Get(source).CreateCommandToExecute(query))
+			using (var command = connection.CreateCommandToExecute(query))
 			{
 				if (Log.IsTraceEnabled)
 				{

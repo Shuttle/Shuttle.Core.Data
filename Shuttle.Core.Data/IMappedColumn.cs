@@ -12,6 +12,6 @@ namespace Shuttle.Core.Data
 		string FlattenedColumnName();
 		object RetrieveRawValueFrom(DataRow row);
 		bool IsNullFor(DataRow row);
-		IDbDataParameter CreateDataParameter(IDbDataParameterFactory factory, object value);
+		IDbDataParameter CreateDataParameter(IDbCommand command, object value);
 	}
 }

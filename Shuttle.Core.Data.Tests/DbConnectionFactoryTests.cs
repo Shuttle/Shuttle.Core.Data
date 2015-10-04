@@ -8,9 +8,9 @@ namespace Shuttle.Core.Data.Tests
 		[Test]
 		public void Should_be_able_to_create_a_valid_connection()
 		{
-			var factory = DbConnectionFactory.Default();
+			var factory = new DbConnectionFactory();
 
-			using (var connection = factory.CreateConnection(DefaultDataSource()))
+			using (var connection = factory.CreateConnection(DefaultProviderName, DefaultConnectionString))
 			{
 				Assert.IsNotNull(connection);
 			}

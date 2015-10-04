@@ -10,7 +10,7 @@ namespace Shuttle.Core.Data.Tests
 		[Test]
 		public void Should_be_able_to_create_a_command()
 		{
-			var dataSource = DefaultDataSource();
+			var dataSource = DefaultConnectionStringName;
 			var factory = new DbCommandFactory();
 			var connection = new Mock<IDbConnection>();
 			var query = new Mock<IQuery>();
@@ -19,9 +19,9 @@ namespace Shuttle.Core.Data.Tests
 			command.SetupSet(m=>m.CommandTimeout = 15).Verifiable("CommandTimeout not set to 15");
 
 			connection.Setup(m => m.CreateCommand()).Returns(command.Object);
-			query.Setup(m => m.Prepare(dataSource, command.Object));
+			query.Setup(m => m.Prepare(command.Object));
 
-			var result = factory.CreateCommandUsing(dataSource, connection.Object, query.Object);
+			var result = factory.CreateCommandUsing(connection.Object, query.Object);
 
 			connection.VerifyAll();
 			query.VerifyAll();

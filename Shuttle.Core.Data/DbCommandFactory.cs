@@ -7,12 +7,12 @@ namespace Shuttle.Core.Data
     {
 		private static readonly int commandTimeout = ConfigurationItem<int>.ReadSetting("Shuttle.Core.Data.DbCommandFactory.CommandTimeout", 15).GetValue();
 
-        public IDbCommand CreateCommandUsing(DataSource source, IDbConnection connection, IQuery query)
+        public IDbCommand CreateCommandUsing(IDbConnection connection, IQuery query)
         {
             var command = connection.CreateCommand();
 
         	command.CommandTimeout = commandTimeout;
-            query.Prepare(source, command);
+            query.Prepare(command);
 
             return command;
         }

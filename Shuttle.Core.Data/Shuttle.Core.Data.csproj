@@ -67,7 +67,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionStringService.cs" />
-    <Compile Include="DataSource.cs" />
     <Compile Include="DatabaseConnection.cs" />
     <Compile Include="DataRepository.cs" />
     <Compile Include="IConnectionStringService.cs" />
@@ -86,27 +85,19 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DataResources.resx</DependentUpon>
     </Compile>
-    <Compile Include="SqlDbDataParameterFactory.cs" />
-    <Compile Include="ThreadStaticDatabaseConnectionCache.cs" />
     <Compile Include="DatabaseConnectionFactory.cs" />
     <Compile Include="DatabaseGateway.cs" />
     <Compile Include="DbCommandFactory.cs" />
-    <Compile Include="DbConnectionConfiguration.cs" />
-    <Compile Include="DbConnectionConfigurationProvider.cs" />
     <Compile Include="DbConnectionFactory.cs" />
     <Compile Include="IDatabaseConnection.cs" />
-    <Compile Include="IDatabaseConnectionCache.cs" />
     <Compile Include="IDatabaseConnectionFactory.cs" />
     <Compile Include="IDatabaseGateway.cs" />
     <Compile Include="IDataRepository.cs" />
     <Compile Include="IDbCommandFactory.cs" />
     <Compile Include="IDbConnectionConfiguration.cs" />
-    <Compile Include="IDbConnectionConfigurationProvider.cs" />
     <Compile Include="IDbConnectionFactory.cs" />
-    <Compile Include="IDbDataParameterFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MappedColumn.cs" />
-    <Compile Include="ExistingDatabaseConnection.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="DataResources.resx">

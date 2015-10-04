@@ -47,7 +47,7 @@ namespace Shuttle.Core.Data
 
 		private void GetUnderlyingSystemType()
 		{
-			underlyingSystemType = Nullable.GetUnderlyingType(typeof (T)) ?? typeof (T);
+			underlyingSystemType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
 		}
 
 		public T MapFrom(DataRow row)
@@ -55,8 +55,8 @@ namespace Shuttle.Core.Data
 			if (row.Table.Columns.Contains(ColumnName))
 			{
 				return (row.IsNull(ColumnName)
-					        ? default(T)
-					        : (T) Convert.ChangeType(RetrieveRawValueFrom(row), underlyingSystemType));
+							? default(T)
+							: (T)Convert.ChangeType(RetrieveRawValueFrom(row), underlyingSystemType));
 			}
 
 			return default(T);
@@ -69,8 +69,8 @@ namespace Shuttle.Core.Data
 			if (ordinal > -1)
 			{
 				return (record.IsDBNull(ordinal)
-					        ? default(T)
-					        : (T) Convert.ChangeType(RetrieveRawValueFrom(record), underlyingSystemType));
+							? default(T)
+							: (T)Convert.ChangeType(RetrieveRawValueFrom(record), underlyingSystemType));
 			}
 
 			return default(T);
@@ -108,22 +108,35 @@ namespace Shuttle.Core.Data
 			return row.IsNull(ColumnName);
 		}
 
-		public IDbDataParameter CreateDataParameter(IDbDataParameterFactory factory, object value)
+		public IDbDataParameter CreateDataParameter(IDbCommand command, object value)
 		{
-			return Size.HasValue
-				       ? factory.Create(FlattenedColumnName(), DbType, Size.Value, value)
-				       : (Precision.HasValue
-					          ? factory.Create(FlattenedColumnName(), DbType, Precision.Value, Scale ?? 0, value)
-					          : factory.Create(FlattenedColumnName(), DbType, value));
+			var result = command.CreateParameter();
+
+			result.ParameterName = FlattenedColumnName();
+			result.DbType = DbType;
+
+			if (Size.HasValue)
+			{
+				result.Size = Size.Value;
+			}
+
+			if (Precision.HasValue)
+			{
+				result.Precision = Precision.Value;
+			}
+
+			result.Scale = Scale ?? 0;
+
+			return result;
 		}
 
 		public MappedColumn<T> Rename(string name)
 		{
 			return Size.HasValue
-				       ? new MappedColumn<T>(name, DbType, Size.Value)
-				       : Precision.HasValue
-					         ? new MappedColumn<T>(name, DbType, Precision.Value, Scale ?? 0)
-					         : new MappedColumn<T>(name, DbType);
+					   ? new MappedColumn<T>(name, DbType, Size.Value)
+					   : Precision.HasValue
+							 ? new MappedColumn<T>(name, DbType, Precision.Value, Scale ?? 0)
+							 : new MappedColumn<T>(name, DbType);
 		}
 	}
 }

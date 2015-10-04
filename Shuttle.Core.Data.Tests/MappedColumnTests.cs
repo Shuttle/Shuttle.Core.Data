@@ -51,9 +51,9 @@ namespace Shuttle.Core.Data.Tests
 
 			var guid = Guid.NewGuid();
 
-			var factory = new Mock<IDbDataParameterFactory>();
+			var factory = new Mock<IDbCommand>();
 
-			factory.Setup(m => m.Create(It.IsAny<string>(), It.IsAny<DbType>(), guid)).Returns(parameter.Object);
+			factory.Setup(m => m.CreateParameter()).Returns(parameter.Object);
 
 			var result = mcGuid.CreateDataParameter(factory.Object, guid);
 
@@ -62,8 +62,8 @@ namespace Shuttle.Core.Data.Tests
 
 			var mcString = new MappedColumn<string>(columnName, DbType.AnsiString, 65);
 
-			factory = new Mock<IDbDataParameterFactory>();
-			factory.Setup(m => m.Create(It.IsAny<string>(), It.IsAny<DbType>(), 65, "a-string")).Returns(parameter.Object);
+			factory = new Mock<IDbCommand>();
+			factory.Setup(m => m.CreateParameter()).Returns(parameter.Object);
 
 			result = mcString.CreateDataParameter(factory.Object, "a-string");
 
@@ -72,8 +72,8 @@ namespace Shuttle.Core.Data.Tests
 
 			var mcDouble = new MappedColumn<decimal>(columnName, DbType.Decimal, 10, 2);
 
-			factory = new Mock<IDbDataParameterFactory>();
-			factory.Setup(m => m.Create(It.IsAny<string>(), It.IsAny<DbType>(), 10, 2, 150.15d)).Returns(parameter.Object);
+			factory = new Mock<IDbCommand>();
+			factory.Setup(m => m.CreateParameter()).Returns(parameter.Object);
 
 			result = mcDouble.CreateDataParameter(factory.Object, 150.15d);
 

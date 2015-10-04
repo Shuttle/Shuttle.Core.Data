@@ -1,24 +1,22 @@
+using System;
+using System.Configuration;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Core.Data
 {
 	public class DatabaseConnectionFactory : IDatabaseConnectionFactory
 	{
-		private readonly IDatabaseConnectionCache _databaseConnectionCache;
 		private readonly IDbCommandFactory _dbCommandFactory;
 		private readonly IDbConnectionFactory _dbConnectionFactory;
 
 	    private readonly ILog _log;
 
-		public DatabaseConnectionFactory(IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory,
-		                                 IDatabaseConnectionCache databaseConnectionCache)
+		public DatabaseConnectionFactory(IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory)
 		{
 			Guard.AgainstNull(dbConnectionFactory, "dbConnectionFactory");
 			Guard.AgainstNull(dbCommandFactory, "dbCommandFactory");
-			Guard.AgainstNull(databaseConnectionCache, "databaseConnectionCache");
 
 			_dbConnectionFactory = dbConnectionFactory;
-			_databaseConnectionCache = databaseConnectionCache;
 			_dbCommandFactory = dbCommandFactory;
 
 		    _log = Log.For(this);
@@ -26,25 +24,24 @@ namespace Shuttle.Core.Data
 
 		public static IDatabaseConnectionFactory Default()
 		{
-			return new DatabaseConnectionFactory(DbConnectionFactory.Default(), new DbCommandFactory(), new ThreadStaticDatabaseConnectionCache());
+			return new DatabaseConnectionFactory(new DbConnectionFactory(), new DbCommandFactory());
 		}
 
-	    public IDatabaseConnection Create(DataSource source)
+	    public IDatabaseConnection Create(string connectionStringName)
 		{
-			if (_databaseConnectionCache.Contains(source))
+			var settings = ConfigurationManager.ConnectionStrings[connectionStringName];
+
+			if (settings == null)
 			{
-				var existingDatabaseConnection = new ExistingDatabaseConnection(_databaseConnectionCache.Get(source));
-
-				_log.Verbose(string.Format(DataResources.ExistingDatabaseConnectionReturned, source.Name));
-
-				return existingDatabaseConnection;
+				throw new InvalidOperationException(string.Format(DataResources.ConnectionStringMissing, connectionStringName));
 			}
 
-			var databaseConnection = new DatabaseConnection(source, _dbConnectionFactory.CreateConnection(source), _dbCommandFactory, _databaseConnectionCache);
+			return Create(settings.ProviderName, settings.ConnectionString);
+		}
 
-			_log.Verbose(string.Format(DataResources.DatabaseConnectionCreated, source.Name));
-
-			return databaseConnection;
+		public IDatabaseConnection Create(string providerName, string connectionString)
+		{
+			return new DatabaseConnection(_dbConnectionFactory.CreateConnection(providerName, connectionString), _dbCommandFactory);
 		}
 	}
 }
