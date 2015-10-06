@@ -16,9 +16,9 @@ namespace Shuttle.Core.Data
 			_log = Log.For(this);
 		}
 
-		public DataTable GetDataTableFor(IDatabaseConnection connection, IQuery query)
+		public DataTable GetDataTableFor(IQuery query)
 		{
-			using (var reader = GetReaderUsing(connection, query))
+			using (var reader = GetReaderUsing(query))
 			{
 				var results = new DataTable();
 
@@ -43,14 +43,14 @@ namespace Shuttle.Core.Data
 			_log.Trace(string.Format("{0} {1}", command.CommandText, parameters));
 		}
 
-		public IEnumerable<DataRow> GetRowsUsing(IDatabaseConnection connection, IQuery query)
+		public IEnumerable<DataRow> GetRowsUsing(IQuery query)
 		{
-			return GetDataTableFor(connection, query).Rows.Cast<DataRow>();
+			return GetDataTableFor(query).Rows.Cast<DataRow>();
 		}
 
-		public DataRow GetSingleRowUsing(IDatabaseConnection connection, IQuery query)
+		public DataRow GetSingleRowUsing(IQuery query)
 		{
-			var table = GetDataTableFor(connection, query);
+			var table = GetDataTableFor(query);
 
 			if ((table == null) || (table.Rows.Count == 0))
 			{
@@ -60,9 +60,9 @@ namespace Shuttle.Core.Data
 			return table.Rows[0];
 		}
 
-		public IDataReader GetReaderUsing(IDatabaseConnection connection, IQuery query)
+		public IDataReader GetReaderUsing(IQuery query)
 		{
-			using (var command = connection.CreateCommandToExecute(query))
+			using (var command = DatabaseContext.Current.CreateCommandToExecute(query))
 			{
 				if (Log.IsTraceEnabled)
 				{
@@ -73,9 +73,9 @@ namespace Shuttle.Core.Data
 			}
 		}
 
-		public int ExecuteUsing(IDatabaseConnection connection, IQuery query)
+		public int ExecuteUsing(IQuery query)
 		{
-			using (var command = connection.CreateCommandToExecute(query))
+			using (var command = DatabaseContext.Current.CreateCommandToExecute(query))
 			{
 				if (Log.IsTraceEnabled)
 				{
@@ -86,9 +86,9 @@ namespace Shuttle.Core.Data
 			}
 		}
 
-		public T GetScalarUsing<T>(IDatabaseConnection connection, IQuery query)
+		public T GetScalarUsing<T>(IQuery query)
 		{
-			using (var command = connection.CreateCommandToExecute(query))
+			using (var command = DatabaseContext.Current.CreateCommandToExecute(query))
 			{
 				if (Log.IsTraceEnabled)
 				{

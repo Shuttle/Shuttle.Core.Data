@@ -3,7 +3,6 @@ using System.Data;
 using System.Linq;
 using Moq;
 using NUnit.Framework;
-using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Core.Data.Tests
 {
@@ -20,13 +19,9 @@ namespace Shuttle.Core.Data.Tests
 
 			var gateway = new DatabaseGateway();
 
-			var log = new Mock<ILog>();
-
-			log.Setup(m => m.IsTraceEnabled).Returns(true);
-
-			using (Log.AssignTransient(log.Object))
+			using (GetDatabaseContext(command))
 			{
-				var table = gateway.GetDataTableFor(GetDatabaseConnection(), query.Object);
+				var table = gateway.GetDataTableFor(query.Object);
 
 				Assert.IsNotNull(table);
 				Assert.AreEqual(2, table.Rows.Count);
@@ -46,13 +41,9 @@ namespace Shuttle.Core.Data.Tests
 
 			var gateway = new DatabaseGateway();
 
-			var log = new Mock<ILog>();
-
-			log.Setup(m => m.IsTraceEnabled).Returns(true);
-
-			using (Log.AssignTransient(log.Object))
+			using (GetDatabaseContext(command))
 			{
-				var rows = gateway.GetRowsUsing(GetDatabaseConnection(), query.Object).ToList();
+				var rows = gateway.GetRowsUsing(query.Object).ToList();
 
 				Assert.IsNotNull(rows);
 				Assert.AreEqual(2, rows.Count());
@@ -71,13 +62,9 @@ namespace Shuttle.Core.Data.Tests
 
 			var gateway = new DatabaseGateway();
 
-			var log = new Mock<ILog>();
-
-			log.Setup(m => m.IsTraceEnabled).Returns(true);
-
-			using (Log.AssignTransient(log.Object))
+			using (GetDatabaseContext(command))
 			{
-				var row = gateway.GetSingleRowUsing(GetDatabaseConnection(), query.Object);
+				var row = gateway.GetSingleRowUsing(query.Object);
 
 				Assert.IsNotNull(row);
 				Assert.AreEqual("row-1", row[0]);
@@ -94,13 +81,9 @@ namespace Shuttle.Core.Data.Tests
 
 			var gateway = new DatabaseGateway();
 
-			var log = new Mock<ILog>();
-
-			log.Setup(m => m.IsTraceEnabled).Returns(true);
-
-			using (Log.AssignTransient(log.Object))
+			using (GetDatabaseContext(command))
 			{
-				Assert.IsNull(gateway.GetSingleRowUsing(GetDatabaseConnection(), query.Object));
+				Assert.IsNull(gateway.GetSingleRowUsing(query.Object));
 			}
 		}
 
@@ -114,13 +97,9 @@ namespace Shuttle.Core.Data.Tests
 
 			var gateway = new DatabaseGateway();
 
-			var log = new Mock<ILog>();
-
-			log.Setup(m => m.IsTraceEnabled).Returns(true);
-
-			using (Log.AssignTransient(log.Object))
+			using (GetDatabaseContext(command))
 			{
-				var result = gateway.ExecuteUsing(GetDatabaseConnection(), query.Object);
+				var result = gateway.ExecuteUsing(query.Object);
 
 				Assert.IsNotNull(result);
 				Assert.AreEqual(1, result);
@@ -137,13 +116,9 @@ namespace Shuttle.Core.Data.Tests
 
 			var gateway = new DatabaseGateway();
 
-			var log = new Mock<ILog>();
-
-			log.Setup(m => m.IsTraceEnabled).Returns(true);
-
-			using (Log.AssignTransient(log.Object))
+			using (GetDatabaseContext(command))
 			{
-				var result = gateway.GetScalarUsing<int>(GetDatabaseConnection(), query.Object);
+				var result = gateway.GetScalarUsing<int>(query.Object);
 
 				Assert.IsNotNull(result);
 				Assert.AreEqual(10, result);
@@ -173,7 +148,7 @@ namespace Shuttle.Core.Data.Tests
 			dataParameter.Setup(m => m.ParameterName).Returns("some-parameter");
 			dataParameter.Setup(m => m.Value).Returns("some-value");
 			dataParameterCollection.Setup(m => m.GetEnumerator())
-			                       .Returns(new List<IDataParameter> {dataParameter.Object}.GetEnumerator());
+				.Returns(new List<IDataParameter> {dataParameter.Object}.GetEnumerator());
 
 			dbCommand.Setup(m => m.CommandType).Returns(CommandType.Text);
 			dbCommand.Setup(m => m.CommandText).Returns("some-sql");

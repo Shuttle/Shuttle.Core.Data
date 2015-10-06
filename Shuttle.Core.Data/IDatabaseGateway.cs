@@ -5,11 +5,11 @@ namespace Shuttle.Core.Data
 {
     public interface IDatabaseGateway
     {
-        IDataReader GetReaderUsing(IDatabaseConnection connection, IQuery query);
-		int ExecuteUsing(IDatabaseConnection connection, IQuery query);
-		T GetScalarUsing<T>(IDatabaseConnection connection, IQuery query);
-		DataTable GetDataTableFor(IDatabaseConnection connection, IQuery query);
-		IEnumerable<DataRow> GetRowsUsing(IDatabaseConnection connection, IQuery query);
-		DataRow GetSingleRowUsing(IDatabaseConnection connection, IQuery query);
+        IDataReader GetReaderUsing(IQuery query);
+		int ExecuteUsing(IQuery query);
+		T GetScalarUsing<T>(IQuery query);
+		DataTable GetDataTableFor(IQuery query);
+		IEnumerable<DataRow> GetRowsUsing(IQuery query);
+		DataRow GetSingleRowUsing(IQuery query);
     }
 }

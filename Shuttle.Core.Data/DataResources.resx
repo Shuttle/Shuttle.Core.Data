@@ -117,10 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CouldNotCreateQueryBuilder" xml:space="preserve">
-    <value>A new '{0}' QueryBuilder implementation could not be returned from the factory.</value>
-    <comment>{0} = name of the builder requested</comment>
-  </data>
   <data name="VerboseDbConnectionOpened" xml:space="preserve">
     <value>DbConnection opened to database '{0}'.</value>
     <comment>{0} = database</comment>
@@ -128,10 +124,6 @@
   <data name="DbConnectionOpenException" xml:space="preserve">
     <value>DbConnection open failed for database '{0}': {1}</value>
     <comment>{0} = database name, {1} = exception message</comment>
-  </data>
-  <data name="ExistingDatabaseConnectionReturned" xml:space="preserve">
-    <value>ExistingDatabaseConnection returned for connection string name '{0}'.</value>
-    <comment>{0} = connection string name</comment>
   </data>
   <data name="DuplicateQueryFactory" xml:space="preserve">
     <value>Query factory for query data identifier '{0}' has already been registered.</value>
@@ -149,10 +141,6 @@
     <value>The required connection string with name '{0}' is not specified in the application configuration file.</value>
     <comment>{0} = connection string name</comment>
   </data>
-  <data name="ThreadStaticDatabaseConnectionCacheMissingEntry" xml:space="preserve">
-    <value>Attempt to retrieve non-existent connection name '{0}' from ThreadStaticDatabaseConnectionCache.</value>
-    <comment>{0} = connection string name</comment>
-  </data>
   <data name="ConnectionStringApproved" xml:space="preserve">
     <value>Successfully opened connection string with name '{0}'.</value>
     <comment>{0} = the name of the connection</comment>
@@ -168,5 +156,37 @@
   <data name="VerboseDbConnectionCreated" xml:space="preserve">
     <value>DbConnection opened to database '{0}' on data source '{1}'.</value>
     <comment>{0} = database, {1} = data source</comment>
+  </data>
+  <data name="ConnectionStringApproveException" xml:space="preserve">
+    <value>DbConnection open failed for connection string name '{0}': {1}</value>
+    <comment>{0} = connection string name, {1} = exception message</comment>
+  </data>
+  <data name="DatabaseContextNameNotFoundException" xml:space="preserve">
+    <value>Attempt to retrieve non-existent database context with name '{0}'.</value>
+    <comment>{0} = database context name</comment>
+  </data>
+  <data name="DatabaseContextStoreMissingException" xml:space="preserve">
+    <value>No `IDatabaseContextCache` implementation has been assigned to the `DatabaseContext`.</value>
+  </data>
+  <data name="CurrentDatabaseContextNotFoundException" xml:space="preserve">
+    <value>There is not current database context.</value>
+  </data>
+  <data name="AddCurrentKeyDatabaseContextException" xml:space="preserve">
+    <value>You may not add a database context with a name of '__current' as that name is used to key the currently selected database context.</value>
+  </data>
+  <data name="DatabaseContextKeyNotFoundException" xml:space="preserve">
+    <value>Attempt to retrieve non-existent database context with key '{0}'.</value>
+    <comment>{0} = database context key</comment>
+  </data>
+  <data name="ConnectionStringHiddenValue" xml:space="preserve">
+    <value>[hidden]</value>
+  </data>
+  <data name="DuplicateDatabaseContextKeyException" xml:space="preserve">
+    <value>There is already a database context with key '{0}' in the IDatabaseContextCache.</value>
+    <comment>{0} = database context name</comment>
+  </data>
+  <data name="DatabaseContextConnectionStringNotFoundException" xml:space="preserve">
+    <value>Attempt to retrieve non-existent database context with connection string '{0}'.</value>
+    <comment>{0} = connection string (secured)</comment>
   </data>
 </root>

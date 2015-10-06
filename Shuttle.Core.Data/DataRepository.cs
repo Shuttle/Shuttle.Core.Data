@@ -18,33 +18,33 @@ namespace Shuttle.Core.Data
 			_dataRowMapper = dataRowMapper;
 		}
 
-		public IEnumerable<T> FetchAllUsing(IDatabaseConnection connection, IQuery query)
+		public IEnumerable<T> FetchAllUsing(IQuery query)
 		{
-			return _databaseGateway.GetRowsUsing(connection, query).MappedRowsUsing(_dataRowMapper).Select(row => row.Result).ToList();
+			return _databaseGateway.GetRowsUsing(query).MappedRowsUsing(_dataRowMapper).Select(row => row.Result).ToList();
 		}
 
-		public T FetchItemUsing(IDatabaseConnection connection, IQuery query)
+		public T FetchItemUsing(IQuery query)
 		{
-			var row = _databaseGateway.GetSingleRowUsing(connection, query);
+			var row = _databaseGateway.GetSingleRowUsing(query);
 
 			return row == null ? default(T) : _dataRowMapper.Map(row).Result;
 		}
 
-		public MappedRow<T> FetchMappedRowUsing(IDatabaseConnection connection, IQuery query)
+		public MappedRow<T> FetchMappedRowUsing(IQuery query)
 		{
-			var row = _databaseGateway.GetSingleRowUsing(connection, query);
+			var row = _databaseGateway.GetSingleRowUsing(query);
 
 			return row == null ? null : _dataRowMapper.Map(row);
 		}
 
-		public IEnumerable<MappedRow<T>> FetchMappedRowsUsing(IDatabaseConnection connection, IQuery query)
+		public IEnumerable<MappedRow<T>> FetchMappedRowsUsing(IQuery query)
 		{
-			return _databaseGateway.GetRowsUsing(connection, query).MappedRowsUsing(_dataRowMapper);
+			return _databaseGateway.GetRowsUsing(query).MappedRowsUsing(_dataRowMapper);
 		}
 
-		public bool Contains(IDatabaseConnection connection, IQuery query)
+		public bool Contains(IQuery query)
 		{
-			return (_databaseGateway.GetScalarUsing<int>(connection, query) == 1);
+			return (_databaseGateway.GetScalarUsing<int>(query) == 1);
 		}
 	}
 }

@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System.Data;
+using Moq;
+using NUnit.Framework;
 
 namespace Shuttle.Core.Data.Tests
 {
@@ -9,9 +11,18 @@ namespace Shuttle.Core.Data.Tests
 		protected static string DefaultProviderName = "System.Data.SqlClient";
 		protected static string DefaultConnectionString = "Data Source=.;Initial Catalog=Shuttle;Integrated Security=SSPI";
 
-	    protected IDatabaseConnection GetDatabaseConnection()
+	    protected IDatabaseContext GetDatabaseContext()
 		{
-			return new DatabaseConnectionFactory(new DbConnectionFactory(), new DbCommandFactory()).Create(DefaultConnectionStringName);
+			return new DatabaseContextFactory(new DbConnectionFactory(), new DbCommandFactory(), new ThreadStaticDatabaseContextCache()).Create(DefaultConnectionStringName);
 		}
+
+	    protected IDatabaseContext GetDatabaseContext(Mock<IDbCommand> command)
+	    {
+		    var commandFactory = new Mock<IDbCommandFactory>();
+
+		    commandFactory.Setup(m => m.CreateCommandUsing(It.IsAny<IDbConnection>(), It.IsAny<IQuery>())).Returns(command.Object);
+
+			return new DatabaseContextFactory(new DbConnectionFactory(), commandFactory.Object, new ThreadStaticDatabaseContextCache()).Create(DefaultConnectionStringName);
+	    }
     }
 }

@@ -67,9 +67,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionStringService.cs" />
-    <Compile Include="DatabaseConnection.cs" />
+    <Compile Include="DatabaseContext.cs" />
+    <Compile Include="ThreadStaticDatabaseContextCache.cs" />
+    <Compile Include="DatabaseContextCollection.cs" />
+    <Compile Include="DatabaseContextCacheItem.cs" />
     <Compile Include="DataRepository.cs" />
+    <Compile Include="Extensions\DbConnectionExtensions.cs" />
     <Compile Include="IConnectionStringService.cs" />
+    <Compile Include="IDatabaseContextCache.cs" />
     <Compile Include="IMappedColumn.cs" />
     <Compile Include="IQuery.cs" />
     <Compile Include="RawQuery.cs" />
@@ -85,12 +90,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DataResources.resx</DependentUpon>
     </Compile>
-    <Compile Include="DatabaseConnectionFactory.cs" />
+    <Compile Include="DatabaseContextFactory.cs" />
     <Compile Include="DatabaseGateway.cs" />
     <Compile Include="DbCommandFactory.cs" />
     <Compile Include="DbConnectionFactory.cs" />
-    <Compile Include="IDatabaseConnection.cs" />
-    <Compile Include="IDatabaseConnectionFactory.cs" />
+    <Compile Include="IDatabaseContext.cs" />
+    <Compile Include="IDatabaseContextFactory.cs" />
     <Compile Include="IDatabaseGateway.cs" />
     <Compile Include="IDataRepository.cs" />
     <Compile Include="IDbCommandFactory.cs" />

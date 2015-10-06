@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Data.SqlClient;
 using Moq;
 using NUnit.Framework;
 
@@ -35,6 +36,7 @@ namespace Shuttle.Core.Data.Tests
 			command.SetupGet(m => m.Parameters).Returns(dataParameterCollection.Object);
 			command.SetupSet(m => m.CommandText = sql).Verifiable();
 			command.SetupSet(m => m.CommandType = CommandType.Text).Verifiable();
+			command.Setup(m => m.CreateParameter()).Returns(new SqlParameter());
 
 			query.Prepare(command.Object);
 

@@ -41,7 +41,7 @@ namespace Shuttle.Core.Data
                 }
                 catch (Exception ex)
                 {
-                    var message = string.Format(DataResources.DbConnectionOpenException, settings.Name, ex.Message);
+					var message = string.Format(DataResources.ConnectionStringApproveException, settings.Name, ex.Message);
 
                     _log.Error(message);
 

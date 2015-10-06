@@ -5,13 +5,23 @@ namespace Shuttle.Core.Data
 {
     public class DbCommandFactory : IDbCommandFactory
     {
-		private static readonly int commandTimeout = ConfigurationItem<int>.ReadSetting("Shuttle.Core.Data.DbCommandFactory.CommandTimeout", 15).GetValue();
+		private readonly int _commandTimeout = 15;
 
-        public IDbCommand CreateCommandUsing(IDbConnection connection, IQuery query)
+	    public DbCommandFactory()
+			: this(ConfigurationItem<int>.ReadSetting("Shuttle.Core.Data.DbCommandFactory.CommandTimeout", 15).GetValue())
+	    {
+	    }
+
+	    private DbCommandFactory(int commandTimeout)
+	    {
+		    _commandTimeout = commandTimeout;
+	    }
+
+	    public IDbCommand CreateCommandUsing(IDbConnection connection, IQuery query)
         {
             var command = connection.CreateCommand();
 
-        	command.CommandTimeout = commandTimeout;
+        	command.CommandTimeout = _commandTimeout;
             query.Prepare(command);
 
             return command;

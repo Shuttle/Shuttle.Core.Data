@@ -112,8 +112,9 @@ namespace Shuttle.Core.Data
 		{
 			var result = command.CreateParameter();
 
-			result.ParameterName = FlattenedColumnName();
+			result.ParameterName = string.Concat("@", FlattenedColumnName());
 			result.DbType = DbType;
+			result.Value = value;
 
 			if (Size.HasValue)
 			{

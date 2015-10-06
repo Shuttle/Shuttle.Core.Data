@@ -52,8 +52,8 @@
   <ItemGroup>
     <Compile Include="AssemblerExtensionsTests.cs" />
     <Compile Include="ConnectionStringServiceTests.cs" />
-    <Compile Include="DatabaseConnectionFactoryTests.cs" />
-    <Compile Include="DatabaseConnectionTests.cs" />
+    <Compile Include="DatabaseContextFactoryTests.cs" />
+    <Compile Include="DatabaseContextTests.cs" />
     <Compile Include="DatabaseGatewayTests.cs" />
     <Compile Include="DataRepositoryTests.cs" />
     <Compile Include="DbCommandFactoryTests.cs" />
