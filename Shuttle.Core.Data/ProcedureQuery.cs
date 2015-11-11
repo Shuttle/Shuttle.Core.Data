@@ -35,7 +35,7 @@ namespace Shuttle.Core.Data
             return this;
         }
 
-        public static IQuery Create(string procedure)
+        public static IQueryParemeter Create(string procedure)
         {
             return new ProcedureQuery(procedure);
         }

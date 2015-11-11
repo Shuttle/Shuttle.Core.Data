@@ -6,13 +6,13 @@ namespace Shuttle.Core.Data
 {
 	public class RawQuery : IQueryParemeter
 	{
-		private readonly Dictionary<IMappedColumn, object> parameterValues;
+		private readonly Dictionary<IMappedColumn, object> _parameterValues;
 		private readonly string sql;
 
 		public RawQuery(string sql)
 		{
 			this.sql = sql;
-			parameterValues = new Dictionary<IMappedColumn, object>();
+			_parameterValues = new Dictionary<IMappedColumn, object>();
 		}
 
 		public void Prepare(IDbCommand command)
@@ -22,7 +22,7 @@ namespace Shuttle.Core.Data
 			command.CommandText = sql;
 			command.CommandType = CommandType.Text;
 
-			foreach (var pair in parameterValues)
+			foreach (var pair in _parameterValues)
 			{
 				command.Parameters.Add(pair.Key.CreateDataParameter(command, pair.Value));
 			}
@@ -30,12 +30,12 @@ namespace Shuttle.Core.Data
 
 		public IQuery AddParameterValue(IMappedColumn column, object value)
 		{
-			parameterValues.Add(column, value);
+			_parameterValues.Add(column, value);
 
 			return this;
 		}
 
-		public static IQuery Create(string sql, params object[] args)
+        public static IQueryParemeter Create(string sql, params object[] args)
 		{
 			return new RawQuery(string.Format(sql, args));
 		}
