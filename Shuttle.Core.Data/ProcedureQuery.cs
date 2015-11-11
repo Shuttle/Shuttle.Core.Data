@@ -4,25 +4,25 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Core.Data
 {
-    public class ProcedureQuery : IQuery
+    public class ProcedureQuery : IQueryParemeter
     {
-        private readonly Dictionary<IMappedColumn, object> parameterValues;
-        private readonly string procedure;
+        private readonly Dictionary<IMappedColumn, object> _parameterValues;
+        private readonly string _procedure;
 
         public ProcedureQuery(string procedure)
         {
-            this.procedure = procedure;
-            parameterValues = new Dictionary<IMappedColumn, object>();
+            _procedure = procedure;
+            _parameterValues = new Dictionary<IMappedColumn, object>();
         }
 
         public void Prepare(IDbCommand command)
         {
             Guard.AgainstNull(command, "command");
 
-            command.CommandText = procedure;
+            command.CommandText = _procedure;
             command.CommandType = CommandType.StoredProcedure;
 
-            foreach (var pair in parameterValues)
+            foreach (var pair in _parameterValues)
             {
                 command.Parameters.Add(pair.Key.CreateDataParameter(command, pair.Value));
             }
@@ -30,7 +30,7 @@ namespace Shuttle.Core.Data
 
 	    public IQuery AddParameterValue(IMappedColumn column, object value)
         {
-            parameterValues.Add(column, value);
+            _parameterValues.Add(column, value);
 
             return this;
         }

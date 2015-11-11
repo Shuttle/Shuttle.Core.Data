@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionStringService.cs" />
+    <Compile Include="IQueryParemeter.cs" />
     <Compile Include="DatabaseContext.cs" />
     <Compile Include="ThreadStaticDatabaseContextCache.cs" />
     <Compile Include="DatabaseContextCollection.cs" />
