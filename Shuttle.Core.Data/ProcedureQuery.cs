@@ -28,7 +28,7 @@ namespace Shuttle.Core.Data
             }
         }
 
-	    public IQuery AddParameterValue(IMappedColumn column, object value)
+        public IQueryParemeter AddParameterValue(IMappedColumn column, object value)
         {
             _parameterValues.Add(column, value);
 
