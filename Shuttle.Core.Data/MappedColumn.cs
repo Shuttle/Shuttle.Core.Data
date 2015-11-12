@@ -11,7 +11,7 @@ namespace Shuttle.Core.Data
 		public byte? Precision { get; protected set; }
 		public byte? Scale { get; protected set; }
 
-		private Type underlyingSystemType;
+		private Type _underlyingSystemType;
 
 		public MappedColumn(string columnName, DbType type)
 			: this(columnName, type, null)
@@ -47,7 +47,7 @@ namespace Shuttle.Core.Data
 
 		private void GetUnderlyingSystemType()
 		{
-			underlyingSystemType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+			_underlyingSystemType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
 		}
 
 		public T MapFrom(DataRow row)
@@ -56,7 +56,7 @@ namespace Shuttle.Core.Data
 			{
 				return (row.IsNull(ColumnName)
 							? default(T)
-							: (T)Convert.ChangeType(RetrieveRawValueFrom(row), underlyingSystemType));
+							: (T)Convert.ChangeType(RetrieveRawValueFrom(row), _underlyingSystemType));
 			}
 
 			return default(T);
@@ -70,7 +70,7 @@ namespace Shuttle.Core.Data
 			{
 				return (record.IsDBNull(ordinal)
 							? default(T)
-							: (T)Convert.ChangeType(RetrieveRawValueFrom(record), underlyingSystemType));
+							: (T)Convert.ChangeType(RetrieveRawValueFrom(record), _underlyingSystemType));
 			}
 
 			return default(T);
@@ -114,7 +114,7 @@ namespace Shuttle.Core.Data
 
 			result.ParameterName = string.Concat("@", FlattenedColumnName());
 			result.DbType = DbType;
-			result.Value = value;
+			result.Value = value ?? DBNull.Value;
 
 			if (Size.HasValue)
 			{
