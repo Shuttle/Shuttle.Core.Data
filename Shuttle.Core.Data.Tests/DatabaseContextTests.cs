@@ -10,22 +10,28 @@ namespace Shuttle.Core.Data.Tests
 	public class DatabaseContextTests : Fixture
 	{
 		[Test]
-		[ExpectedException(typeof (ArgumentException))]
 		public void Should_not_be_able_to_create_an_invalid_connection()
 		{
-			using (new DatabaseContext(new SqlConnection("~~~"), new Mock<IDbCommandFactory>().Object))
-			{
-			}
+		    Assert.Throws<ArgumentException>(() =>
+		    {
+		        using (new DatabaseContext(new SqlConnection("~~~"), new Mock<IDbCommandFactory>().Object))
+		        {
+		        }
+		    });
 		}
 
 		[Test]
-		[ExpectedException(typeof (SqlException))]
 		public void Should_not_be_able_to_create_a_non_existent_connection()
 		{
-			using (new DatabaseContext(new SqlConnection("data source=.;initial catalog=idontexist;integrated security=sspi"),
-				new Mock<IDbCommandFactory>().Object))
-			{
-			}
+		    Assert.Throws<SqlException>(() =>
+		    {
+		        using (
+		            new DatabaseContext(
+		                new SqlConnection("data source=.;initial catalog=idontexist;integrated security=sspi"),
+		                new Mock<IDbCommandFactory>().Object))
+		        {
+		        }
+		    });
 		}
 
 		[Test]

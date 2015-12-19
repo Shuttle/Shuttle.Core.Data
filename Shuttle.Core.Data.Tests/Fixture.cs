@@ -9,7 +9,7 @@ namespace Shuttle.Core.Data.Tests
     {
 	    protected static string DefaultConnectionStringName = "Shuttle";
 		protected static string DefaultProviderName = "System.Data.SqlClient";
-		protected static string DefaultConnectionString = "Data Source=.;Initial Catalog=Shuttle;Integrated Security=SSPI";
+		protected static string DefaultConnectionString = "Data Source=.\\sqlexpress;Initial Catalog=Shuttle;Integrated Security=SSPI";
 
 	    protected IDatabaseContext GetDatabaseContext()
 		{
