@@ -5,7 +5,7 @@ namespace Shuttle.Core.Data
 {
     public class DbCommandFactory : IDbCommandFactory
     {
-		private readonly int _commandTimeout = 15;
+		private readonly int _commandTimeout;
 
 	    public DbCommandFactory()
 			: this(ConfigurationItem<int>.ReadSetting("Shuttle.Core.Data.DbCommandFactory.CommandTimeout", 15).GetValue())
