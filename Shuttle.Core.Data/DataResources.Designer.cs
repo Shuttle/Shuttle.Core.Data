@@ -124,6 +124,15 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to IDatabaseContextFactory instance of type &apos;{0}&apos; has not been configured.  Cannot call &apos;Create()&apos; directly..
+        /// </summary>
+        public static string DatabaseContextFactoryNotConfiguredException {
+            get {
+                return ResourceManager.GetString("DatabaseContextFactoryNotConfiguredException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Attempt to retrieve non-existent database context with key &apos;{0}&apos;..
         /// </summary>
         public static string DatabaseContextKeyNotFoundException {

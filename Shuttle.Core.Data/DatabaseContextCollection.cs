@@ -4,6 +4,5 @@ namespace Shuttle.Core.Data
 {
 	public class DatabaseContextCollection : List<IDatabaseContext>
 	{
-		 
 	}
 }

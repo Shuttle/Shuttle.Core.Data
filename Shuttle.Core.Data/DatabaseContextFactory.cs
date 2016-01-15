@@ -5,11 +5,16 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Core.Data
 {
-	public class DatabaseContextFactory : IDatabaseContextFactory
+	public class DatabaseContextFactory : IDatabaseContextFactory, IConfiguredDatabaseContextFactory
 	{
 		private readonly IDbCommandFactory _dbCommandFactory;
 		private readonly IDatabaseContextCache _databaseContextCache;
 		private readonly IDbConnectionFactory _dbConnectionFactory;
+
+		private string _connectionStringName = null;
+		private string _providerName = null;
+		private string _connectionString = null;
+		private IDbConnection _dbConnection = null;
 
 		public DatabaseContextFactory(IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory, IDatabaseContextCache databaseContextCache)
 		{
@@ -56,6 +61,56 @@ namespace Shuttle.Core.Data
 			return _databaseContextCache.Contains(dbConnection.ConnectionString)
 				? _databaseContextCache.Get(dbConnection.ConnectionString).Suppressed()
 				: new DatabaseContext(dbConnection, _dbCommandFactory);
+		}
+
+		public IDatabaseContext Create()
+		{
+			if (!string.IsNullOrEmpty(_connectionStringName))
+			{
+				return Create(_connectionStringName);
+			}
+
+			if (!string.IsNullOrEmpty(_providerName) && !string.IsNullOrEmpty(_connectionString))
+			{
+				return Create(_providerName, _connectionString);
+			}
+
+			if (_dbConnection != null)
+			{
+				return Create(_dbConnection);
+			}
+
+			throw new InvalidOperationException(string.Format(DataResources.DatabaseContextFactoryNotConfiguredException, GetType().FullName));
+		}
+
+		public void ConfigureWith(string connectionStringName)
+		{
+			ClearConfiguredValues();
+
+			_connectionStringName = connectionStringName;
+		}
+
+		private void ClearConfiguredValues()
+		{
+			_connectionStringName = null;
+			_providerName = null;
+			_connectionString = null;
+			_dbConnection = null;
+		}
+
+		public void ConfigureWith(string providerName, string connectionString)
+		{
+			ClearConfiguredValues();
+
+			_providerName = providerName;
+			_connectionString = connectionString;
+		}
+
+		public void ConfigureWith(IDbConnection dbConnection)
+		{
+			ClearConfiguredValues();
+
+			_dbConnection = dbConnection;
 		}
 	}
 }

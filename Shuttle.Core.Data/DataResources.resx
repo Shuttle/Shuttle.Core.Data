@@ -192,4 +192,8 @@
   <data name="DatabaseContextMissing" xml:space="preserve">
     <value>There is no active database context.  Use the database context factory to create a context.</value>
   </data>
+  <data name="DatabaseContextFactoryNotConfiguredException" xml:space="preserve">
+    <value>IDatabaseContextFactory instance of type '{0}' has not been configured.  Cannot call 'Create()' directly.</value>
+    <comment>{0} = full type name of IDatabaseContextFactory instance</comment>
+  </data>
 </root>
