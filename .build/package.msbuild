@@ -1,7 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Deploy" ToolsVersion="4.0">
 	<PropertyGroup>
 		<DeploymentFolder>deployment</DeploymentFolder>
-		<NuGetExecutablePath>..\.nuget\nuget.exe</NuGetExecutablePath>
 		<PackageAssembly>Shuttle.Core.Data</PackageAssembly>
 		<PackageName>shuttle-core-data</PackageName>
 	</PropertyGroup>
@@ -33,14 +32,8 @@
 		<RegexFindAndReplace Files="@(AssemblyInfoFiles)" FindExpression="AssemblyVersion\s*\(\s*&quot;.*&quot;\s*\)" ReplacementText="AssemblyVersion(&quot;$(SemanticVersion).0&quot;)" />
 	</Target>
 
-	<Target Name="Deploy" DependsOnTargets="SemanticVersion">
-		<MSBuild
-				Projects="$(MSBuildProjectFile)"
-				Targets="Package"
-				Properties="SemanticVersion=$(SemanticVersion)"
-        />
-
-		<Exec Command="$(NuGetExecutablePath) push $(DeploymentFolder)\nuget\$(PackageName).$(SemanticVersion).nupkg" Condition="$(Operation) != 'pack-only'" />
+	<Target Name="Deploy" DependsOnTargets="Package">
+		<Exec Command="nuget push $(DeploymentFolder)\nuget\$(PackageName).$(SemanticVersion).nupkg" Condition="$(Operation) != 'pack-only'" />
 		<Exec Command="git commit -a -m &quot;- v$(SemanticVersion)&quot;" />
 		<Exec Command="git push" />
 	</Target>
@@ -62,7 +55,7 @@
 		<RegexFindAndReplace Files="$(DeploymentFolder)\nuget\package.nuspec" FindExpression="\{year\}" ReplacementText="$([System.DateTime]::Now.ToString(`yyyy`))" />
 		<SetNugetPackageVersions Files="$(DeploymentFolder)\nuget\package.nuspec" PackageFolder="..\packages" />
 
-		<Exec Command="$(NuGetExecutablePath) pack $(DeploymentFolder)\nuget\package.nuspec -OutputDirectory $(DeploymentFolder)\nuget -NoPackageAnalysis" />
+		<Exec Command="nuget pack $(DeploymentFolder)\nuget\package.nuspec -OutputDirectory $(DeploymentFolder)\nuget -NoPackageAnalysis" />
 
 		<MakeDir Directories="$(NugetPackageSourceFolder)" Condition="$(NugetPackageSourceFolder) != ''" />
 

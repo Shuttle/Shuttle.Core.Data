@@ -9,7 +9,7 @@
 		<projectUrl>https://github.com/shuttle/shuttle-core-data</projectUrl>
 		<iconUrl>https://raw.githubusercontent.com/Shuttle/shuttle-core-data/master/.media/logo.png</iconUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<description>Provides a very thin abstraction over ADO.NET.</description>
+		<description>Provides an abstraction over ADO.NET.</description>
 		<releaseNotes/>
 		<copyright>Copyright (c) {year}, Eben Roux</copyright>
 		<tags>shuttle shuttle-core orm</tags>

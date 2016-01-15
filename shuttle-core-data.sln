@@ -6,8 +6,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{D264EAD6-5A94-4CF2-BEA6-6404AA462662}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7BCCD618-42EB-48FC-812B-62D262A7919E}"
@@ -45,3 +43,4 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
+
