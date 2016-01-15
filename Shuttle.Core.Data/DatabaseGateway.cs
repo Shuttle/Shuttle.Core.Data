@@ -62,7 +62,7 @@ namespace Shuttle.Core.Data
 
 		public IDataReader GetReaderUsing(IQuery query)
 		{
-			using (var command = DatabaseContext.Current.CreateCommandToExecute(query))
+			using (var command = GuardedDatabaseContext().CreateCommandToExecute(query))
 			{
 				if (Log.IsTraceEnabled)
 				{
@@ -71,6 +71,18 @@ namespace Shuttle.Core.Data
 
 				return command.ExecuteReader();
 			}
+		}
+
+		private static IDatabaseContext GuardedDatabaseContext()
+		{
+			var result = DatabaseContext.Current;
+
+			if (result == null)
+			{
+				throw new InvalidOperationException(DataResources.DatabaseContextMissing);
+			}
+
+			return result;
 		}
 
 		public int ExecuteUsing(IQuery query)
