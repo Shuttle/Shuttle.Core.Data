@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<DeploymentFolder>deployment</DeploymentFolder>
 		<PackageAssembly>Shuttle.Core.Data</PackageAssembly>
-		<PackageName>shuttle-core-data</PackageName>
+		<PackageName>Shuttle.Core.Data</PackageName>
 	</PropertyGroup>
 
 	<Import Project="Shuttle.Core.MSBuild.targets" />

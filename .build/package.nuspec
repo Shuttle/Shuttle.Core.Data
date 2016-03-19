@@ -1,20 +1,20 @@
 <?xml version="1.0"?>
 <package >
 	<metadata>
-		<id>shuttle-core-data</id>
+		<id>Shuttle.Core.Data</id>
 		<version>{semver}</version>
 		<authors>Eben Roux</authors>
 		<owners>Eben Roux</owners>
-		<licenseUrl>https://github.com/shuttle/shuttle-core-data/raw/master/LICENSE</licenseUrl>
-		<projectUrl>https://github.com/shuttle/shuttle-core-data</projectUrl>
-		<iconUrl>https://raw.githubusercontent.com/Shuttle/shuttle-core-data/master/.media/logo.png</iconUrl>
+		<licenseUrl>https://github.com/shuttle/Shuttle.Core.Data/raw/master/LICENSE</licenseUrl>
+		<projectUrl>https://github.com/shuttle/Shuttle.Core.Data</projectUrl>
+		<iconUrl>https://raw.githubusercontent.com/Shuttle/Shuttle.Core.Data/master/.media/logo.png</iconUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Provides an abstraction over ADO.NET.</description>
 		<releaseNotes/>
 		<copyright>Copyright (c) {year}, Eben Roux</copyright>
 		<tags>shuttle shuttle-core orm</tags>
 		<dependencies>
-			<dependency id="shuttle-core-infrastructure" version="{shuttle-core-infrastructure-version}" />
+			<dependency id="Shuttle.Core.Infrastructure" version="{Shuttle.Core.Infrastructure-version}" />
 		</dependencies>
 	</metadata>
 </package>
