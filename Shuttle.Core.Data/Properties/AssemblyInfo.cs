@@ -25,10 +25,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("Shuttle.Core.Data for .NET Framework 4.6.1")]
 #endif
 
-[assembly: AssemblyVersion("3.2.18.0")]
+[assembly: AssemblyVersion("3.2.19.0")]
 [assembly: AssemblyCopyright("Copyright © Eben Roux 2016")]
 [assembly: AssemblyProduct("Shuttle.Core")]
 [assembly: AssemblyCompany("Shuttle")]
 [assembly: AssemblyConfiguration("Release")]
-[assembly: AssemblyInformationalVersion("3.2.18")]
+[assembly: AssemblyInformationalVersion("3.2.19")]
 [assembly: ComVisible(false)]
