@@ -1,4 +1,4 @@
 Shuttle.Core.Data
 =================
 
-Provides a very thin abstraction over ADO.NET.
+Provides a thin abstraction over ADO.NET.
