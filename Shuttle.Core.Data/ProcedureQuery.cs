@@ -4,7 +4,7 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Core.Data
 {
-    public class ProcedureQuery : IQueryParemeter
+    public class ProcedureQuery : IQueryParameter
     {
         private readonly Dictionary<IMappedColumn, object> _parameterValues;
         private readonly string _procedure;
@@ -28,14 +28,14 @@ namespace Shuttle.Core.Data
             }
         }
 
-        public IQueryParemeter AddParameterValue(IMappedColumn column, object value)
+        public IQueryParameter AddParameterValue(IMappedColumn column, object value)
         {
             _parameterValues.Add(column, value);
 
             return this;
         }
 
-        public static IQueryParemeter Create(string procedure)
+        public static IQueryParameter Create(string procedure)
         {
             return new ProcedureQuery(procedure);
         }

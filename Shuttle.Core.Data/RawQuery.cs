@@ -4,7 +4,7 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Core.Data
 {
-	public class RawQuery : IQueryParemeter
+	public class RawQuery : IQueryParameter
 	{
 		private readonly Dictionary<IMappedColumn, object> _parameterValues;
 		private readonly string sql;
@@ -28,14 +28,14 @@ namespace Shuttle.Core.Data
 			}
 		}
 
-        public IQueryParemeter AddParameterValue(IMappedColumn column, object value)
+        public IQueryParameter AddParameterValue(IMappedColumn column, object value)
 		{
 			_parameterValues.Add(column, value);
 
 			return this;
 		}
 
-        public static IQueryParemeter Create(string sql, params object[] args)
+        public static IQueryParameter Create(string sql, params object[] args)
 		{
 			return new RawQuery(string.Format(sql, args));
 		}
