@@ -2,7 +2,7 @@
 
 namespace Shuttle.Core.Data
 {
-	public interface IConfiguredDatabaseContextFactory
+	public interface IConfiguredDatabaseContextFactory : IDatabaseContextFactory
 	{
 		IDatabaseContext Create();
 
