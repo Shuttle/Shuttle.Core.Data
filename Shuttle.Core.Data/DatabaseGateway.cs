@@ -87,7 +87,7 @@ namespace Shuttle.Core.Data
 
 		public int ExecuteUsing(IQuery query)
 		{
-			using (var command = DatabaseContext.Current.CreateCommandToExecute(query))
+			using (var command = GuardedDatabaseContext().CreateCommandToExecute(query))
 			{
 				if (Log.IsTraceEnabled)
 				{
@@ -100,7 +100,7 @@ namespace Shuttle.Core.Data
 
 		public T GetScalarUsing<T>(IQuery query)
 		{
-			using (var command = DatabaseContext.Current.CreateCommandToExecute(query))
+			using (var command = GuardedDatabaseContext().CreateCommandToExecute(query))
 			{
 				if (Log.IsTraceEnabled)
 				{
