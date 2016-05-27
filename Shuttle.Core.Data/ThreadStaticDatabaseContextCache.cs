@@ -4,7 +4,7 @@ namespace Shuttle.Core.Data
 {
 	public class ThreadStaticDatabaseContextCache : IDatabaseContextCache
 	{
-		[ThreadStatic] private static DatabaseContextCacheItem _cache;
+		[ThreadStatic] private static DatabaseContextCache _cache;
 
 		public IDatabaseContext Current
 		{
@@ -42,9 +42,9 @@ namespace Shuttle.Core.Data
 			return GuardedCache().Get(connectionString);
 		}
 
-		private static DatabaseContextCacheItem GuardedCache()
+		private static DatabaseContextCache GuardedCache()
 		{
-			return _cache ?? (_cache = new DatabaseContextCacheItem());
+			return _cache ?? (_cache = new DatabaseContextCache());
 		}
 	}
 }

@@ -3,7 +3,7 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Core.Data
 {
-	public class DatabaseContextCacheItem : IDatabaseContextCache
+	public class DatabaseContextCache : IDatabaseContextCache
 	{
 		public IDatabaseContext Current { get; private set; }
 
@@ -80,7 +80,7 @@ namespace Shuttle.Core.Data
 
 		public DatabaseContextCollection DatabaseContexts { get; private set; }
 
-		public DatabaseContextCacheItem()
+		public DatabaseContextCache()
 		{
 			Current = null;
 			DatabaseContexts = new DatabaseContextCollection();

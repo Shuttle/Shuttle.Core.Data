@@ -80,7 +80,7 @@
     <Compile Include="DatabaseContext.cs" />
     <Compile Include="ThreadStaticDatabaseContextCache.cs" />
     <Compile Include="DatabaseContextCollection.cs" />
-    <Compile Include="DatabaseContextCacheItem.cs" />
+    <Compile Include="DatabaseContextCache.cs" />
     <Compile Include="DataRepository.cs" />
     <Compile Include="Extensions\DbConnectionExtensions.cs" />
     <Compile Include="IConnectionStringService.cs" />
