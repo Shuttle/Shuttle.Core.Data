@@ -75,7 +75,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionStringService.cs" />
-    <Compile Include="IConfiguredDatabaseContextFactory.cs" />
     <Compile Include="IQueryParameter.cs" />
     <Compile Include="DatabaseContext.cs" />
     <Compile Include="ThreadStaticDatabaseContextCache.cs" />

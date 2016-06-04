@@ -5,7 +5,7 @@ using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Core.Data
 {
-    public class DatabaseContextFactory : IConfiguredDatabaseContextFactory
+    public class DatabaseContextFactory : IDatabaseContextFactory
     {
         private string _connectionString;
         private string _connectionStringName;
