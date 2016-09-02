@@ -72,6 +72,8 @@
     <Compile Include="MappedDataTests.cs" />
     <Compile Include="ProcedureQueryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QueryMapper\BasicMapping.cs" />
+    <Compile Include="QueryMapper\QueryMapperFixture.cs" />
     <Compile Include="RawQueryTests.cs" />
     <Compile Include="Fakes\Order.cs" />
     <Compile Include="Fakes\OrderAssembler.cs" />

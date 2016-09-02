@@ -75,6 +75,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionStringService.cs" />
+    <Compile Include="QueryMapper.cs" />
+    <Compile Include="IQueryMapper.cs" />
     <Compile Include="IQueryParameter.cs" />
     <Compile Include="DatabaseContext.cs" />
     <Compile Include="ThreadStaticDatabaseContextCache.cs" />
