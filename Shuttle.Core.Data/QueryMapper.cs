@@ -31,15 +31,15 @@ namespace Shuttle.Core.Data
 
             foreach (PropertyInfo pi in type.GetProperties())
             {
-                var value = row[pi.Name];
-
-                if (value == null)
-                {
-                    continue;
-                }
-
                 try
                 {
+                    var value = row.Table.Columns.Contains(pi.Name) ? row[pi.Name] : null;
+
+                    if (value == null)
+                    {
+                        continue;
+                    }
+
                     pi.SetValue(result, value, null);
                 }
                 catch
