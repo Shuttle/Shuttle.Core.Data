@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using NUnit.Framework;
 
 namespace Shuttle.Core.Data.Tests
@@ -77,6 +78,34 @@ from
                 var mappedRows = mapper.MapRows<BasicMapping>(queryRows);
 
                 Assert.AreEqual(2, mappedRows.Count());
+            }
+        }
+
+        [Test]
+        public void Should_be_able_to_do_value_mapping()
+        {
+            var mapper = new QueryMapper(new DatabaseGateway());
+
+            var queryRow = RawQuery.Create(@"
+select top 1
+    Id
+from
+    BasicMapping
+");
+
+            var queryRows = RawQuery.Create(@"
+select
+    Id
+from
+    BasicMapping
+");
+
+            using (GetDatabaseContext())
+            {
+                var value = mapper.MapValue<Guid>(queryRow);
+                var values = mapper.MapValues<Guid>(queryRows);
+
+                Assert.AreEqual(2, values.Count());
             }
         }
     }

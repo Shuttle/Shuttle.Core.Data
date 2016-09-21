@@ -8,5 +8,7 @@ namespace Shuttle.Core.Data
         IEnumerable<MappedRow<T>> MapRows<T>(IQuery query) where T : new();
         T MapObject<T>(IQuery query) where T : new();
         IEnumerable<T> MapObjects<T>(IQuery query) where T : new();
+        T MapValue<T>(IQuery query);
+        IEnumerable<T> MapValues<T>(IQuery query);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
@@ -19,6 +20,8 @@ namespace Shuttle.Core.Data
 
         public MappedRow<T> MapRow<T>(IQuery query) where T : new()
         {
+            Guard.AgainstNull(query, "query");
+
             var row = _databaseGateway.GetSingleRowUsing(query);
 
             return new MappedRow<T>(row, Map<T>(row));
@@ -52,17 +55,46 @@ namespace Shuttle.Core.Data
 
         public IEnumerable<MappedRow<T>> MapRows<T>(IQuery query) where T : new()
         {
+            Guard.AgainstNull(query, "query");
+
             return _databaseGateway.GetRowsUsing(query).Select(row => new MappedRow<T>(row, Map<T>(row)));
         }
 
         public T MapObject<T>(IQuery query) where T : new()
         {
+            Guard.AgainstNull(query, "query");
+
             return Map<T>(_databaseGateway.GetSingleRowUsing(query));
         }
 
         public IEnumerable<T> MapObjects<T>(IQuery query) where T : new()
         {
+            Guard.AgainstNull(query, "query");
+
             return _databaseGateway.GetRowsUsing(query).Select(row => Map<T>(row));
+        }
+
+        public T MapValue<T>(IQuery query)
+        {
+            Guard.AgainstNull(query, "query");
+
+            return MapRowValue<T>(_databaseGateway.GetSingleRowUsing(query));
+        }
+
+        public IEnumerable<T> MapValues<T>(IQuery query)
+        {
+            Guard.AgainstNull(query, "query");
+
+            return _databaseGateway.GetRowsUsing(query).Select(row => MapRowValue<T>(row));
+        }
+
+        private T MapRowValue<T>(DataRow row)
+        {
+            var underlyingSystemType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+
+            return row[0] == null
+                        ? default(T)
+                        : (T)Convert.ChangeType(row[0], underlyingSystemType);
         }
     }
 }
