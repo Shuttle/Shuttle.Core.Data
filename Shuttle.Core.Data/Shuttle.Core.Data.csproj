@@ -75,10 +75,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConnectionStringService.cs" />
+    <Compile Include="IScriptProvider.cs" />
+    <Compile Include="IScriptProviderConfiguration.cs" />
     <Compile Include="QueryMapper.cs" />
     <Compile Include="IQueryMapper.cs" />
     <Compile Include="IQueryParameter.cs" />
     <Compile Include="DatabaseContext.cs" />
+    <Compile Include="ScriptProvider.cs" />
+    <Compile Include="ScriptProviderConfiguration.cs" />
     <Compile Include="ThreadStaticDatabaseContextCache.cs" />
     <Compile Include="DatabaseContextCollection.cs" />
     <Compile Include="DatabaseContextCache.cs" />

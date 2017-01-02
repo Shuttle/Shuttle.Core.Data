@@ -196,4 +196,15 @@
     <value>IDatabaseContextFactory instance of type '{0}' has not been configured.  Cannot call 'Create()' directly.</value>
     <comment>{0} = full type name of IDatabaseContextFactory instance</comment>
   </data>
+  <data name="EmbeddedScriptMissingException" xml:space="preserve">
+    <value>Could not find embedded resource script for name '{0}' at path '{1}'.</value>
+    <comment>{0} = script file name, {1} = path to resource</comment>
+  </data>
+  <data name="ScriptCountException" xml:space="preserve">
+    <value>Directory '{0}' was searched (recursively) for script file '{1}'.  Exactly 1 file must exist in the directory structure but {2} were found.</value>
+    <comment>{0} = base folder where search started, {1} = script file name, {2} = number of matching files found</comment>
+  </data>
+  <data name="ResourceAssemblyMissingException" xml:space="preserve">
+    <value>The IScriptProviderConfiguration instance returned null for the ResourceAssembly.</value>
+  </data>
 </root>

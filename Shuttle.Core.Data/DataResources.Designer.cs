@@ -205,11 +205,38 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not find embedded resource script for name &apos;{0}&apos; at path &apos;{1}&apos;..
+        /// </summary>
+        public static string EmbeddedScriptMissingException {
+            get {
+                return ResourceManager.GetString("EmbeddedScriptMissingException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Query factory &apos;{0}&apos; has not been registered..
         /// </summary>
         public static string MissingQueryFactory {
             get {
                 return ResourceManager.GetString("MissingQueryFactory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The IScriptProviderConfiguration instance returned null for the ResourceAssembly..
+        /// </summary>
+        public static string ResourceAssemblyMissingException {
+            get {
+                return ResourceManager.GetString("ResourceAssemblyMissingException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Directory &apos;{0}&apos; was searched (recursively) for script file &apos;{1}&apos;.  Exactly 1 file must exist in the directory structure but {2} were found..
+        /// </summary>
+        public static string ScriptCountException {
+            get {
+                return ResourceManager.GetString("ScriptCountException", resourceCulture);
             }
         }
         

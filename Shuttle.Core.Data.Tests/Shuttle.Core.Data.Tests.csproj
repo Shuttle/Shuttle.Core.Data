@@ -78,6 +78,7 @@
     <Compile Include="Fakes\Order.cs" />
     <Compile Include="Fakes\OrderAssembler.cs" />
     <Compile Include="Fakes\OrderLine.cs" />
+    <Compile Include="ScriptProviderFixture.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Shuttle.Core.Data\Shuttle.Core.Data.csproj">
@@ -89,6 +90,13 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include=".scripts\file-script.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <EmbeddedResource Include=".scripts\System.Data.SqlClient\embedded-script.sql" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
