@@ -6,7 +6,7 @@ namespace Shuttle.Core.Data
 	{
 		IDatabaseContext Create(string connectionStringName);
 		IDatabaseContext Create(string providerName, string connectionString);
-		IDatabaseContext Create(IDbConnection dbConnection);
+		IDatabaseContext Create(string providerName, IDbConnection dbConnection);
         IDatabaseContext Create();
 
         void ConfigureWith(string connectionStringName);

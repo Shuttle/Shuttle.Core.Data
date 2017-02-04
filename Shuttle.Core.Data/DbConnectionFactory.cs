@@ -26,7 +26,10 @@ namespace Shuttle.Core.Data
 
 			connection.ConnectionString = connectionString;
 
-			_log.Verbose(string.Format(DataResources.VerboseDbConnectionCreated, connection.DataSource, connection.Database));
+            if (Log.IsVerboseEnabled)
+            {
+                _log.Verbose(string.Format(DataResources.VerboseDbConnectionCreated, connection.DataSource, connection.Database));
+            }
 
 			return connection;
 		}

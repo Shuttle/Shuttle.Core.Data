@@ -12,7 +12,7 @@ namespace Shuttle.Core.Data
         private static readonly object Padlock = new object();
 
         private readonly Dictionary<string, string> _scripts = new Dictionary<string, string>();
-        private string[] _emptyFiles = new string[0];
+        private readonly string[] _emptyFiles = new string[0];
 
         public ScriptProvider(IScriptProviderConfiguration configuration)
         {

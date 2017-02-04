@@ -43,17 +43,17 @@ namespace Shuttle.Core.Data
         {
             return DatabaseContextCache.Contains(connectionString)
                 ? DatabaseContextCache.Get(connectionString).Suppressed()
-                : new DatabaseContext(DbConnectionFactory.CreateConnection(providerName, connectionString),
+                : new DatabaseContext(providerName, DbConnectionFactory.CreateConnection(providerName, connectionString),
                     DbCommandFactory);
         }
 
-        public IDatabaseContext Create(IDbConnection dbConnection)
+        public IDatabaseContext Create(string providerName, IDbConnection dbConnection)
         {
             Guard.AgainstNull(dbConnection, "dbConnection");
 
             return DatabaseContextCache.Contains(dbConnection.ConnectionString)
                 ? DatabaseContextCache.Get(dbConnection.ConnectionString).Suppressed()
-                : new DatabaseContext(dbConnection, DbCommandFactory);
+                : new DatabaseContext(providerName, dbConnection, DbCommandFactory);
         }
 
         public IDbConnectionFactory DbConnectionFactory { get; private set; }
@@ -74,7 +74,7 @@ namespace Shuttle.Core.Data
 
             if (_dbConnection != null)
             {
-                return Create(_dbConnection);
+                return Create(_providerName, _dbConnection);
             }
 
             throw new InvalidOperationException(string.Format(

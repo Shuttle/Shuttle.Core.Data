@@ -13,12 +13,14 @@ namespace Shuttle.Core.Data
 	    public Guid Key { get; private set; }
 	    public string Name { get; private set; }
 		public IDbTransaction Transaction { get; private set; }
-		public IDbConnection Connection { get; private set; }
+        public string ProviderName { get; private set; }
+        public IDbConnection Connection { get; private set; }
 
 		private static IDatabaseContextCache _databaseContextCache;
 		
-	    public DatabaseContext(IDbConnection dbConnection, IDbCommandFactory dbCommandFactory)
+	    public DatabaseContext(string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory)
         {
+            Guard.AgainstNullOrEmptyString(providerName, "providerName");
 	        Guard.AgainstNull(dbConnection, "dbConnection");
 			Guard.AgainstNull(dbCommandFactory, "dbCommandFactory");
 
@@ -27,7 +29,8 @@ namespace Shuttle.Core.Data
 
 		    Key = Guid.NewGuid();
 
-            Connection = dbConnection;
+	        ProviderName = providerName;
+	        Connection = dbConnection;
 
             var log = Log.For(this);
 
@@ -63,7 +66,7 @@ namespace Shuttle.Core.Data
 
 	    public IDatabaseContext Suppressed()
 	    {
-			return new DatabaseContext(Connection, _dbCommandFactory)
+			return new DatabaseContext(ProviderName, Connection, _dbCommandFactory)
 			{
 				Transaction = Transaction,
 				_dispose = false
