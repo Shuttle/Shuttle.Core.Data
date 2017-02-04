@@ -13,6 +13,7 @@ namespace Shuttle.Core.Data
         IDbCommand CreateCommandToExecute(IQuery query);
 
         bool HasTransaction { get; }
+        string ProviderName { get; }
 
         IDatabaseContext BeginTransaction();
         IDatabaseContext BeginTransaction(IsolationLevel isolationLevel);
