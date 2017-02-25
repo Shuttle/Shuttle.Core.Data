@@ -1,17 +1,36 @@
 ﻿using System;
+using System.Data;
 using System.IO;
+using Moq;
 using NUnit.Framework;
 
 namespace Shuttle.Core.Data.Tests
 {
     public class ScriptProviderFixture : Fixture
     {
-        [Test]
+		[SetUp]
+	    public void SetupContext()
+		{
+			var cache = new Mock<IDatabaseContextCache>();
+
+			cache.Setup(m => m.Current).Returns(new Mock<IDatabaseContext>().Object);
+
+			DatabaseContext.Assign(cache.Object);
+		}
+
+	    [Test]
+	    public void Should_fail_when_there_is_no_ambient_database_context()
+	    {
+		    Assert.Throws<InvalidOperationException>(
+			    () => new ScriptProvider(new Mock<IScriptProviderConfiguration>().Object).Get("throw"));
+	    }
+
+	    [Test]
         public void Should_eb_able_to_retrieve_script_from_file()
-        {
-            var provider = new ScriptProvider(new ScriptProviderConfiguration
+	    {
+			var provider = new ScriptProvider(new ScriptProviderConfiguration
             {
-                FileNameFormat = "{0}.sql",
+                FileNameFormat = "{ScriptName}.sql",
                 ScriptFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @".\.scripts\")
             });
 
@@ -27,7 +46,7 @@ namespace Shuttle.Core.Data.Tests
             var provider = new ScriptProvider(new ScriptProviderConfiguration
             {
                 ResourceAssembly = GetType().Assembly,
-                ResourceNameFormat = "Shuttle.Core.Data.Tests..scripts.System.Data.SqlClient.{0}.sql"
+                ResourceNameFormat = "Shuttle.Core.Data.Tests..scripts.System.Data.SqlClient.{ScriptName}.sql"
             });
 
             var script = provider.Get("embedded-script");
@@ -44,7 +63,7 @@ namespace Shuttle.Core.Data.Tests
                 ResourceAssembly = GetType().Assembly
             });
 
-            Assert.Throws<InvalidOperationException>(() => provider.Get("missing-script"));
+            Assert.Throws<InvalidOperationException>(() => provider.Get("System.Data.SqlClient", "missing-script"));
         }
     }
 }

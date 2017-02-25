@@ -78,6 +78,7 @@
     <Compile Include="Fakes\Order.cs" />
     <Compile Include="Fakes\OrderAssembler.cs" />
     <Compile Include="Fakes\OrderLine.cs" />
+    <Compile Include="ScriptProviderFixture - Copy.cs" />
     <Compile Include="ScriptProviderFixture.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,99 +1,137 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using Shuttle.Core.Infrastructure;
 
 namespace Shuttle.Core.Data
 {
-    public class ScriptProvider : IScriptProvider
-    {
-        private readonly IScriptProviderConfiguration _configuration;
-        private static readonly object Padlock = new object();
+	public class ScriptProvider : IScriptProvider
+	{
+		private static readonly object Padlock = new object();
+		private readonly IScriptProviderConfiguration _configuration;
+		private readonly string[] _emptyFiles = new string[0];
 
-        private readonly Dictionary<string, string> _scripts = new Dictionary<string, string>();
-        private readonly string[] _emptyFiles = new string[0];
+		private readonly Dictionary<string, string> _scripts = new Dictionary<string, string>();
 
-        public ScriptProvider(IScriptProviderConfiguration configuration)
-        {
-            Guard.AgainstNull(configuration, "configuration");
+		public ScriptProvider(IScriptProviderConfiguration configuration)
+		{
+			Guard.AgainstNull(configuration, "configuration");
 
-            _configuration = configuration;
-        }
+			_configuration = configuration;
+		}
 
-        public string Get(string name)
-        {
-            return Get(name, null);
-        }
+		public string Get(string scriptName)
+		{
+			return Get(scriptName, null);
+		}
 
-        public string Get(string name, params object[] parameters)
-        {
-            lock (Padlock)
-            {
-                if (!_scripts.ContainsKey(name))
-                {
-                    AddScript(name);
-                }
+		public string Get(string scriptName, params object[] parameters)
+		{
+			Guard.AgainstNullOrEmptyString(scriptName, "scriptName");
 
-                return parameters != null
-                    ? string.Format(_scripts[name], parameters)
-                    : _scripts[name];
-            }
-        }
+			var key = Key(scriptName);
 
-        private void AddScript(string name)
-        {
-            lock (Padlock)
-            {
-                if (_scripts.ContainsKey(name))
-                {
-                    return;
-                }
+			lock (Padlock)
+			{
+				if (!_scripts.ContainsKey(key))
+				{
+					AddScript(scriptName);
+				}
 
-                var files = _emptyFiles;
+				return parameters != null
+					? string.Format(_scripts[key], parameters)
+					: _scripts[key];
+			}
+		}
 
-                if (!string.IsNullOrEmpty(_configuration.ScriptFolder) && Directory.Exists(_configuration.ScriptFolder))
-                {
-                    files = Directory.GetFiles(_configuration.ScriptFolder, string.Format(_configuration.FileNameFormat, name), SearchOption.AllDirectories);
-                }
+		private string Key(string scriptName)
+		{
+			DatabaseContextInvariant();
 
-                if (files.Length == 0)
-                {
-                    AddEmbeddedScript(name);
+			return string.Format("[{0}]-{1}", DatabaseContext.Current.ProviderName, scriptName);
+		}
 
-                    return;
-                }
+		private void AddScript(string scriptName)
+		{
+			var key = Key(scriptName);
 
-                if (files.Length > 1)
-                {
-                    throw new InvalidOperationException(string.Format(DataResources.ScriptCountException, _configuration.ScriptFolder, name, files.Length));
-                }
+			lock (Padlock)
+			{
+				if (_scripts.ContainsKey(key))
+				{
+					return;
+				}
 
-                _scripts.Add(name, File.ReadAllText(files[0]));
-            }
-        }
+				var files = _emptyFiles;
 
-        private void AddEmbeddedScript(string name)
-        {
-            if (_configuration.ResourceAssembly == null)
-            {
-                throw new InvalidOperationException(DataResources.ResourceAssemblyMissingException);
-            }
+				if (!string.IsNullOrEmpty(_configuration.ScriptFolder) && Directory.Exists(_configuration.ScriptFolder))
+				{
+					files = Directory.GetFiles(_configuration.ScriptFolder, FormattedFileName(scriptName), SearchOption.AllDirectories);
+				}
 
-            var path = _configuration.ResourceNameFormat != null ? string.Format(_configuration.ResourceNameFormat, name) : name;
+				if (files.Length == 0)
+				{
+					AddEmbeddedScript(scriptName);
 
-            using (var stream = _configuration.ResourceAssembly.GetManifestResourceStream(path))
-            {
-                if (stream == null)
-                {
-                    throw new InvalidOperationException(string.Format(DataResources.EmbeddedScriptMissingException, name, path));
-                }
+					return;
+				}
 
-                using (var reader = new StreamReader(stream))
-                {
-                    _scripts.Add(name, reader.ReadToEnd());
-                }
-            }
-        }
-    }
+				if (files.Length > 1)
+				{
+					throw new InvalidOperationException(string.Format(DataResources.ScriptCountException, _configuration.ScriptFolder,
+						scriptName, files.Length));
+				}
+
+				_scripts.Add(key, File.ReadAllText(files[0]));
+			}
+		}
+
+		private string FormattedFileName(string scriptName)
+		{
+			return FormattedScriptPath(_configuration.FileNameFormat, scriptName);
+		}
+
+		private string FormattedResourceName(string scriptName)
+		{
+			return FormattedScriptPath(_configuration.ResourceNameFormat, scriptName);
+		}
+
+		private string FormattedScriptPath(string format, string scriptName)
+		{
+			DatabaseContextInvariant();
+
+			return format.Replace("{ScriptName}", scriptName).Replace("{ProviderName}", DatabaseContext.Current.ProviderName);
+		}
+
+		private static void DatabaseContextInvariant()
+		{
+			if (DatabaseContext.Current == null)
+			{
+				throw new InvalidOperationException(DataResources.DatabaseContextMissing);
+			}
+		}
+
+		private void AddEmbeddedScript(string scriptName)
+		{
+			if (_configuration.ResourceAssembly == null)
+			{
+				throw new InvalidOperationException(DataResources.ResourceAssemblyMissingException);
+			}
+
+			var path = _configuration.ResourceNameFormat != null ? FormattedResourceName(scriptName) : scriptName;
+
+			using (var stream = _configuration.ResourceAssembly.GetManifestResourceStream(path))
+			{
+				if (stream == null)
+				{
+					throw new InvalidOperationException(string.Format(DataResources.EmbeddedScriptMissingException, scriptName, path));
+				}
+
+				using (var reader = new StreamReader(stream))
+				{
+					_scripts.Add(Key(scriptName), reader.ReadToEnd());
+				}
+			}
+		}
+	}
 }

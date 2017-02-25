@@ -205,6 +205,6 @@
     <comment>{0} = base folder where search started, {1} = script file name, {2} = number of matching files found</comment>
   </data>
   <data name="ResourceAssemblyMissingException" xml:space="preserve">
-    <value>The IScriptProviderConfiguration instance returned null for the ResourceAssembly.</value>
+    <value>The IScriptProviderConfiguration instance returned null for the ResourceAssembly.  No file could be found which is why an embedded resource is required.</value>
   </data>
 </root>

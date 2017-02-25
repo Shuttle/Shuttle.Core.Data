@@ -223,7 +223,7 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The IScriptProviderConfiguration instance returned null for the ResourceAssembly..
+        ///   Looks up a localized string similar to The IScriptProviderConfiguration instance returned null for the ResourceAssembly.  No file could be found which is why an embedded resource is required..
         /// </summary>
         public static string ResourceAssemblyMissingException {
             get {
