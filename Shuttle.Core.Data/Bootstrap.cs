@@ -8,9 +8,6 @@ namespace Shuttle.Core.Data
 		{
 			Guard.AgainstNull(registry, "registry");
 
-			registry.AttemptRegister<IScriptProviderConfiguration, ScriptProviderConfiguration>();
-			registry.AttemptRegister<IScriptProvider, ScriptProvider>();
-
 			registry.AttemptRegister<IDatabaseContextCache, ThreadStaticDatabaseContextCache>();
 			registry.AttemptRegister<IDatabaseContextFactory, DatabaseContextFactory>();
 			registry.AttemptRegister<IDbConnectionFactory, DbConnectionFactory>();
