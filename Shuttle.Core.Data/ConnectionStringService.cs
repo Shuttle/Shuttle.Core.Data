@@ -2,7 +2,8 @@ using System;
 using System.Configuration;
 using System.Data;
 using System.Data.Common;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Logging;
 
 namespace Shuttle.Core.Data
 {
@@ -10,12 +11,24 @@ namespace Shuttle.Core.Data
 	{
 	    private readonly ILog _log;
 
+#if (!NETCOREAPP2_0 && !NETSTANDARD2_0)
 	    public ConnectionStringService()
 	    {
-		    _log = Log.For(this);
+	        _log = Log.For(this);
 	    }
+#else
+	    private readonly IDbProviderFactories _providerFactories;
 
-	    public void Approve()
+	    public ConnectionStringService(IDbProviderFactories providerFactories)
+	    {
+            Guard.AgainstNull(providerFactories, nameof(providerFactories));
+
+	        _providerFactories = providerFactories;
+	        _log = Log.For(this);
+	    }
+#endif
+
+        public void Approve()
 	    {
 			Approve(ConfigurationManager.ConnectionStrings);
 	    }
@@ -26,9 +39,14 @@ namespace Shuttle.Core.Data
             {
                 try
                 {
-                    using (var connection = DbProviderFactories.GetFactory(settings.ProviderName).CreateConnection())
+#if (!NETCOREAPP2_0 && !NETSTANDARD2_0)
+                    var dbProviderFactory = DbProviderFactories.GetFactory(settings.ProviderName);
+#else
+        		    var dbProviderFactory = _providerFactories.GetFactory(settings.ProviderName);
+#endif
+                    using (var connection = dbProviderFactory.CreateConnection())
                     {
-						Guard.AgainstNull(connection, "connection");
+						Guard.AgainstNull(connection, nameof(connection));
 
 // ReSharper disable PossibleNullReferenceException
                         connection.ConnectionString = settings.ConnectionString;
@@ -37,11 +55,11 @@ namespace Shuttle.Core.Data
                         connection.Open();
                     }
 
-					_log.Information(string.Format(DataResources.ConnectionStringApproved, settings.Name));
+					_log.Information(string.Format(Resources.ConnectionStringApproved, settings.Name));
                 }
                 catch (Exception ex)
                 {
-					var message = string.Format(DataResources.ConnectionStringApproveException, settings.Name, ex.Message);
+					var message = string.Format(Resources.ConnectionStringApproveException, settings.Name, ex.Message);
 
                     _log.Error(message);
 

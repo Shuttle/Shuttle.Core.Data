@@ -1,13 +1,13 @@
 ﻿using System.Data;
 using System.Data.Common;
 using System.Linq;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
 	public static class DbConnectionExtensions
 	{
-		static readonly string[] keys = { "user id", "uid", "username", "user name", "user", "password", "pwd" };
+		static readonly string[] Keys = { "user id", "uid", "username", "user name", "user", "password", "pwd" };
 
 		public static string SecuredConnectionString(this IDbConnection dbConnection)
 		{
@@ -20,9 +20,9 @@ namespace Shuttle.Core.Data
 		{
 			var builder = new DbConnectionStringBuilder { ConnectionString = connectionString };
 
-			foreach (var key in keys.Where(builder.ContainsKey))
+			foreach (var key in Keys.Where(builder.ContainsKey))
 			{
-				builder[key] = DataResources.ConnectionStringHiddenValue;
+				builder[key] = Resources.ConnectionStringHiddenValue;
 			}
 
 			return builder.ToString();

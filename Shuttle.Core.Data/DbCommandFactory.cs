@@ -1,5 +1,5 @@
 using System.Data;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Configuration;
 
 namespace Shuttle.Core.Data
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Logging;
 
 namespace Shuttle.Core.Data
 {
@@ -40,7 +40,7 @@ namespace Shuttle.Core.Data
 				parameters.AppendFormat(" / {0} = {1}", parameter.ParameterName, parameter.Value);
 			}
 
-			_log.Trace(string.Format("{0} {1}", command.CommandText, parameters));
+			_log.Trace($"{command.CommandText} {parameters}");
 		}
 
 		public IEnumerable<DataRow> GetRowsUsing(IQuery query)
@@ -79,7 +79,7 @@ namespace Shuttle.Core.Data
 
 			if (result == null)
 			{
-				throw new InvalidOperationException(DataResources.DatabaseContextMissing);
+				throw new InvalidOperationException(Resources.DatabaseContextMissing);
 			}
 
 			return result;

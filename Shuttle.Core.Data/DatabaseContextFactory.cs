@@ -1,7 +1,7 @@
 using System;
 using System.Configuration;
 using System.Data;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
@@ -15,9 +15,9 @@ namespace Shuttle.Core.Data
         public DatabaseContextFactory(IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory,
             IDatabaseContextCache databaseContextCache)
         {
-            Guard.AgainstNull(dbConnectionFactory, "dbConnectionFactory");
-            Guard.AgainstNull(dbCommandFactory, "dbCommandFactory");
-            Guard.AgainstNull(databaseContextCache, "databaseContextCache");
+            Guard.AgainstNull(dbConnectionFactory, nameof(dbConnectionFactory));
+            Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
+            Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
 
             DbConnectionFactory = dbConnectionFactory;
             DbCommandFactory = dbCommandFactory;
@@ -32,7 +32,7 @@ namespace Shuttle.Core.Data
 
             if (settings == null)
             {
-                throw new InvalidOperationException(string.Format(DataResources.ConnectionStringMissing,
+                throw new InvalidOperationException(string.Format(Resources.ConnectionStringMissing,
                     connectionStringName));
             }
 
@@ -43,22 +43,23 @@ namespace Shuttle.Core.Data
         {
             return DatabaseContextCache.Contains(connectionString)
                 ? DatabaseContextCache.Get(connectionString).Suppressed()
-                : new DatabaseContext(providerName, DbConnectionFactory.CreateConnection(providerName, connectionString),
+                : new DatabaseContext(providerName,
+                    DbConnectionFactory.CreateConnection(providerName, connectionString),
                     DbCommandFactory);
         }
 
         public IDatabaseContext Create(string providerName, IDbConnection dbConnection)
         {
-            Guard.AgainstNull(dbConnection, "dbConnection");
+            Guard.AgainstNull(dbConnection, nameof(dbConnection));
 
             return DatabaseContextCache.Contains(dbConnection.ConnectionString)
                 ? DatabaseContextCache.Get(dbConnection.ConnectionString).Suppressed()
                 : new DatabaseContext(providerName, dbConnection, DbCommandFactory);
         }
 
-        public IDbConnectionFactory DbConnectionFactory { get; private set; }
-        public IDbCommandFactory DbCommandFactory { get; private set; }
-        public IDatabaseContextCache DatabaseContextCache { get; private set; }
+        public IDbConnectionFactory DbConnectionFactory { get; }
+        public IDbCommandFactory DbCommandFactory { get; }
+        public IDatabaseContextCache DatabaseContextCache { get; }
 
         public IDatabaseContext Create()
         {
@@ -78,7 +79,7 @@ namespace Shuttle.Core.Data
             }
 
             throw new InvalidOperationException(string.Format(
-                DataResources.DatabaseContextFactoryNotConfiguredException, GetType().FullName));
+                Resources.DatabaseContextFactoryNotConfiguredException, GetType().FullName));
         }
 
         public void ConfigureWith(string connectionStringName)
@@ -105,8 +106,13 @@ namespace Shuttle.Core.Data
 
         public static IDatabaseContextFactory Default()
         {
-            return new DatabaseContextFactory(new DbConnectionFactory(), new DbCommandFactory(),
-                new ThreadStaticDatabaseContextCache());
+#if (!NETCOREAPP2_0 && !NETSTANDARD2_0)
+            var dbConnectionFactory = new DbConnectionFactory();
+#else
+            var dbConnectionFactory = new DbConnectionFactory(new DefaultDbProviderFactories());
+#endif
+
+            return new DatabaseContextFactory(dbConnectionFactory, new DbCommandFactory(), new ThreadStaticDatabaseContextCache());
         }
 
         private void ClearConfiguredValues()

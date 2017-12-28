@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
@@ -11,8 +11,8 @@ namespace Shuttle.Core.Data
 
 		public DataRepository(IDatabaseGateway databaseGateway, IDataRowMapper<T> dataRowMapper)
 		{
-			Guard.AgainstNull(databaseGateway, "databaseGateway");
-			Guard.AgainstNull(dataRowMapper, "dataRowMapper");
+			Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
+			Guard.AgainstNull(dataRowMapper, nameof(dataRowMapper));
 
 			_databaseGateway = databaseGateway;
 			_dataRowMapper = dataRowMapper;

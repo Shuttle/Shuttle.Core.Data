@@ -19,17 +19,17 @@ namespace Shuttle.Core.Data {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class DataResources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal DataResources() {
+        internal Resources() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Shuttle.Core.Data {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Shuttle.Core.Data.DataResources", typeof(DataResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Shuttle.Core.Data.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -57,15 +57,6 @@ namespace Shuttle.Core.Data {
             }
             set {
                 resourceCulture = value;
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to You may not add a database context with a name of &apos;__current&apos; as that name is used to key the currently selected database context..
-        /// </summary>
-        public static string AddCurrentKeyDatabaseContextException {
-            get {
-                return ResourceManager.GetString("AddCurrentKeyDatabaseContextException", resourceCulture);
             }
         }
         
@@ -106,11 +97,11 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There is not current database context..
+        ///   Looks up a localized string similar to No `IDatabaseContextCache` implementation has been assigned to the `DatabaseContext`..
         /// </summary>
-        public static string CurrentDatabaseContextNotFoundException {
+        public static string DatabaseContextCacheMissingException {
             get {
-                return ResourceManager.GetString("CurrentDatabaseContextNotFoundException", resourceCulture);
+                return ResourceManager.GetString("DatabaseContextCacheMissingException", resourceCulture);
             }
         }
         
@@ -160,15 +151,6 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No `IDatabaseContextCache` implementation has been assigned to the `DatabaseContext`..
-        /// </summary>
-        public static string DatabaseContextStoreMissingException {
-            get {
-                return ResourceManager.GetString("DatabaseContextStoreMissingException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to DbConnection open failed for database &apos;{0}&apos;: {1}.
         /// </summary>
         public static string DbConnectionOpenException {
@@ -196,29 +178,11 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Query factory for query data identifier &apos;{0}&apos; has already been registered..
-        /// </summary>
-        public static string DuplicateQueryFactory {
-            get {
-                return ResourceManager.GetString("DuplicateQueryFactory", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Could not find embedded resource script for name &apos;{0}&apos; at path &apos;{1}&apos;..
         /// </summary>
         public static string EmbeddedScriptMissingException {
             get {
                 return ResourceManager.GetString("EmbeddedScriptMissingException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Query factory &apos;{0}&apos; has not been registered..
-        /// </summary>
-        public static string MissingQueryFactory {
-            get {
-                return ResourceManager.GetString("MissingQueryFactory", resourceCulture);
             }
         }
         
@@ -241,11 +205,11 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Specified IQuery is not a QueryDefinition and does not implement IExecutableQuery.  The type of the given IQuery instance is &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Unknown provider name &apos;{0}&apos;..
         /// </summary>
-        public static string UnsupportedIQueryImplementation {
+        public static string UnknownProviderNameException {
             get {
-                return ResourceManager.GetString("UnsupportedIQueryImplementation", resourceCulture);
+                return ResourceManager.GetString("UnknownProviderNameException", resourceCulture);
             }
         }
         
