@@ -1,34 +1,51 @@
 using System.Data;
 using System.Data.Common;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Logging;
 
 namespace Shuttle.Core.Data
 {
 	public class DbConnectionFactory : IDbConnectionFactory
 	{
-		private readonly ILog _log;
+	    private readonly ILog _log;
 
-		public DbConnectionFactory()
+#if (!NETCOREAPP2_0 && !NETSTANDARD2_0)
+	    public DbConnectionFactory()
+	    {
+	        _log = Log.For(this);
+	    }
+#else
+	    private readonly IDbProviderFactories _providerFactories;
+
+	    public DbConnectionFactory(IDbProviderFactories providerFactories)
+	    {
+            Guard.AgainstNull(providerFactories, nameof(providerFactories));
+
+	        _providerFactories = providerFactories;
+	        _log = Log.For(this);
+	    }
+#endif
+
+        public IDbConnection CreateConnection(string providerName, string connectionString)
 		{
-			_log = Log.For(this);
-		}
+#if (!NETCOREAPP2_0 && !NETSTANDARD2_0)
+		    var dbProviderFactory = DbProviderFactories.GetFactory(providerName);
+#else
+		    var dbProviderFactory = _providerFactories.GetFactory(providerName);
+#endif
 
-		public IDbConnection CreateConnection(string providerName, string connectionString)
-		{
-			var dbProviderFactory = DbProviderFactories.GetFactory(providerName);
-
-			var connection = dbProviderFactory.CreateConnection();
+            var connection = dbProviderFactory.CreateConnection();
 
 			if (connection == null)
 			{
-				throw new DataException(string.Format(DataResources.DbProviderFactoryCreateConnectionException, providerName));
+				throw new DataException(string.Format(Resources.DbProviderFactoryCreateConnectionException, providerName));
 			}
 
 			connection.ConnectionString = connectionString;
 
             if (Log.IsVerboseEnabled)
             {
-                _log.Verbose(string.Format(DataResources.VerboseDbConnectionCreated, connection.DataSource, connection.Database));
+                _log.Verbose(string.Format(Resources.VerboseDbConnectionCreated, connection.DataSource, connection.Database));
             }
 
 			return connection;

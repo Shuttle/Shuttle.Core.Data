@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
@@ -13,14 +13,14 @@ namespace Shuttle.Core.Data
 
         public QueryMapper(IDatabaseGateway databaseGateway)
         {
-            Guard.AgainstNull(databaseGateway, "databaseGateway");
+            Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
             _databaseGateway = databaseGateway;
         }
 
         public MappedRow<T> MapRow<T>(IQuery query) where T : new()
         {
-            Guard.AgainstNull(query, "query");
+            Guard.AgainstNull(query, nameof(query));
 
             var row = _databaseGateway.GetSingleRowUsing(query);
 
@@ -55,37 +55,37 @@ namespace Shuttle.Core.Data
 
         public IEnumerable<MappedRow<T>> MapRows<T>(IQuery query) where T : new()
         {
-            Guard.AgainstNull(query, "query");
+            Guard.AgainstNull(query, nameof(query));
 
             return _databaseGateway.GetRowsUsing(query).Select(row => new MappedRow<T>(row, Map<T>(row)));
         }
 
         public T MapObject<T>(IQuery query) where T : new()
         {
-            Guard.AgainstNull(query, "query");
+            Guard.AgainstNull(query, nameof(query));
 
             return Map<T>(_databaseGateway.GetSingleRowUsing(query));
         }
 
         public IEnumerable<T> MapObjects<T>(IQuery query) where T : new()
         {
-            Guard.AgainstNull(query, "query");
+            Guard.AgainstNull(query, nameof(query));
 
-            return _databaseGateway.GetRowsUsing(query).Select(row => Map<T>(row));
+            return _databaseGateway.GetRowsUsing(query).Select(Map<T>);
         }
 
         public T MapValue<T>(IQuery query)
         {
-            Guard.AgainstNull(query, "query");
+            Guard.AgainstNull(query, nameof(query));
 
             return MapRowValue<T>(_databaseGateway.GetSingleRowUsing(query));
         }
 
         public IEnumerable<T> MapValues<T>(IQuery query)
         {
-            Guard.AgainstNull(query, "query");
+            Guard.AgainstNull(query, nameof(query));
 
-            return _databaseGateway.GetRowsUsing(query).Select(row => MapRowValue<T>(row));
+            return _databaseGateway.GetRowsUsing(query).Select(MapRowValue<T>);
         }
 
         private T MapRowValue<T>(DataRow row)

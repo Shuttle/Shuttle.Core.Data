@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Shuttle.Core.Data</id>
+    <version>{semver}</version>
+    <authors>Eben Roux</authors>
+    <owners>Eben Roux</owners>
+    <licenseUrl>https://github.com/shuttle/Shuttle.Core.Data/raw/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/shuttle/Shuttle.Core.Data</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/Shuttle/Shuttle.Core.Data/master/.media/logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Provides an abstraction over ADO.NET.</description>
+    <releaseNotes/>
+    <copyright>Copyright (c) {year}, Eben Roux</copyright>
+    <tags>shuttle data orm ado ado.net</tags>
+    <dependencies>
+      <group>
+        <dependency id="Shuttle.Core.Configuration" version="{Shuttle.Core.Configuration-version}" />
+        <dependency id="Shuttle.Core.Container" version="{Shuttle.Core.Container-version}" />
+        <dependency id="Shuttle.Core.Logging" version="{Shuttle.Core.Logging-version}" />
+      </group>
+
+      <group targetFramework="netstandard2.0">
+        <dependency id="System.Configuration.ConfigurationManager" version="{System.Configuration.ConfigurationManager-version}" />
+        <dependency id="System.Data.SqlClient" version="{System.Data.SqlClient-version}" />
+      </group>
+
+      <group targetFramework="netcoreapp2.0">
+        <dependency id="System.Configuration.ConfigurationManager" version="{System.Configuration.ConfigurationManager-version}" />
+        <dependency id="System.Data.SqlClient" version="{System.Data.SqlClient-version}" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

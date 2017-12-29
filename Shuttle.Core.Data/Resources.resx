@@ -117,94 +117,80 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="VerboseDbConnectionOpened" xml:space="preserve">
-    <value>DbConnection opened to database '{0}'.</value>
-    <comment>{0} = database</comment>
-  </data>
-  <data name="DbConnectionOpenException" xml:space="preserve">
-    <value>DbConnection open failed for database '{0}': {1}</value>
-    <comment>{0} = database name, {1} = exception message</comment>
-  </data>
-  <data name="DuplicateQueryFactory" xml:space="preserve">
-    <value>Query factory for query data identifier '{0}' has already been registered.</value>
-    <comment>{0} = query data identifier</comment>
-  </data>
-  <data name="MissingQueryFactory" xml:space="preserve">
-    <value>Query factory '{0}' has not been registered.</value>
-    <comment>{0} = query data identifier</comment>
-  </data>
-  <data name="UnsupportedIQueryImplementation" xml:space="preserve">
-    <value>Specified IQuery is not a QueryDefinition and does not implement IExecutableQuery.  The type of the given IQuery instance is '{0}'.</value>
-    <comment>{0} = full type name of given IQuery instance</comment>
-  </data>
-  <data name="ConnectionStringMissing" xml:space="preserve">
-    <value>The required connection string with name '{0}' is not specified in the application configuration file.</value>
-    <comment>{0} = connection string name</comment>
-  </data>
   <data name="ConnectionStringApproved" xml:space="preserve">
     <value>Successfully opened connection string with name '{0}'.</value>
     <comment>{0} = the name of the connection</comment>
-  </data>
-  <data name="VerboseDbConnectionAlreadyOpen" xml:space="preserve">
-    <value>DbConnection already open to database '{0}'.</value>
-    <comment>{0} = database</comment>
-  </data>
-  <data name="DbProviderFactoryCreateConnectionException" xml:space="preserve">
-    <value>Could not create a connection from provider factory '{0}'.</value>
-    <comment>{0} = provider name</comment>
-  </data>
-  <data name="VerboseDbConnectionCreated" xml:space="preserve">
-    <value>DbConnection opened to database '{0}' on data source '{1}'.</value>
-    <comment>{0} = database, {1} = data source</comment>
   </data>
   <data name="ConnectionStringApproveException" xml:space="preserve">
     <value>DbConnection open failed for connection string name '{0}': {1}</value>
     <comment>{0} = connection string name, {1} = exception message</comment>
   </data>
-  <data name="DatabaseContextNameNotFoundException" xml:space="preserve">
-    <value>Attempt to retrieve non-existent database context with name '{0}'.</value>
-    <comment>{0} = database context name</comment>
-  </data>
-  <data name="DatabaseContextStoreMissingException" xml:space="preserve">
-    <value>No `IDatabaseContextCache` implementation has been assigned to the `DatabaseContext`.</value>
-  </data>
-  <data name="CurrentDatabaseContextNotFoundException" xml:space="preserve">
-    <value>There is not current database context.</value>
-  </data>
-  <data name="AddCurrentKeyDatabaseContextException" xml:space="preserve">
-    <value>You may not add a database context with a name of '__current' as that name is used to key the currently selected database context.</value>
-  </data>
-  <data name="DatabaseContextKeyNotFoundException" xml:space="preserve">
-    <value>Attempt to retrieve non-existent database context with key '{0}'.</value>
-    <comment>{0} = database context key</comment>
-  </data>
   <data name="ConnectionStringHiddenValue" xml:space="preserve">
     <value>[hidden]</value>
   </data>
-  <data name="DuplicateDatabaseContextKeyException" xml:space="preserve">
-    <value>There is already a database context with key '{0}' in the IDatabaseContextCache.</value>
-    <comment>{0} = database context name</comment>
+  <data name="DatabaseContextCacheMissingException" xml:space="preserve">
+    <value>No `IDatabaseContextCache` implementation has been assigned to the `DatabaseContext`.</value>
+  </data>
+  <data name="DbConnectionOpenException" xml:space="preserve">
+    <value>DbConnection open failed for database '{0}': {1}</value>
+    <comment>{0} = database name, {1} = exception message</comment>
+  </data>
+  <data name="DbProviderFactoryCreateConnectionException" xml:space="preserve">
+    <value>Could not create a connection from provider factory '{0}'.</value>
+    <comment>{0} = provider name</comment>
+  </data>
+  <data name="VerboseDbConnectionAlreadyOpen" xml:space="preserve">
+    <value>DbConnection already open to database '{0}'.</value>
+    <comment>{0} = database</comment>
+  </data>
+  <data name="VerboseDbConnectionCreated" xml:space="preserve">
+    <value>DbConnection opened to database '{0}' on data source '{1}'.</value>
+    <comment>{0} = database, {1} = data source</comment>
+  </data>
+  <data name="VerboseDbConnectionOpened" xml:space="preserve">
+    <value>DbConnection opened to database '{0}'.</value>
+    <comment>{0} = database</comment>
+  </data>
+  <data name="ConnectionStringMissing" xml:space="preserve">
+    <value>The required connection string with name '{0}' is not specified in the application configuration file.</value>
+    <comment>{0} = connection string name</comment>
   </data>
   <data name="DatabaseContextConnectionStringNotFoundException" xml:space="preserve">
     <value>Attempt to retrieve non-existent database context with connection string '{0}'.</value>
     <comment>{0} = connection string (secured)</comment>
   </data>
-  <data name="DatabaseContextMissing" xml:space="preserve">
-    <value>There is no active database context.  Use the database context factory to create a context.</value>
-  </data>
   <data name="DatabaseContextFactoryNotConfiguredException" xml:space="preserve">
     <value>IDatabaseContextFactory instance of type '{0}' has not been configured.  Cannot call 'Create()' directly.</value>
     <comment>{0} = full type name of IDatabaseContextFactory instance</comment>
+  </data>
+  <data name="DatabaseContextKeyNotFoundException" xml:space="preserve">
+    <value>Attempt to retrieve non-existent database context with key '{0}'.</value>
+    <comment>{0} = database context key</comment>
+  </data>
+  <data name="DatabaseContextMissing" xml:space="preserve">
+    <value>There is no active database context.  Use the database context factory to create a context.</value>
+  </data>
+  <data name="DatabaseContextNameNotFoundException" xml:space="preserve">
+    <value>Attempt to retrieve non-existent database context with name '{0}'.</value>
+    <comment>{0} = database context name</comment>
+  </data>
+  <data name="DuplicateDatabaseContextKeyException" xml:space="preserve">
+    <value>There is already a database context with key '{0}' in the IDatabaseContextCache.</value>
+    <comment>{0} = database context name</comment>
   </data>
   <data name="EmbeddedScriptMissingException" xml:space="preserve">
     <value>Could not find embedded resource script for name '{0}' at path '{1}'.</value>
     <comment>{0} = script file name, {1} = path to resource</comment>
   </data>
+  <data name="ResourceAssemblyMissingException" xml:space="preserve">
+    <value>The IScriptProviderConfiguration instance returned null for the ResourceAssembly.  No file could be found which is why an embedded resource is required.</value>
+  </data>
   <data name="ScriptCountException" xml:space="preserve">
     <value>Directory '{0}' was searched (recursively) for script file '{1}'.  Exactly 1 file must exist in the directory structure but {2} were found.</value>
     <comment>{0} = base folder where search started, {1} = script file name, {2} = number of matching files found</comment>
   </data>
-  <data name="ResourceAssemblyMissingException" xml:space="preserve">
-    <value>The IScriptProviderConfiguration instance returned null for the ResourceAssembly.  No file could be found which is why an embedded resource is required.</value>
+  <data name="UnknownProviderNameException" xml:space="preserve">
+    <value>Unknown provider name '{0}'.</value>
+    <comment>{0} = provider name</comment>
   </data>
 </root>

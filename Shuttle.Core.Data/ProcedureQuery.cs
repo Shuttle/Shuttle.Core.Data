@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Data;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
@@ -17,7 +17,7 @@ namespace Shuttle.Core.Data
 
         public void Prepare(IDbCommand command)
         {
-            Guard.AgainstNull(command, "command");
+            Guard.AgainstNull(command, nameof(command));
 
             command.CommandText = _procedure;
             command.CommandType = CommandType.StoredProcedure;

@@ -1,4 +1,5 @@
-﻿using Shuttle.Core.Infrastructure;
+﻿using Shuttle.Core.Container;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
@@ -6,7 +7,7 @@ namespace Shuttle.Core.Data
 	{
 		public void Register(IComponentRegistry registry)
 		{
-			Guard.AgainstNull(registry, "registry");
+			Guard.AgainstNull(registry, nameof(registry));
 
 			registry.AttemptRegister<IDatabaseContextCache, ThreadStaticDatabaseContextCache>();
 			registry.AttemptRegister<IDatabaseContextFactory, DatabaseContextFactory>();

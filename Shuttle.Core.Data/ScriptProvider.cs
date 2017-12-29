@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
@@ -15,7 +15,7 @@ namespace Shuttle.Core.Data
 
 		public ScriptProvider(IScriptProviderConfiguration configuration)
 		{
-			Guard.AgainstNull(configuration, "configuration");
+			Guard.AgainstNull(configuration, nameof(configuration));
 
 			_configuration = configuration;
 		}
@@ -48,7 +48,7 @@ namespace Shuttle.Core.Data
 		{
 			DatabaseContextInvariant();
 
-			return string.Format("[{0}]-{1}", DatabaseContext.Current.ProviderName, scriptName);
+			return $"[{DatabaseContext.Current.ProviderName}]-{scriptName}";
 		}
 
 		private void AddScript(string scriptName)
@@ -78,7 +78,7 @@ namespace Shuttle.Core.Data
 
 				if (files.Length > 1)
 				{
-					throw new InvalidOperationException(string.Format(DataResources.ScriptCountException, _configuration.ScriptFolder,
+					throw new InvalidOperationException(string.Format(Resources.ScriptCountException, _configuration.ScriptFolder,
 						scriptName, files.Length));
 				}
 
@@ -107,7 +107,7 @@ namespace Shuttle.Core.Data
 		{
 			if (DatabaseContext.Current == null)
 			{
-				throw new InvalidOperationException(DataResources.DatabaseContextMissing);
+				throw new InvalidOperationException(Resources.DatabaseContextMissing);
 			}
 		}
 
@@ -115,7 +115,7 @@ namespace Shuttle.Core.Data
 		{
 			if (_configuration.ResourceAssembly == null)
 			{
-				throw new InvalidOperationException(DataResources.ResourceAssemblyMissingException);
+				throw new InvalidOperationException(Resources.ResourceAssemblyMissingException);
 			}
 
 			var path = _configuration.ResourceNameFormat != null ? FormattedResourceName(scriptName) : scriptName;
@@ -124,7 +124,7 @@ namespace Shuttle.Core.Data
 			{
 				if (stream == null)
 				{
-					throw new InvalidOperationException(string.Format(DataResources.EmbeddedScriptMissingException, scriptName, path));
+					throw new InvalidOperationException(string.Format(Resources.EmbeddedScriptMissingException, scriptName, path));
 				}
 
 				using (var reader = new StreamReader(stream))

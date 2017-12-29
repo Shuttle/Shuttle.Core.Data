@@ -1,107 +1,106 @@
 using System;
 using System.Data;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
+using Shuttle.Core.Logging;
 
 namespace Shuttle.Core.Data
 {
     public class DatabaseContext : IDatabaseContext
     {
+        private static IDatabaseContextCache _databaseContextCache;
         private readonly IDbCommandFactory _dbCommandFactory;
-	    private bool _dispose;
-	    private bool _disposed;
+        private bool _dispose;
+        private bool _disposed;
 
-	    public Guid Key { get; private set; }
-	    public string Name { get; private set; }
-		public IDbTransaction Transaction { get; private set; }
-        public string ProviderName { get; private set; }
-        public IDbConnection Connection { get; private set; }
-
-		private static IDatabaseContextCache _databaseContextCache;
-		
-	    public DatabaseContext(string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory)
+        public DatabaseContext(string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory)
         {
             Guard.AgainstNullOrEmptyString(providerName, "providerName");
-	        Guard.AgainstNull(dbConnection, "dbConnection");
-			Guard.AgainstNull(dbCommandFactory, "dbCommandFactory");
+            Guard.AgainstNull(dbConnection, nameof(dbConnection));
+            Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
 
             _dbCommandFactory = dbCommandFactory;
-			_dispose = true;
+            _dispose = true;
 
-		    Key = Guid.NewGuid();
+            Key = Guid.NewGuid();
 
-	        ProviderName = providerName;
-	        Connection = dbConnection;
+            ProviderName = providerName;
+            Connection = dbConnection;
 
             var log = Log.For(this);
 
             try
             {
-	            if (dbConnection.State == ConnectionState.Closed)
-	            {
-		            Connection.Open();
+                if (dbConnection.State == ConnectionState.Closed)
+                {
+                    Connection.Open();
 
-					log.Verbose(string.Format(DataResources.VerboseDbConnectionOpened, dbConnection.Database));
-				}
-	            else
-	            {
-					log.Verbose(string.Format(DataResources.VerboseDbConnectionAlreadyOpen, dbConnection.Database));
-	            }
+                    log.Verbose(string.Format(Resources.VerboseDbConnectionOpened, dbConnection.Database));
+                }
+                else
+                {
+                    log.Verbose(string.Format(Resources.VerboseDbConnectionAlreadyOpen, dbConnection.Database));
+                }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format(DataResources.DbConnectionOpenException, dbConnection.Database, ex.Message));
+                log.Error(string.Format(Resources.DbConnectionOpenException, dbConnection.Database, ex.Message));
 
                 throw;
             }
 
-			GuardedDatabaseContextStore().Add(this);
+            GuardedDatabaseContextStore().Add(this);
         }
 
-	    public IDatabaseContext WithName(string name)
-	    {
-		    Name = name;
+        public static IDatabaseContext Current => GuardedDatabaseContextStore().Current;
 
-		    return this;
-	    }
+        public Guid Key { get; }
+        public string Name { get; private set; }
+        public IDbTransaction Transaction { get; private set; }
+        public string ProviderName { get; }
+        public IDbConnection Connection { get; private set; }
 
-	    public IDatabaseContext Suppressed()
-	    {
-			return new DatabaseContext(ProviderName, Connection, _dbCommandFactory)
-			{
-				Transaction = Transaction,
-				_dispose = false
-			};
-	    }
+        public IDatabaseContext WithName(string name)
+        {
+            Name = name;
 
-	    public IDatabaseContext SuppressDispose()
-	    {
-		    _dispose = false;
+            return this;
+        }
 
-		    return this;
-	    }
+        public IDatabaseContext Suppressed()
+        {
+            return new DatabaseContext(ProviderName, Connection, _dbCommandFactory)
+            {
+                Transaction = Transaction,
+                _dispose = false
+            };
+        }
 
-	    public IDbCommand CreateCommandToExecute(IQuery query)
+        public IDatabaseContext SuppressDispose()
+        {
+            _dispose = false;
+
+            return this;
+        }
+
+        public IDbCommand CreateCommandToExecute(IQuery query)
         {
             var command = _dbCommandFactory.CreateCommandUsing(Connection, query);
             command.Transaction = Transaction;
             return command;
         }
 
-        public bool HasTransaction
+        public bool HasTransaction => Transaction != null;
+
+        public IDatabaseContext BeginTransaction()
         {
-            get { return Transaction != null; }
+            return BeginTransaction(IsolationLevel.Unspecified);
         }
 
-	    public IDatabaseContext BeginTransaction()
-	    {
-		    return BeginTransaction(IsolationLevel.Unspecified);
-	    }
-
-	    public IDatabaseContext BeginTransaction(IsolationLevel isolationLevel)
+        public IDatabaseContext BeginTransaction(IsolationLevel isolationLevel)
         {
             if (!HasTransaction && System.Transactions.Transaction.Current == null)
             {
-				Transaction = Connection.BeginTransaction(isolationLevel);
+                Transaction = Connection.BeginTransaction(isolationLevel);
             }
 
             return this;
@@ -127,7 +126,7 @@ namespace Shuttle.Core.Data
 
         protected virtual void Dispose(bool disposing)
         {
-			GuardedDatabaseContextStore().Remove(this);
+            GuardedDatabaseContextStore().Remove(this);
 
             if (_disposed || !_dispose)
             {
@@ -140,6 +139,7 @@ namespace Shuttle.Core.Data
                 {
                     Transaction.Rollback();
                 }
+
                 Connection.Dispose();
             }
 
@@ -147,26 +147,21 @@ namespace Shuttle.Core.Data
             _disposed = true;
         }
 
-	    public static void Assign(IDatabaseContextCache cache)
-	    {
-			Guard.AgainstNull(cache, "cache");
+        public static void Assign(IDatabaseContextCache cache)
+        {
+            Guard.AgainstNull(cache, nameof(cache));
 
-			_databaseContextCache = cache;
-	    }
+            _databaseContextCache = cache;
+        }
 
-		private static IDatabaseContextCache GuardedDatabaseContextStore()
-		{
-			if (_databaseContextCache == null)
-			{
-				throw new Exception(DataResources.DatabaseContextStoreMissingException);
-			}
+        private static IDatabaseContextCache GuardedDatabaseContextStore()
+        {
+            if (_databaseContextCache == null)
+            {
+                throw new Exception(Resources.DatabaseContextCacheMissingException);
+            }
 
-			return _databaseContextCache;
-		}
-
-	    public static IDatabaseContext Current
-	    {
-		    get { return GuardedDatabaseContextStore().Current; }
-	    }
+            return _databaseContextCache;
+        }
     }
 }

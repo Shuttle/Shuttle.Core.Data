@@ -1,5 +1,5 @@
 ﻿using System;
-using Shuttle.Core.Infrastructure;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
@@ -13,19 +13,19 @@ namespace Shuttle.Core.Data
 
 			if (Current == null)
 			{
-				throw new Exception(string.Format(DataResources.DatabaseContextNameNotFoundException, name));
+				throw new Exception(string.Format(Resources.DatabaseContextNameNotFoundException, name));
 			}
 		}
 
 		public void Use(IDatabaseContext context)
 		{
-			Guard.AgainstNull(context, "context");
+			Guard.AgainstNull(context, nameof(context));
 
 			Current = DatabaseContexts.Find(candidate => candidate.Key.Equals(context.Key));
 
 			if (Current == null)
 			{
-				throw new Exception(string.Format(DataResources.DatabaseContextKeyNotFoundException, context.Key));
+				throw new Exception(string.Format(Resources.DatabaseContextKeyNotFoundException, context.Key));
 			}
 		}
 
@@ -38,7 +38,7 @@ namespace Shuttle.Core.Data
 		{
 			if (Find(context) != null)
 			{
-				throw new Exception(string.Format(DataResources.DuplicateDatabaseContextKeyException, context.Key));
+				throw new Exception(string.Format(Resources.DuplicateDatabaseContextKeyException, context.Key));
 			}
 			
 			DatabaseContexts.Add(context);
@@ -72,7 +72,7 @@ namespace Shuttle.Core.Data
 
 			if (result == null)
 			{
-				throw new Exception(string.Format(DataResources.DatabaseContextConnectionStringNotFoundException, DbConnectionExtensions.SecuredConnectionString(connectionString)));
+				throw new Exception(string.Format(Resources.DatabaseContextConnectionStringNotFoundException, DbConnectionExtensions.SecuredConnectionString(connectionString)));
 			}
 
 			return result;
