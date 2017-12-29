@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <Reference Include="System.Configuration" Condition="'$(TargetFramework)' != 'netstandard2.0' and '$(TargetFramework)' != 'netcoreapp2.0'" />
-    <Reference Include="System.Transactions" />
+    <Reference Include="System.Transactions" Condition="'$(TargetFramework)' != 'netstandard2.0'" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,11 +41,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Compiled Include="*.cs" Exclude="IDbProviderFactories.cs;DefaultDbProviderFactories.cs;DefaultSqlProviderFactory" />  
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Compiled Remove="DefaultDbProviderFactories.cs" />
-    <Compiled Remove="DefaultSqlProviderFactory.cs" />
+    <Compiled Remove="IDbProviderFactories.cs; DefaultDbProviderFactories.cs;DefaultSqlProviderFactory.cs" Condition="'$(TargetFramework)' != 'netstandard2.0' and '$(TargetFramework)' != 'netcoreapp2.0'"/>
   </ItemGroup>
 </Project>
