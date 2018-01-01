@@ -205,15 +205,6 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unknown provider name &apos;{0}&apos;..
-        /// </summary>
-        public static string UnknownProviderNameException {
-            get {
-                return ResourceManager.GetString("UnknownProviderNameException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to DbConnection already open to database &apos;{0}&apos;..
         /// </summary>
         public static string VerboseDbConnectionAlreadyOpen {

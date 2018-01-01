@@ -69,7 +69,21 @@ namespace Shuttle.Core.Data
 					Trace(command);
 				}
 
-				return command.ExecuteReader();
+			    try
+			    {
+			        return command.ExecuteReader();
+			    }
+			    catch (Exception ex)
+			    {
+			        _log.Error(ex.Message);
+
+			        if (!Log.IsTraceEnabled)
+			        {
+			            Trace(command);
+			        }
+
+			        throw;
+			    }
 			}
 		}
 
@@ -94,8 +108,22 @@ namespace Shuttle.Core.Data
 					Trace(command);
 				}
 
-				return command.ExecuteNonQuery();
-			}
+			    try
+			    {
+			        return command.ExecuteNonQuery();
+			    }
+			    catch (Exception ex)
+			    {
+			        _log.Error(ex.Message);
+
+			        if (!Log.IsTraceEnabled)
+			        {
+			            Trace(command);
+			        }
+
+			        throw;
+			    }
+            }
 		}
 
 		public T GetScalarUsing<T>(IQuery query)
@@ -107,9 +135,25 @@ namespace Shuttle.Core.Data
 					Trace(command);
 				}
 
-				var scalar = command.ExecuteScalar();
+			    object scalar;
 
-				return (scalar != null && scalar != DBNull.Value) ? (T)scalar : default(T);
+			    try
+                {
+			        scalar = command.ExecuteScalar();
+			    }
+			    catch (Exception ex)
+			    {
+			        _log.Error(ex.Message);
+
+			        if (!Log.IsTraceEnabled)
+			        {
+			            Trace(command);
+			        }
+
+			        throw;
+			    }
+
+                return scalar != null && scalar != DBNull.Value ? (T)scalar : default(T);
 			}
 		}
 	}

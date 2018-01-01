@@ -104,12 +104,14 @@ namespace Shuttle.Core.Data
             _dbConnection = dbConnection;
         }
 
+#if (!NETCOREAPP2_0 && !NETSTANDARD2_0)
         public static IDatabaseContextFactory Default()
         {
-#if (!NETCOREAPP2_0 && !NETSTANDARD2_0)
             var dbConnectionFactory = new DbConnectionFactory();
 #else
-            var dbConnectionFactory = new DbConnectionFactory(new DefaultDbProviderFactories());
+        public static IDatabaseContextFactory Default(IDbProviderFactories dbProviderFactories)
+        {
+            var dbConnectionFactory = new DbConnectionFactory(dbProviderFactories);
 #endif
 
             return new DatabaseContextFactory(dbConnectionFactory, new DbCommandFactory(), new ThreadStaticDatabaseContextCache());

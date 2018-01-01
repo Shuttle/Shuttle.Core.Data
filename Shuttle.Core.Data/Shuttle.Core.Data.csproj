@@ -17,7 +17,6 @@
     <PackageReference Include="Shuttle.Core.Container" Version="10.0.1" />
     <PackageReference Include="Shuttle.Core.Logging" Version="10.0.1" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.1" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netcoreapp2.0'" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.3.0" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netcoreapp2.0'" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,9 +37,5 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Compiled Remove="IDbProviderFactories.cs; DefaultDbProviderFactories.cs;DefaultSqlProviderFactory.cs" Condition="'$(TargetFramework)' != 'netstandard2.0' and '$(TargetFramework)' != 'netcoreapp2.0'"/>
   </ItemGroup>
 </Project>

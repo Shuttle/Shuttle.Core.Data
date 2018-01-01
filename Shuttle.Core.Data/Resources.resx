@@ -189,8 +189,4 @@
     <value>Directory '{0}' was searched (recursively) for script file '{1}'.  Exactly 1 file must exist in the directory structure but {2} were found.</value>
     <comment>{0} = base folder where search started, {1} = script file name, {2} = number of matching files found</comment>
   </data>
-  <data name="UnknownProviderNameException" xml:space="preserve">
-    <value>Unknown provider name '{0}'.</value>
-    <comment>{0} = provider name</comment>
-  </data>
 </root>

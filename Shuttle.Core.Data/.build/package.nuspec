@@ -22,12 +22,10 @@
 
       <group targetFramework="netstandard2.0">
         <dependency id="System.Configuration.ConfigurationManager" version="{System.Configuration.ConfigurationManager-version}" />
-        <dependency id="System.Data.SqlClient" version="{System.Data.SqlClient-version}" />
       </group>
 
       <group targetFramework="netcoreapp2.0">
         <dependency id="System.Configuration.ConfigurationManager" version="{System.Configuration.ConfigurationManager-version}" />
-        <dependency id="System.Data.SqlClient" version="{System.Data.SqlClient-version}" />
       </group>
     </dependencies>
   </metadata>
