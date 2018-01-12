@@ -30,6 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="DefaultDbProviderFactories.cs" Condition="'$(TargetFramework)' != 'netcoreapp2.0'"/>
+        <Compile Remove="ConnectionConfigurationProvider.cs" Condition="'$(TargetFramework)' != 'net46'" />
+        <Compile Remove="DefaultDbProviderFactories.cs" Condition="'$(TargetFramework)' != 'netcoreapp2.0'" />
     </ItemGroup>
 </Project>

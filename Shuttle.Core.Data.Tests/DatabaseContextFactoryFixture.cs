@@ -14,14 +14,19 @@ namespace Shuttle.Core.Data.Tests
 			}
 		}
 
-	    private static IDatabaseContextFactory GetDefaultDatabaseContextFactory()
+	    private IDatabaseContextFactory GetDefaultDatabaseContextFactory()
 	    {
 #if (!NETCOREAPP2_0 && !NETSTANDARD2_0)
-	        return DatabaseContextFactory.Default();
+	        var connectionFactory = new DbConnectionFactory();
 #else
-            return DatabaseContextFactory.Default(new DefaultDbProviderFactories());
+            var connectionFactory = new DbConnectionFactory(new DefaultDbProviderFactories());
 #endif
-        }
+            return new DatabaseContextFactory(
+	            GetConnectionConfigurationProvider(),
+	            connectionFactory,
+	            new DbCommandFactory(),
+	            new ThreadStaticDatabaseContextCache());
+	    }
 
         [Test]
 		public void Should_be_able_to_get_an_existing_database_context()

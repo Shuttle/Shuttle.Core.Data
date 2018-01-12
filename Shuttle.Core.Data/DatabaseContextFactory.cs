@@ -7,18 +7,22 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseContextFactory : IDatabaseContextFactory
     {
+        public IConnectionConfigurationProvider ConfigurationProvider { get; }
         private string _connectionString;
         private string _connectionStringName;
         private IDbConnection _dbConnection;
         private string _providerName;
 
-        public DatabaseContextFactory(IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory,
+        public DatabaseContextFactory(IConnectionConfigurationProvider connectionConfigurationProvider,
+            IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory,
             IDatabaseContextCache databaseContextCache)
         {
+            Guard.AgainstNull(connectionConfigurationProvider, nameof(connectionConfigurationProvider));
             Guard.AgainstNull(dbConnectionFactory, nameof(dbConnectionFactory));
             Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
             Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
 
+            ConfigurationProvider = connectionConfigurationProvider;
             DbConnectionFactory = dbConnectionFactory;
             DbCommandFactory = dbCommandFactory;
             DatabaseContextCache = databaseContextCache;
@@ -26,17 +30,16 @@ namespace Shuttle.Core.Data
             DatabaseContext.Assign(databaseContextCache);
         }
 
-        public IDatabaseContext Create(string connectionStringName)
+        public IDatabaseContext Create(string name)
         {
-            var settings = ConfigurationManager.ConnectionStrings[connectionStringName];
+            var configuration = ConfigurationProvider.Get(name);
 
-            if (settings == null)
+            if (configuration == null)
             {
-                throw new InvalidOperationException(string.Format(Resources.ConnectionStringMissing,
-                    connectionStringName));
+                throw new InvalidOperationException(string.Format(Resources.ConnectionConfigurationMissing, GetType().FullName, name));
             }
 
-            return Create(settings.ProviderName, settings.ConnectionString);
+            return Create(configuration.ProviderName, configuration.ConnectionString);
         }
 
         public IDatabaseContext Create(string providerName, string connectionString)
@@ -114,7 +117,7 @@ namespace Shuttle.Core.Data
             var dbConnectionFactory = new DbConnectionFactory(dbProviderFactories);
 #endif
 
-            return new DatabaseContextFactory(dbConnectionFactory, new DbCommandFactory(), new ThreadStaticDatabaseContextCache());
+            return new DatabaseContextFactory(new ConnectionConfigurationProvider(), dbConnectionFactory, new DbCommandFactory(), new ThreadStaticDatabaseContextCache());
         }
 
         private void ClearConfiguredValues()

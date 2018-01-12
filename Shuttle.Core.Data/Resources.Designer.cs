@@ -61,6 +61,15 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The &apos;IConnectionConfigurationProvider&apos; of type &apos;{0}&apos; returned &apos;null&apos; for connection configuration name &apos;{1}&apos;..
+        /// </summary>
+        public static string ConnectionConfigurationMissing {
+            get {
+                return ResourceManager.GetString("ConnectionConfigurationMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Successfully opened connection string with name &apos;{0}&apos;..
         /// </summary>
         public static string ConnectionStringApproved {

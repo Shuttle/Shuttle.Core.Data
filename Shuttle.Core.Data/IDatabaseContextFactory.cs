@@ -4,7 +4,7 @@ namespace Shuttle.Core.Data
 {
 	public interface IDatabaseContextFactory
 	{
-		IDatabaseContext Create(string connectionStringName);
+		IDatabaseContext Create(string name);
 		IDatabaseContext Create(string providerName, string connectionString);
 		IDatabaseContext Create(string providerName, IDbConnection dbConnection);
         IDatabaseContext Create();

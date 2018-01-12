@@ -151,9 +151,9 @@
     <value>DbConnection opened to database '{0}'.</value>
     <comment>{0} = database</comment>
   </data>
-  <data name="ConnectionStringMissing" xml:space="preserve">
-    <value>The required connection string with name '{0}' is not specified in the application configuration file.</value>
-    <comment>{0} = connection string name</comment>
+  <data name="ConnectionConfigurationMissing" xml:space="preserve">
+    <value>The 'IConnectionConfigurationProvider' of type '{0}' returned 'null' for connection configuration name '{1}'.</value>
+    <comment>{0} = IConnectionConfigurationProvider implementation type name, {1} = connection name</comment>
   </data>
   <data name="DatabaseContextConnectionStringNotFoundException" xml:space="preserve">
     <value>Attempt to retrieve non-existent database context with connection string '{0}'.</value>
@@ -188,5 +188,9 @@
   <data name="ScriptCountException" xml:space="preserve">
     <value>Directory '{0}' was searched (recursively) for script file '{1}'.  Exactly 1 file must exist in the directory structure but {2} were found.</value>
     <comment>{0} = base folder where search started, {1} = script file name, {2} = number of matching files found</comment>
+  </data>
+  <data name="ConnectionStringMissing" xml:space="preserve">
+    <value>The required connection string with name '{0}' is not specified in the application configuration file.</value>
+    <comment>{0} = connection string name</comment>
   </data>
 </root>

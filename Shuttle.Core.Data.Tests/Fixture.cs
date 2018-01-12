@@ -22,16 +22,28 @@ namespace Shuttle.Core.Data.Tests
 
 	    protected IDatabaseContext GetDatabaseContext()
 		{
-			return new DatabaseContextFactory(GetDbConnectionFactory(), new DbCommandFactory(), new ThreadStaticDatabaseContextCache()).Create(DefaultConnectionStringName);
+			return new DatabaseContextFactory(GetConnectionConfigurationProvider(), GetDbConnectionFactory(), new DbCommandFactory(), new ThreadStaticDatabaseContextCache()).Create(DefaultConnectionStringName);
 		}
 
-	    protected IDatabaseContext GetDatabaseContext(Mock<IDbCommand> command)
+        protected IConnectionConfigurationProvider GetConnectionConfigurationProvider()
+        {
+            var provider = new Mock<IConnectionConfigurationProvider>();
+
+            provider.Setup(m => m.Get("Shuttle")).Returns(new ConnectionConfiguration(
+                "Shuttle",
+                "System.Data.SqlClient",
+                "Data Source=.\\sqlexpress;Initial Catalog=Shuttle;Integrated Security=SSPI"));
+
+            return provider.Object;
+        }
+
+        protected IDatabaseContext GetDatabaseContext(Mock<IDbCommand> command)
 	    {
 		    var commandFactory = new Mock<IDbCommandFactory>();
 
 		    commandFactory.Setup(m => m.CreateCommandUsing(It.IsAny<IDbConnection>(), It.IsAny<IQuery>())).Returns(command.Object);
 
-			return new DatabaseContextFactory(GetDbConnectionFactory(), commandFactory.Object, new ThreadStaticDatabaseContextCache()).Create(DefaultConnectionStringName);
+			return new DatabaseContextFactory(GetConnectionConfigurationProvider(), GetDbConnectionFactory(), commandFactory.Object, new ThreadStaticDatabaseContextCache()).Create(DefaultConnectionStringName);
 	    }
     }
 }
