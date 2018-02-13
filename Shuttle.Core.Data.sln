@@ -1,11 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+VisualStudioVersion = 15.0.27130.2020
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shuttle.Core.Data", "Shuttle.Core.Data\Shuttle.Core.Data.csproj", "{F7AF306E-A389-427E-B3A1-89FF9016A13F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shuttle.Core.Data", "Shuttle.Core.Data\Shuttle.Core.Data.csproj", "{F7AF306E-A389-427E-B3A1-89FF9016A13F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shuttle.Core.Data.Tests", "Shuttle.Core.Data.Tests\Shuttle.Core.Data.Tests.csproj", "{48AFB050-D62A-4642-9182-139E68BCA383}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shuttle.Core.Data.Tests", "Shuttle.Core.Data.Tests\Shuttle.Core.Data.Tests.csproj", "{48AFB050-D62A-4642-9182-139E68BCA383}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{04014C6E-E6F6-444D-AA9B-EE7A88343784}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

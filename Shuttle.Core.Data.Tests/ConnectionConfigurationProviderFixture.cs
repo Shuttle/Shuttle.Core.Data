@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace Shuttle.Core.Data.Tests
 {
@@ -10,13 +11,15 @@ namespace Shuttle.Core.Data.Tests
         {
             var provider = new ConnectionConfigurationProvider();
 
-            Assert.That(provider.Get("not-defined"), Is.Null);
+            Assert.That(() => provider.Get("not-defined"), Throws.TypeOf<InvalidOperationException>());
 
+#if (!NETCOREAPP2_0 && !NETSTANDARD2_0)
             var configuration = provider.Get("Shuttle");
 
             Assert.That(configuration.Name, Is.EqualTo("Shuttle"));
             Assert.That(configuration.ProviderName, Is.EqualTo("System.Data.SqlClient"));
             Assert.That(configuration.ConnectionString, Is.EqualTo("Data Source=.\\sqlexpress;Initial Catalog=Shuttle;Integrated Security=SSPI"));
+#endif
         }
     }
 }
