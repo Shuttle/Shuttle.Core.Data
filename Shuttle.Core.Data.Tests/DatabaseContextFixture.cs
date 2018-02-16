@@ -14,7 +14,7 @@ namespace Shuttle.Core.Data.Tests
 		{
 		    Assert.Throws<ArgumentException>(() =>
 		    {
-		        using (new DatabaseContext("System.Data.SqlClient", new SqlConnection("~~~"), new Mock<IDbCommandFactory>().Object))
+		        using (new DatabaseContext("System.Data.SqlClient", new SqlConnection("```"), new Mock<IDbCommandFactory>().Object))
 		        {
 		        }
 		    });
