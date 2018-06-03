@@ -15,6 +15,7 @@ namespace Shuttle.Core.Data
 			registry.AttemptRegister<IDbConnectionFactory, DbConnectionFactory>();
 			registry.AttemptRegister<IDbCommandFactory, DbCommandFactory>();
 			registry.AttemptRegister<IDatabaseGateway, DatabaseGateway>();
+			registry.AttemptRegister<IDataRowMapper, DataRowMapper>();
 			registry.AttemptRegister<IQueryMapper, QueryMapper>();
 		    registry.AttemptRegisterGeneric(typeof(IDataRepository<>), typeof(DataRepository<>));
 		}
