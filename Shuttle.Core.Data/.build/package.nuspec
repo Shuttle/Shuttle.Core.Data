@@ -8,6 +8,7 @@
     <licenseUrl>https://github.com/shuttle/Shuttle.Core.Data/raw/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/shuttle/Shuttle.Core.Data</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/Shuttle/Shuttle.Core.Data/master/.media/logo.png</iconUrl>
+    <repository type="git" url="https://github.com/Shuttle/Shuttle.Core.Data.git" />
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Provides an abstraction over ADO.NET.</description>
     <releaseNotes/>
