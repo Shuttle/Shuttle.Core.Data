@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+using Shuttle.Core.Contract;
 using Shuttle.Core.Logging;
 
 namespace Shuttle.Core.Data
@@ -18,6 +19,8 @@ namespace Shuttle.Core.Data
 
 		public DataTable GetDataTableFor(IQuery query)
 		{
+            Guard.AgainstNull(query, nameof(query));
+
 			using (var reader = GetReaderUsing(query))
 			{
 				var results = new DataTable();
@@ -62,6 +65,8 @@ namespace Shuttle.Core.Data
 
 		public IDataReader GetReaderUsing(IQuery query)
 		{
+		    Guard.AgainstNull(query, nameof(query));
+
 			using (var command = GuardedDatabaseContext().CreateCommandToExecute(query))
 			{
 				if (Log.IsTraceEnabled)
@@ -101,6 +106,8 @@ namespace Shuttle.Core.Data
 
 		public int ExecuteUsing(IQuery query)
 		{
+		    Guard.AgainstNull(query, nameof(query));
+
 			using (var command = GuardedDatabaseContext().CreateCommandToExecute(query))
 			{
 				if (Log.IsTraceEnabled)
@@ -128,6 +135,8 @@ namespace Shuttle.Core.Data
 
 		public T GetScalarUsing<T>(IQuery query)
 		{
+		    Guard.AgainstNull(query, nameof(query));
+
 			using (var command = GuardedDatabaseContext().CreateCommandToExecute(query))
 			{
 				if (Log.IsTraceEnabled)
