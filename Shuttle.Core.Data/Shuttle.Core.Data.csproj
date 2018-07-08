@@ -16,12 +16,11 @@
         <PackageReference Include="Shuttle.Core.Configuration" Version="10.0.1" />
         <PackageReference Include="Shuttle.Core.Container" Version="10.0.8" />
         <PackageReference Include="Shuttle.Core.Logging" Version="10.0.3" />
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.1" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netcoreapp2.0'" />
         <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="System.Configuration" Condition="'$(TargetFramework)' != 'netstandard2.0' and '$(TargetFramework)' != 'netcoreapp2.0'" />
+        <Reference Include="System.Configuration" Condition="'$(TargetFramework)' != 'netstandard2.0' and '$(TargetFramework)' != 'netcoreapp2.0' and '$(TargetFramework)' != 'netcoreapp2.1'" />
         <Reference Include="System.Transactions" Condition="'$(TargetFramework)' != 'netstandard2.0'" />
     </ItemGroup>
 
@@ -41,6 +40,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="IDbProviderFactories.cs" Condition="'$(TargetFramework)' != 'netstandard2.0' and '$(TargetFramework)' != 'netcoreapp2.0'" />
+        <Compile Remove="IDbProviderFactories.cs" Condition="'$(TargetFramework)' != 'netstandard2.0' and '$(TargetFramework)' != 'netcoreapp2.0' and '$(TargetFramework)' != 'netcoreapp2.1'" />
     </ItemGroup>
 </Project>
