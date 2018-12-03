@@ -7,19 +7,25 @@ namespace Shuttle.Core.Data
 	{
 		public IDatabaseContext Current { get; private set; }
 
-		public void Use(string name)
+		public ActiveDatabaseContext Use(string name)
 		{
-			Current = DatabaseContexts.Find(candidate => candidate.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+		    var current = Current;
+
+            Current = DatabaseContexts.Find(candidate => candidate.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
 			if (Current == null)
 			{
 				throw new Exception(string.Format(Resources.DatabaseContextNameNotFoundException, name));
 			}
+
+            return new ActiveDatabaseContext(this, current);
 		}
 
-		public void Use(IDatabaseContext context)
+		public ActiveDatabaseContext Use(IDatabaseContext context)
 		{
 			Guard.AgainstNull(context, nameof(context));
+
+		    var current = Current;
 
 			Current = DatabaseContexts.Find(candidate => candidate.Key.Equals(context.Key));
 
@@ -27,7 +33,9 @@ namespace Shuttle.Core.Data
 			{
 				throw new Exception(string.Format(Resources.DatabaseContextKeyNotFoundException, context.Key));
 			}
-		}
+
+		    return new ActiveDatabaseContext(this, current);
+        }
 
 		public bool Contains(string connectionString)
 		{
@@ -42,9 +50,10 @@ namespace Shuttle.Core.Data
 			}
 			
 			DatabaseContexts.Add(context);
+		    Use(context);
 		}
 
-		private IDatabaseContext Find(IDatabaseContext context)
+        private IDatabaseContext Find(IDatabaseContext context)
 		{
 			return DatabaseContexts.Find(candidate => candidate.Key.Equals(context.Key));
 		}
@@ -78,7 +87,7 @@ namespace Shuttle.Core.Data
 			return result;
 		}
 
-		public DatabaseContextCollection DatabaseContexts { get; private set; }
+		public DatabaseContextCollection DatabaseContexts { get; }
 
 		public DatabaseContextCache()
 		{

@@ -6,19 +6,16 @@ namespace Shuttle.Core.Data
 	{
 		[ThreadStatic] private static DatabaseContextCache _cache;
 
-		public IDatabaseContext Current
+		public IDatabaseContext Current => GuardedCache().Current;
+
+	    public ActiveDatabaseContext Use(string name)
 		{
-			get { return GuardedCache().Current; }
+			return GuardedCache().Use(name);
 		}
 
-		public void Use(string name)
+		public ActiveDatabaseContext Use(IDatabaseContext context)
 		{
-			GuardedCache().Use(name);
-		}
-
-		public void Use(IDatabaseContext context)
-		{
-			GuardedCache().Use(context);
+			return GuardedCache().Use(context);
 		}
 
 		public bool Contains(string connectionString)
@@ -29,7 +26,6 @@ namespace Shuttle.Core.Data
 		public void Add(IDatabaseContext context)
 		{
 			GuardedCache().Add(context);
-			GuardedCache().Use(context);
 		}
 
 		public void Remove(IDatabaseContext context)
