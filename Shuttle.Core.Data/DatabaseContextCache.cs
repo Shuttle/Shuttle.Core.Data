@@ -37,12 +37,29 @@ namespace Shuttle.Core.Data
 		    return new ActiveDatabaseContext(this, current);
         }
 
-		public bool Contains(string connectionString)
+		public bool Contains(string name)
 		{
-			return DatabaseContexts.Find(candidate => candidate.Connection.ConnectionString.Equals(connectionString, StringComparison.OrdinalIgnoreCase)) != null;
+			return DatabaseContexts.Find(candidate => candidate.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) != null;
 		}
 
-		public void Add(IDatabaseContext context)
+        public bool ContainsConnectionString(string connectionString)
+        {
+            return DatabaseContexts.Find(candidate => candidate.Connection.ConnectionString.Equals(connectionString, StringComparison.OrdinalIgnoreCase)) != null;
+        }
+
+        public IDatabaseContext GetConnectionString(string connectionString)
+        {
+            var result = DatabaseContexts.Find(candidate => candidate.Connection.ConnectionString.Equals(connectionString, StringComparison.OrdinalIgnoreCase));
+
+            if (result == null)
+            {
+                throw new Exception(string.Format(Resources.DatabaseContextConnectionStringNotFoundException, connectionString));
+            }
+
+            return result;
+        }
+
+        public void Add(IDatabaseContext context)
 		{
 			if (Find(context) != null)
 			{
@@ -75,13 +92,13 @@ namespace Shuttle.Core.Data
 			DatabaseContexts.Remove(candidate);
 		}
 
-		public IDatabaseContext Get(string connectionString)
+		public IDatabaseContext Get(string name)
 		{
-			var result = DatabaseContexts.Find(candidate => candidate.Connection.ConnectionString.Equals(connectionString, StringComparison.OrdinalIgnoreCase));
+			var result = DatabaseContexts.Find(candidate => candidate.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
 			if (result == null)
 			{
-				throw new Exception(string.Format(Resources.DatabaseContextConnectionStringNotFoundException, DbConnectionExtensions.SecuredConnectionString(connectionString)));
+				throw new Exception(string.Format(Resources.DatabaseContextNameNotFoundException, name));
 			}
 
 			return result;

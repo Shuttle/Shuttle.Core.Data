@@ -18,12 +18,22 @@ namespace Shuttle.Core.Data
 			return GuardedCache().Use(context);
 		}
 
-		public bool Contains(string connectionString)
+		public bool Contains(string name)
 		{
-			return GuardedCache().Contains(connectionString);
+			return GuardedCache().Contains(name);
 		}
 
-		public void Add(IDatabaseContext context)
+        public bool ContainsConnectionString(string connectionString)
+        {
+            return GuardedCache().ContainsConnectionString(connectionString);
+        }
+
+        public IDatabaseContext GetConnectionString(string connectionString)
+        {
+            return GuardedCache().GetConnectionString(connectionString);
+        }
+
+        public void Add(IDatabaseContext context)
 		{
 			GuardedCache().Add(context);
 		}
@@ -33,9 +43,9 @@ namespace Shuttle.Core.Data
 			GuardedCache().Remove(context);
 		}
 
-		public IDatabaseContext Get(string connectionString)
+		public IDatabaseContext Get(string name)
 		{
-			return GuardedCache().Get(connectionString);
+			return GuardedCache().Get(name);
 		}
 
 		private static DatabaseContextCache GuardedCache()

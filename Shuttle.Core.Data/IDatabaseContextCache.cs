@@ -5,9 +5,11 @@ namespace Shuttle.Core.Data
 		IDatabaseContext Current { get; }
 		ActiveDatabaseContext Use(string name);
 		ActiveDatabaseContext Use(IDatabaseContext context);
-		bool Contains(string connectionString);
+        bool Contains(string name);
+        bool ContainsConnectionString(string connectionString);
+        IDatabaseContext Get(string name);
+        IDatabaseContext GetConnectionString(string connectionString);
 		void Add(IDatabaseContext context);
 		void Remove(IDatabaseContext context);
-		IDatabaseContext Get(string connectionString);
 	}
 }

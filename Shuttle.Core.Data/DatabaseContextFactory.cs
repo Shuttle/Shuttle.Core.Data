@@ -43,8 +43,8 @@ namespace Shuttle.Core.Data
 
         public IDatabaseContext Create(string providerName, string connectionString)
         {
-            return DatabaseContextCache.Contains(connectionString)
-                ? DatabaseContextCache.Get(connectionString).Suppressed()
+            return DatabaseContextCache.ContainsConnectionString(connectionString)
+                ? DatabaseContextCache.GetConnectionString(connectionString).Suppressed()
                 : new DatabaseContext(providerName,
                     DbConnectionFactory.CreateConnection(providerName, connectionString),
                     DbCommandFactory);
@@ -54,8 +54,8 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(dbConnection, nameof(dbConnection));
 
-            return DatabaseContextCache.Contains(dbConnection.ConnectionString)
-                ? DatabaseContextCache.Get(dbConnection.ConnectionString).Suppressed()
+            return DatabaseContextCache.ContainsConnectionString(dbConnection.ConnectionString)
+                ? DatabaseContextCache.GetConnectionString(dbConnection.ConnectionString).Suppressed()
                 : new DatabaseContext(providerName, dbConnection, DbCommandFactory);
         }
 
