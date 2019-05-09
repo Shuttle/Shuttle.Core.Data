@@ -84,26 +84,32 @@ namespace Shuttle.Core.Data
                 Resources.DatabaseContextFactoryNotConfiguredException, GetType().FullName));
         }
 
-        public void ConfigureWith(string connectionStringName)
+        public IDatabaseContextFactory ConfigureWith(string connectionStringName)
         {
             ClearConfiguredValues();
 
             _connectionStringName = connectionStringName;
+
+            return this;
         }
 
-        public void ConfigureWith(string providerName, string connectionString)
+        public IDatabaseContextFactory ConfigureWith(string providerName, string connectionString)
         {
             ClearConfiguredValues();
 
             _providerName = providerName;
             _connectionString = connectionString;
+
+            return this;
         }
 
-        public void ConfigureWith(IDbConnection dbConnection)
+        public IDatabaseContextFactory ConfigureWith(IDbConnection dbConnection)
         {
             ClearConfiguredValues();
 
             _dbConnection = dbConnection;
+
+            return this;
         }
 
 #if (!NETCOREAPP2_0 && !NETSTANDARD2_0)
