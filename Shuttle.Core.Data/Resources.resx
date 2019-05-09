@@ -193,4 +193,8 @@
     <value>The required connection string with name '{0}' is not specified in the application configuration file.</value>
     <comment>{0} = connection string name</comment>
   </data>
+  <data name="RecordNotFoundException" xml:space="preserve">
+    <value>Could not find a record for '{0}' with id '{1}'.</value>
+    <comment>{0} = entity name, {1} = id/key</comment>
+  </data>
 </root>

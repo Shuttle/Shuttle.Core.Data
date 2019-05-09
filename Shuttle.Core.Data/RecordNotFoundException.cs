@@ -10,8 +10,7 @@ namespace Shuttle.Core.Data
 
         public static RecordNotFoundException For(string name, object id)
         {
-            return new RecordNotFoundException(
-                $"Could not find a record for '{name}' with id '{id ?? "(null)"}'.");
+            return new RecordNotFoundException(string.Format(Resources.RecordNotFoundException, name ?? "(unknown)", id ?? "(null)"));
         }
 
         public static RecordNotFoundException For<T>(object id)

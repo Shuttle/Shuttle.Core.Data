@@ -196,6 +196,15 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not find a record for &apos;{0}&apos; with id &apos;{1}&apos;..
+        /// </summary>
+        public static string RecordNotFoundException {
+            get {
+                return ResourceManager.GetString("RecordNotFoundException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The IScriptProviderConfiguration instance returned null for the ResourceAssembly.  No file could be found which is why an embedded resource is required..
         /// </summary>
         public static string ResourceAssemblyMissingException {
