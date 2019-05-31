@@ -33,10 +33,10 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle(".NET Standard 2.0")]
 #endif
 
-[assembly: AssemblyVersion("11.0.0.0")]
-[assembly: AssemblyCopyright("Copyright © Eben Roux 2017")]
+[assembly: AssemblyVersion("11.0.1.0")]
+[assembly: AssemblyCopyright("Copyright © Eben Roux 2019")]
 [assembly: AssemblyProduct("Shuttle.Core.Data")]
 [assembly: AssemblyCompany("Shuttle")]
 [assembly: AssemblyConfiguration("Release")]
-[assembly: AssemblyInformationalVersion("11.0.0")]
+[assembly: AssemblyInformationalVersion("11.0.1")]
 [assembly: ComVisible(false)]

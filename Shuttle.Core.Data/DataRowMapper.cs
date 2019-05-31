@@ -42,6 +42,11 @@ namespace Shuttle.Core.Data
 
         private T Map<T>(DataRow row) where T : new()
         {
+            if (row == null)
+            {
+                return default(T);
+            }
+
             var result = new T();
             var type = typeof(T);
 
