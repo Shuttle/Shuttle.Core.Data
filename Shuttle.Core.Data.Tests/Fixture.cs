@@ -1,4 +1,6 @@
 ﻿using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
 using Moq;
 using NUnit.Framework;
 
@@ -11,13 +13,16 @@ namespace Shuttle.Core.Data.Tests
 		protected static string DefaultProviderName = "System.Data.SqlClient";
 		protected static string DefaultConnectionString = "Data Source=.\\sqlexpress;Initial Catalog=Shuttle;Integrated Security=SSPI";
 
+        protected Fixture()
+        {
+#if NETCOREAPP2_1
+            DbProviderFactories.RegisterFactory("System.Data.SqlClient", SqlClientFactory.Instance);
+#endif
+        }
+
         protected DbConnectionFactory GetDbConnectionFactory()
         {
-#if (!NETCOREAPP2_0 && !NETSTANDARD2_0)
             return new DbConnectionFactory();
-#else
-            return new DbConnectionFactory(new DefaultDbProviderFactories());
-#endif
         }
 
 	    protected IDatabaseContext GetDatabaseContext()

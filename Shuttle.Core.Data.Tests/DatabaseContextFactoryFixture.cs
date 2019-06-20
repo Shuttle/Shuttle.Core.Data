@@ -16,14 +16,9 @@ namespace Shuttle.Core.Data.Tests
 
 	    private IDatabaseContextFactory GetDefaultDatabaseContextFactory()
 	    {
-#if (!NETCOREAPP2_0 && !NETSTANDARD2_0)
-	        var connectionFactory = new DbConnectionFactory();
-#else
-            var connectionFactory = new DbConnectionFactory(new DefaultDbProviderFactories());
-#endif
             return new DatabaseContextFactory(
 	            GetConnectionConfigurationProvider(),
-	            connectionFactory,
+                new DbConnectionFactory(),
 	            new DbCommandFactory(),
 	            new ThreadStaticDatabaseContextCache());
 	    }

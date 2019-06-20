@@ -19,6 +19,7 @@
         <dependency id="Shuttle.Core.Configuration" version="{Shuttle.Core.Configuration-version}" />
         <dependency id="Shuttle.Core.Container" version="{Shuttle.Core.Container-version}" />
         <dependency id="Shuttle.Core.Logging" version="{Shuttle.Core.Logging-version}" />
+        <dependency id="Shuttle.Core.Threading" version="{Shuttle.Core.Threading-version}" />
       </group>
 
       <group targetFramework="netstandard2.0">
@@ -26,6 +27,7 @@
         <dependency id="Shuttle.Core.Configuration" version="{Shuttle.Core.Configuration-version}" />
         <dependency id="Shuttle.Core.Container" version="{Shuttle.Core.Container-version}" />
         <dependency id="Shuttle.Core.Logging" version="{Shuttle.Core.Logging-version}" />
+        <dependency id="Shuttle.Core.Threading" version="{Shuttle.Core.Threading-version}" />
       </group>
 
       <group targetFramework="netcoreapp2.1">
@@ -33,6 +35,7 @@
         <dependency id="Shuttle.Core.Configuration" version="{Shuttle.Core.Configuration-version}" />
         <dependency id="Shuttle.Core.Container" version="{Shuttle.Core.Container-version}" />
         <dependency id="Shuttle.Core.Logging" version="{Shuttle.Core.Logging-version}" />
+        <dependency id="Shuttle.Core.Threading" version="{Shuttle.Core.Threading-version}" />
       </group>
     </dependencies>
   </metadata>

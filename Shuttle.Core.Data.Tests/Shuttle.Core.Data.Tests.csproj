@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
+        <TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
         <ApplicationIcon />
         <OutputType>Library</OutputType>
         <StartupObject />
@@ -21,9 +21,8 @@
         <PackageReference Include="Moq" Version="4.10.0" />
         <PackageReference Include="NUnit" Version="3.11.0" />
         <PackageReference Include="NUnit3TestAdapter" Version="3.11.0" />
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.1" Condition="'$(TargetFramework)' == 'netcoreapp2.0'" />
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
-        <PackageReference Include="System.Data.SqlClient" Version="4.5.1" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" Condition="'$(TargetFramework)' == 'netcoreapp2.1'" />
+        <PackageReference Include="System.Data.SqlClient" Version="4.5.1" Condition="'$(TargetFramework)' == 'netcoreapp2.1'" />
     </ItemGroup>
 
     <ItemGroup>
@@ -31,7 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="ConnectionConfigurationProvider.cs" Condition="'$(TargetFramework)' != 'net46'" />
-        <Compile Remove="DefaultDbProviderFactories.cs" Condition="'$(TargetFramework)' != 'netcoreapp2.0'" />
+        <Compile Remove="ConnectionConfigurationProvider.cs" Condition="'$(TargetFramework)' != 'net461'" />
+        <Compile Remove="DefaultDbProviderFactories.cs" Condition="'$(TargetFramework)' != 'netcoreapp2.1'" />
     </ItemGroup>
 </Project>

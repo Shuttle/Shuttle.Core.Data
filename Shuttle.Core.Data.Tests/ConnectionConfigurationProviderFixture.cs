@@ -13,7 +13,7 @@ namespace Shuttle.Core.Data.Tests
 
             Assert.That(() => provider.Get("not-defined"), Throws.TypeOf<InvalidOperationException>());
 
-#if (!NETCOREAPP2_0 && !NETSTANDARD2_0)
+#if (!NETCOREAPP2_1)
             var configuration = provider.Get("Shuttle");
 
             Assert.That(configuration.Name, Is.EqualTo("Shuttle"));
