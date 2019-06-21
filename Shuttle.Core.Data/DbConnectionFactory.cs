@@ -1,6 +1,9 @@
 using System.Data;
 using System.Data.Common;
 using Shuttle.Core.Logging;
+#if (NETSTANDARD)
+using Shuttle.Core.Contract;
+#endif
 
 namespace Shuttle.Core.Data
 {
@@ -8,14 +11,30 @@ namespace Shuttle.Core.Data
 	{
 	    private readonly ILog _log;
 
-	    public DbConnectionFactory()
+#if (!NETSTANDARD)
+        public DbConnectionFactory()
 	    {
 	        _log = Log.For(this);
 	    }
+#else
+	    private readonly IDbProviderFactories _providerFactories;
+
+	    public DbConnectionFactory(IDbProviderFactories providerFactories)
+	    {
+            Guard.AgainstNull(providerFactories, nameof(providerFactories));
+
+	        _providerFactories = providerFactories;
+	        _log = Log.For(this);
+	    }
+#endif
 
         public IDbConnection CreateConnection(string providerName, string connectionString)
 		{
-		    var dbProviderFactory = DbProviderFactories.GetFactory(providerName);
+#if (!NETSTANDARD)
+            var dbProviderFactory = DbProviderFactories.GetFactory(providerName);
+#else
+            var dbProviderFactory = _providerFactories.GetFactory(providerName);
+#endif
             var connection = dbProviderFactory.CreateConnection();
 
 			if (connection == null)
