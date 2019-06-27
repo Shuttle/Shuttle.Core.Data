@@ -84,7 +84,16 @@ namespace Shuttle.Core.Data
                         continue;
                     }
 
-                    pi.SetValue(result, value, null);
+                    if (value == DBNull.Value)
+                    {
+                        value = null;
+                    }
+
+                    if (value != null ||
+                        Nullable.GetUnderlyingType(pi.PropertyType) != null)
+                    {
+                        pi.SetValue(result, value, null);
+                    }
                 }
                 catch
                 {
