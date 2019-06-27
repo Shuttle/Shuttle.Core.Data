@@ -2,32 +2,41 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
     public class DataRowMapper : IDataRowMapper
     {
+        private readonly object _lock = new object();
+        private readonly Dictionary<Type, PropertyInfo[]> _properties = new Dictionary<Type, PropertyInfo[]>();
+
         public MappedRow<T> MapRow<T>(DataRow row) where T : new()
         {
             Guard.AgainstNull(row, nameof(row));
 
-            return new MappedRow<T>(row, Map<T>(row));
+            return new MappedRow<T>(row, Map<T>(GetPropertyInfo<T>(), row));
         }
 
         public IEnumerable<MappedRow<T>> MapRows<T>(IEnumerable<DataRow> rows) where T : new()
         {
-            return rows?.Select(row => new MappedRow<T>(row, Map<T>(row))).ToList() ?? new List<MappedRow<T>>();
+            var properties = GetPropertyInfo<T>();
+
+            return rows?.Select(row => new MappedRow<T>(row, Map<T>(properties, row))).ToList() ??
+                   new List<MappedRow<T>>();
         }
 
         public T MapObject<T>(DataRow row) where T : new()
         {
-            return Map<T>(row);
+            return Map<T>(GetPropertyInfo<T>(), row);
         }
 
         public IEnumerable<T> MapObjects<T>(IEnumerable<DataRow> rows) where T : new()
         {
-            return rows?.Select(Map<T>).ToList() ?? new List<T>();
+            var properties = GetPropertyInfo<T>();
+
+            return rows?.Select(row => Map<T>(properties, row)).ToList() ?? new List<T>();
         }
 
         public T MapValue<T>(DataRow row)
@@ -40,7 +49,22 @@ namespace Shuttle.Core.Data
             return rows?.Select(MapRowValue<T>).ToList() ?? new List<T>();
         }
 
-        private T Map<T>(DataRow row) where T : new()
+        private PropertyInfo[] GetPropertyInfo<T>()
+        {
+            lock (_lock)
+            {
+                var type = typeof(T);
+
+                if (!_properties.ContainsKey(type))
+                {
+                    _properties.Add(type, type.GetProperties());
+                }
+
+                return _properties[type];
+            }
+        }
+
+        private T Map<T>(PropertyInfo[] properties, DataRow row) where T : new()
         {
             if (row == null)
             {
@@ -48,9 +72,8 @@ namespace Shuttle.Core.Data
             }
 
             var result = new T();
-            var type = typeof(T);
 
-            foreach (var pi in type.GetProperties())
+            foreach (var pi in properties)
             {
                 try
                 {
@@ -78,7 +101,7 @@ namespace Shuttle.Core.Data
 
             return row?[0] == null
                 ? default(T)
-                : (T)Convert.ChangeType(row[0], underlyingSystemType);
+                : (T) Convert.ChangeType(row[0], underlyingSystemType);
         }
     }
 }
