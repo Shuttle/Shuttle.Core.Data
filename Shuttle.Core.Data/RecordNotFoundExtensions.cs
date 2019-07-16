@@ -1,4 +1,6 @@
-﻿namespace Shuttle.Core.Data
+﻿using System.Data;
+
+namespace Shuttle.Core.Data
 {
     public static class RecordNotFoundExtensions
     {
@@ -10,6 +12,16 @@
             }
 
             return entity;
+        }
+
+        public static DataRow GuardAgainstRecordNotFound<T>(this DataRow row, object id) where T : class
+        {
+            if (row == null)
+            {
+                throw RecordNotFoundException.For<T>(id);
+            }
+
+            return row;
         }
     }
 }
