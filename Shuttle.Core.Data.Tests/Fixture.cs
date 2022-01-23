@@ -11,13 +11,11 @@ namespace Shuttle.Core.Data.Tests
     {
 	    protected static string DefaultConnectionStringName = "Shuttle";
 		protected static string DefaultProviderName = "System.Data.SqlClient";
-		protected static string DefaultConnectionString = "Data Source=.\\sqlexpress;Initial Catalog=Shuttle;Integrated Security=SSPI";
+		protected static string DefaultConnectionString = "Server=.;Database=Shuttle;User ID=sa;Password=Pass!000";
 
         protected Fixture()
         {
-#if NETCOREAPP2_1
             DbProviderFactories.RegisterFactory("System.Data.SqlClient", SqlClientFactory.Instance);
-#endif
         }
 
         protected DbConnectionFactory GetDbConnectionFactory()
@@ -37,7 +35,7 @@ namespace Shuttle.Core.Data.Tests
             provider.Setup(m => m.Get("Shuttle")).Returns(new ConnectionConfiguration(
                 "Shuttle",
                 "System.Data.SqlClient",
-                "Data Source=.\\sqlexpress;Initial Catalog=Shuttle;Integrated Security=SSPI"));
+                "Server=.;Database=Shuttle;User ID=sa;Password=Pass!000"));
 
             return provider.Object;
         }

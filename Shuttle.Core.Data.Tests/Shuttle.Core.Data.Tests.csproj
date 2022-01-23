@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net461;netcoreapp2.1</TargetFrameworks>
+        <TargetFrameworks>net5.0</TargetFrameworks>
         <ApplicationIcon />
         <OutputType>Library</OutputType>
         <StartupObject />
@@ -17,12 +17,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.1.1" />
-        <PackageReference Include="Moq" Version="4.12.0" />
-        <PackageReference Include="NUnit" Version="3.12.0" />
-        <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+        <PackageReference Include="Moq" Version="4.16.1" />
+        <PackageReference Include="NUnit" Version="3.13.2" />
+        <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
         <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" Condition="'$(TargetFramework)' == 'netcoreapp2.1'" />
         <PackageReference Include="System.Data.SqlClient" Version="4.6.1" Condition="'$(TargetFramework)' == 'netcoreapp2.1'" />
+        <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
     </ItemGroup>
 
     <ItemGroup>
@@ -33,4 +34,8 @@
         <Compile Remove="ConnectionConfigurationProvider.cs" Condition="'$(TargetFramework)' != 'net461'" />
         <Compile Remove="DefaultDbProviderFactories.cs" Condition="'$(TargetFramework)' != 'netcoreapp2.1'" />
     </ItemGroup>
+
+    <Target Name="ReSharperTestRunner" AfterTargets="AfterBuild">
+        <Copy SourceFiles="App.config" DestinationFiles="$(OutDir)\ReSharperTestRunner.dll.config" />
+    </Target>
 </Project>

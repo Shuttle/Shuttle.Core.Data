@@ -1,9 +1,9 @@
 using System.Data;
+#if !NETSTANDARD2_0
 using System.Data.Common;
-using Shuttle.Core.Logging;
-#if (NETSTANDARD)
-using Shuttle.Core.Contract;
 #endif
+using Shuttle.Core.Logging;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
@@ -11,13 +11,8 @@ namespace Shuttle.Core.Data
 	{
 	    private readonly ILog _log;
 
-#if (!NETSTANDARD)
-        public DbConnectionFactory()
-	    {
-	        _log = Log.For(this);
-	    }
-#else
-	    private readonly IDbProviderFactories _providerFactories;
+#if (NETSTANDARD2_0)
+		private readonly IDbProviderFactories _providerFactories;
 
 	    public DbConnectionFactory(IDbProviderFactories providerFactories)
 	    {
@@ -26,16 +21,24 @@ namespace Shuttle.Core.Data
 	        _providerFactories = providerFactories;
 	        _log = Log.For(this);
 	    }
+#else
+		public DbConnectionFactory()
+		{
+			_log = Log.For(this);
+		}
 #endif
 
-        public IDbConnection CreateConnection(string providerName, string connectionString)
+		public IDbConnection CreateConnection(string providerName, string connectionString)
 		{
-#if (!NETSTANDARD)
-            var dbProviderFactory = DbProviderFactories.GetFactory(providerName);
+			Guard.AgainstNullOrEmptyString(providerName, nameof(providerName));
+			Guard.AgainstNullOrEmptyString(connectionString, nameof(connectionString));
+
+#if NETSTANDARD2_0
+			var dbProviderFactory = _providerFactories.GetFactory(providerName);
 #else
-            var dbProviderFactory = _providerFactories.GetFactory(providerName);
+			var dbProviderFactory = DbProviderFactories.GetFactory(providerName);
 #endif
-            var connection = dbProviderFactory.CreateConnection();
+			var connection = dbProviderFactory.CreateConnection();
 
 			if (connection == null)
 			{
