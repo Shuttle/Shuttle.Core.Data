@@ -5,7 +5,7 @@ namespace Shuttle.Core.Data
 {
     public static class ComponentRegistryExtensions
     {
-        public static void Register(this IComponentRegistry registry)
+        public static void RegisterDataAccess(this IComponentRegistry registry)
         {
             Guard.AgainstNull(registry, nameof(registry));
 

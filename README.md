@@ -10,6 +10,10 @@ Provides a thin abstraction over ADO.NET.
 
 The `Shuttle.Core.Data` package provides a thin abstraction over ADO.NET by making use of the `DbProviderFactories` (see `Shuttle.Core.Data.SqlClient` for .Net Core Provider Factory adapter).  Even though it provides object/relational mapping mechanisms it is in no way an ORM.
 
+## Registration
+
+You can register the relevant dependencies using `ComponentRegistryExtensions.RegisterDataAccess(IComponentRegistry)`.
+
 # IDatabaseContextFactory
 
 As per usual, in order to access a database, we need a database connection.  A database connection is represented by a `IDatabaseContext` instance that may be obtained by using an instance of an `IDatabaseContextFactory` implementation.
