@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -25,7 +26,7 @@ namespace Shuttle.Core.Data.Tests
 
 	    protected IDatabaseContext GetDatabaseContext()
 		{
-			return new DatabaseContextFactory(GetConnectionConfigurationProvider(), GetDbConnectionFactory(), new DbCommandFactory(), new ThreadStaticDatabaseContextCache()).Create(DefaultConnectionStringName);
+			return new DatabaseContextFactory(GetConnectionConfigurationProvider(), GetDbConnectionFactory(), new DbCommandFactory(Options.Create(new DbCommandFactorySettings())), new ThreadStaticDatabaseContextCache()).Create(DefaultConnectionStringName);
 		}
 
         protected IConnectionConfigurationProvider GetConnectionConfigurationProvider()

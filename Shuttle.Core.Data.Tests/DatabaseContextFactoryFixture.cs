@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Threading;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -23,7 +24,7 @@ namespace Shuttle.Core.Data.Tests
             return new DatabaseContextFactory(
 	            GetConnectionConfigurationProvider(),
                 new DbConnectionFactory(),
-	            new DbCommandFactory(),
+	            new DbCommandFactory(Options.Create(new DbCommandFactorySettings()) ),
 	            new ThreadStaticDatabaseContextCache());
 	    }
 

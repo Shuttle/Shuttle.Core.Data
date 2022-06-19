@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -10,7 +11,7 @@ namespace Shuttle.Core.Data.Tests
 		[Test]
 		public void Should_be_able_to_create_a_command()
 		{
-			var factory = new DbCommandFactory();
+			var factory = new DbCommandFactory(Options.Create(new DbCommandFactorySettings()));
 			var connection = new Mock<IDbConnection>();
 			var query = new Mock<IQuery>();
 			var command = new Mock<IDbCommand>();
