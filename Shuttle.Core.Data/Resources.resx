@@ -119,7 +119,7 @@
   </resheader>
   <data name="ConnectionStringApproved" xml:space="preserve">
     <value>Successfully opened connection string with name '{0}'.</value>
-    <comment>{0} = the name of the connection</comment>
+    <comment>{0} = the name of the connection configuration</comment>
   </data>
   <data name="ConnectionStringApproveException" xml:space="preserve">
     <value>DbConnection open failed for connection string name '{0}': {1}</value>
@@ -127,9 +127,6 @@
   </data>
   <data name="ConnectionStringHiddenValue" xml:space="preserve">
     <value>[hidden]</value>
-  </data>
-  <data name="DatabaseContextCacheMissingException" xml:space="preserve">
-    <value>No `IDatabaseContextCache` implementation has been assigned to the `DatabaseContext`.</value>
   </data>
   <data name="DbConnectionOpenException" xml:space="preserve">
     <value>DbConnection open failed for database '{0}': {1}</value>
@@ -151,9 +148,9 @@
     <value>DbConnection opened to database '{0}'.</value>
     <comment>{0} = database</comment>
   </data>
-  <data name="ConnectionConfigurationMissing" xml:space="preserve">
-    <value>The 'IConnectionConfigurationProvider' of type '{0}' returned 'null' for connection configuration name '{1}'.</value>
-    <comment>{0} = IConnectionConfigurationProvider implementation type name, {1} = connection name</comment>
+  <data name="ConnectionSettingsMissing" xml:space="preserve">
+    <value>Could not find connection settings named '{0}'.</value>
+    <comment>{0} = the name of the connection settings</comment>
   </data>
   <data name="DatabaseContextConnectionStringNotFoundException" xml:space="preserve">
     <value>Attempt to retrieve non-existent database context with connection string '{0}'.</value>
@@ -189,12 +186,12 @@
     <value>Directory '{0}' was searched (recursively) for script file '{1}'.  Exactly 1 file must exist in the directory structure but {2} were found.</value>
     <comment>{0} = base folder where search started, {1} = script file name, {2} = number of matching files found</comment>
   </data>
-  <data name="ConnectionStringMissing" xml:space="preserve">
-    <value>The required connection string with name '{0}' is not specified in the application configuration file.</value>
-    <comment>{0} = connection string name</comment>
-  </data>
   <data name="RecordNotFoundException" xml:space="preserve">
     <value>Could not find a record for '{0}' with id '{1}'.</value>
     <comment>{0} = entity name, {1} = id/key</comment>
+  </data>
+  <data name="DuplicateConnectionConfigurationException" xml:space="preserve">
+    <value>Connection configuration with name '{0}' has already been registered.</value>
+    <comment>{0} = connection configuration name</comment>
   </data>
 </root>

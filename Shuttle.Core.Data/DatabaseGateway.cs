@@ -10,18 +10,22 @@ namespace Shuttle.Core.Data
 {
 	public class DatabaseGateway : IDatabaseGateway
 	{
+		private readonly IDatabaseContextCache _databaseContextCache;
 		private readonly ILog _log;
 
-		public DatabaseGateway()
+		public DatabaseGateway(IDatabaseContextCache databaseContextCache)
 		{
+			Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
+
+			_databaseContextCache = databaseContextCache;
 			_log = Log.For(this);
 		}
 
-		public DataTable GetDataTableFor(IQuery query)
+		public DataTable GetDataTable(IQuery query)
 		{
             Guard.AgainstNull(query, nameof(query));
 
-			using (var reader = GetReaderUsing(query))
+			using (var reader = GetReader(query))
 			{
 				var results = new DataTable();
 
@@ -46,14 +50,14 @@ namespace Shuttle.Core.Data
 			_log.Trace($"{command.CommandText} {parameters}");
 		}
 
-		public IEnumerable<DataRow> GetRowsUsing(IQuery query)
+		public IEnumerable<DataRow> GetRows(IQuery query)
 		{
-			return GetDataTableFor(query).Rows.Cast<DataRow>();
+			return GetDataTable(query).Rows.Cast<DataRow>();
 		}
 
-		public DataRow GetSingleRowUsing(IQuery query)
+		public DataRow GetRow(IQuery query)
 		{
-			var table = GetDataTableFor(query);
+			var table = GetDataTable(query);
 
 			if ((table == null) || (table.Rows.Count == 0))
 			{
@@ -63,11 +67,11 @@ namespace Shuttle.Core.Data
 			return table.Rows[0];
 		}
 
-		public IDataReader GetReaderUsing(IQuery query)
+		public IDataReader GetReader(IQuery query)
 		{
 		    Guard.AgainstNull(query, nameof(query));
 
-			using (var command = GuardedDatabaseContext().CreateCommandToExecute(query))
+			using (var command = _databaseContextCache.Current.CreateCommandToExecute(query))
 			{
 				if (Log.IsTraceEnabled)
 				{
@@ -92,23 +96,11 @@ namespace Shuttle.Core.Data
 			}
 		}
 
-		private static IDatabaseContext GuardedDatabaseContext()
-		{
-			var result = DatabaseContext.Current;
-
-			if (result == null)
-			{
-				throw new InvalidOperationException(Resources.DatabaseContextMissing);
-			}
-
-			return result;
-		}
-
-		public int ExecuteUsing(IQuery query)
+		public int Execute(IQuery query)
 		{
 		    Guard.AgainstNull(query, nameof(query));
 
-			using (var command = GuardedDatabaseContext().CreateCommandToExecute(query))
+			using (var command = _databaseContextCache.Current.CreateCommandToExecute(query))
 			{
 				if (Log.IsTraceEnabled)
 				{
@@ -133,11 +125,11 @@ namespace Shuttle.Core.Data
             }
 		}
 
-		public T GetScalarUsing<T>(IQuery query)
+		public T GetScalar<T>(IQuery query)
 		{
 		    Guard.AgainstNull(query, nameof(query));
 
-			using (var command = GuardedDatabaseContext().CreateCommandToExecute(query))
+			using (var command = _databaseContextCache.Current.CreateCommandToExecute(query))
 			{
 				if (Log.IsTraceEnabled)
 				{

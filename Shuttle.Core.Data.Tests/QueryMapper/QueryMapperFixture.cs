@@ -12,7 +12,7 @@ namespace Shuttle.Core.Data.Tests
         {
             using (GetDatabaseContext())
             {
-                new DatabaseGateway().ExecuteUsing(RawQuery.Create(@"
+                GetDatabaseGateway().Execute(RawQuery.Create(@"
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BasicMapping]') AND type in (N'U'))
 BEGIN
 CREATE TABLE [dbo].[BasicMapping](
@@ -65,7 +65,7 @@ values
         [Test]
         public void Should_be_able_to_do_basic_mapping()
         {
-            var mapper = new QueryMapper(new DatabaseGateway(), new DataRowMapper());
+            var mapper = GetQueryMapper();
 
             var queryRow = RawQuery.Create(@"
 select top 1
@@ -104,7 +104,7 @@ from
         [Test]
         public void Should_be_able_to_do_basic_mapping_even_though_columns_are_missing()
         {
-            var mapper = new QueryMapper(new DatabaseGateway(), new DataRowMapper());
+            var mapper = GetQueryMapper();
 
             var queryRow = RawQuery.Create(@"
 select top 1
@@ -143,7 +143,7 @@ from
         [Test]
         public void Should_be_able_to_do_value_mapping()
         {
-            var mapper = new QueryMapper(new DatabaseGateway(), new DataRowMapper());
+            var mapper = GetQueryMapper();
 
             var queryRow = RawQuery.Create(@"
 select top 1

@@ -13,25 +13,16 @@ namespace Shuttle.Core.Data.Tests
 		[Test]
 		public void Should_be_able_to_create_a_database_context()
 		{
-			using (var context = GetDefaultDatabaseContextFactory().Create(DefaultConnectionStringName))
+			using (var context = GetDatabaseContextFactory().Create(DefaultConnectionStringName))
 			{
 				Assert.IsNotNull(context);
 			}
 		}
 
-	    private IDatabaseContextFactory GetDefaultDatabaseContextFactory()
-	    {
-            return new DatabaseContextFactory(
-	            GetConnectionConfigurationProvider(),
-                new DbConnectionFactory(),
-	            new DbCommandFactory(Options.Create(new DbCommandFactorySettings()) ),
-	            new ThreadStaticDatabaseContextCache());
-	    }
-
         [Test]
 		public void Should_be_able_to_get_an_existing_database_context()
         {
-            var factory = GetDefaultDatabaseContextFactory();
+            var factory = GetDatabaseContextFactory();
 
             using (var context = factory.Create(DefaultConnectionStringName))
 			using (var existingContext = factory.Create(DefaultConnectionStringName))

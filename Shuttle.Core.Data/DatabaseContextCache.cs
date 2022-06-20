@@ -6,25 +6,39 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseContextCache : IDatabaseContextCache
     {
+        private IDatabaseContext _current;
+
         public DatabaseContextCache()
         {
-            Current = null;
+            _current = null;
             DatabaseContexts = new DatabaseContextCollection();
         }
 
         public DatabaseContextCollection DatabaseContexts { get; }
-        public IDatabaseContext Current { get; private set; }
+
+        public IDatabaseContext Current
+        {
+            get
+            {
+                if (_current == null)
+                {
+                    throw new InvalidOperationException(Resources.DatabaseContextMissing);
+                }
+
+                return _current;
+            }
+        }
 
         public ActiveDatabaseContext Use(string name)
         {
             Guard.AgainstNullOrEmptyString(name, nameof(name));
 
-            var current = Current;
+            var current = _current;
 
-            Current = DatabaseContexts.Find(candidate =>
+            _current = DatabaseContexts.Find(candidate =>
                 candidate.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
-            if (Current == null)
+            if (_current == null)
             {
                 throw new Exception(string.Format(Resources.DatabaseContextNameNotFoundException, name));
             }
@@ -36,11 +50,11 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(context, nameof(context));
 
-            var current = Current;
+            var current = _current;
 
-            Current = DatabaseContexts.Find(candidate => candidate.Key.Equals(context.Key));
+            _current = DatabaseContexts.Find(candidate => candidate.Key.Equals(context.Key));
 
-            if (Current == null)
+            if (_current == null)
             {
                 throw new Exception(string.Format(Resources.DatabaseContextKeyNotFoundException, context.Key));
             }
@@ -135,9 +149,9 @@ namespace Shuttle.Core.Data
                 return;
             }
 
-            if (Current != null && candidate.Key.Equals(Current.Key))
+            if (_current != null && candidate.Key.Equals(_current.Key))
             {
-                Current = null;
+                _current = null;
             }
 
             DatabaseContexts.Remove(candidate);

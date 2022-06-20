@@ -19,7 +19,7 @@ namespace Shuttle.Core.Data {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -61,11 +61,11 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The &apos;IConnectionConfigurationProvider&apos; of type &apos;{0}&apos; returned &apos;null&apos; for connection configuration name &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Could not find connection settings named &apos;{0}&apos;..
         /// </summary>
-        public static string ConnectionConfigurationMissing {
+        public static string ConnectionSettingsMissing {
             get {
-                return ResourceManager.GetString("ConnectionConfigurationMissing", resourceCulture);
+                return ResourceManager.GetString("ConnectionSettingsMissing", resourceCulture);
             }
         }
         
@@ -93,24 +93,6 @@ namespace Shuttle.Core.Data {
         public static string ConnectionStringHiddenValue {
             get {
                 return ResourceManager.GetString("ConnectionStringHiddenValue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The required connection string with name &apos;{0}&apos; is not specified in the application configuration file..
-        /// </summary>
-        public static string ConnectionStringMissing {
-            get {
-                return ResourceManager.GetString("ConnectionStringMissing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No `IDatabaseContextCache` implementation has been assigned to the `DatabaseContext`..
-        /// </summary>
-        public static string DatabaseContextCacheMissingException {
-            get {
-                return ResourceManager.GetString("DatabaseContextCacheMissingException", resourceCulture);
             }
         }
         
@@ -174,6 +156,15 @@ namespace Shuttle.Core.Data {
         public static string DbProviderFactoryCreateConnectionException {
             get {
                 return ResourceManager.GetString("DbProviderFactoryCreateConnectionException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection configuration with name &apos;{0}&apos; has already been registered..
+        /// </summary>
+        public static string DuplicateConnectionConfigurationException {
+            get {
+                return ResourceManager.GetString("DuplicateConnectionConfigurationException", resourceCulture);
             }
         }
         

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
@@ -9,6 +11,15 @@ namespace Shuttle.Core.Data.Tests
 	[TestFixture]
 	public class DatabaseGatewayFixture : Fixture
 	{
+		protected IDatabaseContext GetDatabaseContext(Mock<IDbCommand> command)
+		{
+			var commandFactory = new Mock<IDbCommandFactory>();
+
+			commandFactory.Setup(m => m.CreateCommandUsing(It.IsAny<IDbConnection>(), It.IsAny<IQuery>())).Returns(command.Object);
+
+			return new DatabaseContextFactory(Provider.GetRequiredService<IOptionsMonitor<ConnectionSettings>>(), GetDbConnectionFactory(), commandFactory.Object, new ThreadStaticDatabaseContextCache()).Create(DefaultConnectionStringName);
+		}
+
 		[Test]
 		public void Should_be_able_to_get_a_data_table()
 		{
@@ -17,11 +28,11 @@ namespace Shuttle.Core.Data.Tests
 
 			command.Setup(m => m.ExecuteReader()).Returns(DataTableReader(2));
 
-			var gateway = new DatabaseGateway();
+			var gateway = GetDatabaseGateway();
 
 			using (GetDatabaseContext(command))
 			{
-				var table = gateway.GetDataTableFor(query.Object);
+				var table = gateway.GetDataTable(query.Object);
 
 				Assert.IsNotNull(table);
 				Assert.AreEqual(2, table.Rows.Count);
@@ -39,14 +50,14 @@ namespace Shuttle.Core.Data.Tests
 
 			command.Setup(m => m.ExecuteReader()).Returns(DataTableReader(2));
 
-			var gateway = new DatabaseGateway();
+			var gateway = GetDatabaseGateway();
 
 			using (GetDatabaseContext(command))
 			{
-				var rows = gateway.GetRowsUsing(query.Object).ToList();
+				var rows = gateway.GetRows(query.Object).ToList();
 
 				Assert.IsNotNull(rows);
-				Assert.AreEqual(2, rows.Count());
+				Assert.AreEqual(2, rows.Count);
 				Assert.AreEqual("row-1", rows[0][0]);
 				Assert.AreEqual("row-2", rows[1][0]);
 			}
@@ -60,11 +71,11 @@ namespace Shuttle.Core.Data.Tests
 
 			command.Setup(m => m.ExecuteReader()).Returns(DataTableReader(2));
 
-			var gateway = new DatabaseGateway();
+			var gateway = GetDatabaseGateway();
 
 			using (GetDatabaseContext(command))
 			{
-				var row = gateway.GetSingleRowUsing(query.Object);
+				var row = gateway.GetRow(query.Object);
 
 				Assert.IsNotNull(row);
 				Assert.AreEqual("row-1", row[0]);
@@ -79,11 +90,11 @@ namespace Shuttle.Core.Data.Tests
 
 			command.Setup(m => m.ExecuteReader()).Returns(DataTableReader(0));
 
-			var gateway = new DatabaseGateway();
+			var gateway = GetDatabaseGateway();
 
 			using (GetDatabaseContext(command))
 			{
-				Assert.IsNull(gateway.GetSingleRowUsing(query.Object));
+				Assert.IsNull(gateway.GetRow(query.Object));
 			}
 		}
 
@@ -95,11 +106,11 @@ namespace Shuttle.Core.Data.Tests
 
 			command.Setup(m => m.ExecuteNonQuery()).Returns(1);
 
-			var gateway = new DatabaseGateway();
+			var gateway = GetDatabaseGateway();
 
 			using (GetDatabaseContext(command))
 			{
-				var result = gateway.ExecuteUsing(query.Object);
+				var result = gateway.Execute(query.Object);
 
 				Assert.IsNotNull(result);
 				Assert.AreEqual(1, result);
@@ -114,11 +125,11 @@ namespace Shuttle.Core.Data.Tests
 
 			command.Setup(m => m.ExecuteScalar()).Returns(10);
 
-			var gateway = new DatabaseGateway();
+			var gateway = GetDatabaseGateway();
 
 			using (GetDatabaseContext(command))
 			{
-				var result = gateway.GetScalarUsing<int>(query.Object);
+				var result = gateway.GetScalar<int>(query.Object);
 
 				Assert.IsNotNull(result);
 				Assert.AreEqual(10, result);
