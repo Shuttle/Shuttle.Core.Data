@@ -194,4 +194,15 @@
     <value>Connection configuration with name '{0}' has already been registered.</value>
     <comment>{0} = connection configuration name</comment>
   </data>
+  <data name="TimeoutException" xml:space="preserve">
+    <value>Timeout may not be less than 0.</value>
+  </data>
+  <data name="ConnectionStringMissingException" xml:space="preserve">
+    <value>Connection settings named '{0}' has no connection string.</value>
+    <comment>{0} = connection settings name</comment>
+  </data>
+  <data name="ProviderNameMissingException" xml:space="preserve">
+    <value>Connection settings named '{0}' has no provider name.</value>
+    <comment>{0} = connection settings name</comment>
+  </data>
 </root>

@@ -1,30 +1,33 @@
 using System.Data;
+using Microsoft.Extensions.Logging;
 #if !NETSTANDARD2_0
 using System.Data.Common;
 #endif
-using Shuttle.Core.Logging;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
 	public class DbConnectionFactory : IDbConnectionFactory
 	{
-	    private readonly ILog _log;
+		private readonly ILogger<DbConnectionFactory> _logger;
 
 #if (NETSTANDARD2_0)
 		private readonly IDbProviderFactories _providerFactories;
 
-	    public DbConnectionFactory(IDbProviderFactories providerFactories)
+	    public DbConnectionFactory(ILogger<DbConnectionFactory> logger, IDbProviderFactories providerFactories)
 	    {
+            Guard.AgainstNull(logger, nameof(logger));
             Guard.AgainstNull(providerFactories, nameof(providerFactories));
 
-	        _providerFactories = providerFactories;
-	        _log = Log.For(this);
+            _logger = logger;
+            _providerFactories = providerFactories;
 	    }
 #else
-		public DbConnectionFactory()
+		public DbConnectionFactory(ILogger<DbConnectionFactory> logger)
 		{
-			_log = Log.For(this);
+			Guard.AgainstNull(logger, nameof(logger));
+			
+			_logger = logger;
 		}
 #endif
 
@@ -47,9 +50,9 @@ namespace Shuttle.Core.Data
 
 			connection.ConnectionString = connectionString;
 
-            if (Log.IsVerboseEnabled)
+            if (_logger.IsEnabled(LogLevel.Trace))
             {
-                _log.Verbose(string.Format(Resources.VerboseDbConnectionCreated, connection.DataSource, connection.Database));
+	            _logger.LogTrace(string.Format(Resources.VerboseDbConnectionCreated, connection.DataSource, connection.Database));
             }
 
 			return connection;

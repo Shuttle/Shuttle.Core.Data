@@ -97,6 +97,15 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connection settings named &apos;{0}&apos; has no connection string..
+        /// </summary>
+        public static string ConnectionStringMissingException {
+            get {
+                return ResourceManager.GetString("ConnectionStringMissingException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Attempt to retrieve non-existent database context with connection string &apos;{0}&apos;..
         /// </summary>
         public static string DatabaseContextConnectionStringNotFoundException {
@@ -187,6 +196,15 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connection settings named &apos;{0}&apos; has no provider name..
+        /// </summary>
+        public static string ProviderNameMissingException {
+            get {
+                return ResourceManager.GetString("ProviderNameMissingException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not find a record for &apos;{0}&apos; with id &apos;{1}&apos;..
         /// </summary>
         public static string RecordNotFoundException {
@@ -210,6 +228,15 @@ namespace Shuttle.Core.Data {
         public static string ScriptCountException {
             get {
                 return ResourceManager.GetString("ScriptCountException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Timeout may not be less than 0..
+        /// </summary>
+        public static string TimeoutException {
+            get {
+                return ResourceManager.GetString("TimeoutException", resourceCulture);
             }
         }
         

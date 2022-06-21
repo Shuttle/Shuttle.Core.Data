@@ -1,24 +1,27 @@
 using System;
 using System.Data;
+using Microsoft.Extensions.Logging;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
 
 namespace Shuttle.Core.Data
 {
     public class DatabaseContext : IDatabaseContext
     {
         private readonly IDatabaseContextCache _databaseContextCache;
+        private readonly ILogger<DatabaseContext> _logger;
         private readonly IDbCommandFactory _dbCommandFactory;
         private bool _dispose;
         private bool _disposed;
 
-        public DatabaseContext(string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory,
+        public DatabaseContext(ILogger<DatabaseContext> logger, string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory,
             IDatabaseContextCache databaseContextCache)
         {
+            Guard.AgainstNull(logger, nameof(logger));
             Guard.AgainstNullOrEmptyString(providerName, "providerName");
             Guard.AgainstNull(dbConnection, nameof(dbConnection));
             Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
 
+            _logger = logger;
             _dbCommandFactory = dbCommandFactory;
             _databaseContextCache = databaseContextCache;
             _dispose = true;
@@ -28,24 +31,28 @@ namespace Shuttle.Core.Data
             ProviderName = providerName;
             Connection = dbConnection;
 
-            var log = Log.For(this);
-
             try
             {
                 if (dbConnection.State == ConnectionState.Closed)
                 {
                     Connection.Open();
 
-                    log.Verbose(string.Format(Resources.VerboseDbConnectionOpened, dbConnection.Database));
+                    if (logger.IsEnabled(LogLevel.Trace))
+                    {
+                        logger.LogTrace(string.Format(Resources.VerboseDbConnectionOpened, dbConnection.Database));
+                    }
                 }
                 else
                 {
-                    log.Verbose(string.Format(Resources.VerboseDbConnectionAlreadyOpen, dbConnection.Database));
+                    if (logger.IsEnabled(LogLevel.Trace))
+                    {
+                        logger.LogTrace(string.Format(Resources.VerboseDbConnectionAlreadyOpen, dbConnection.Database));
+                    }
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format(Resources.DbConnectionOpenException, dbConnection.Database, ex.Message));
+                logger.LogError(string.Format(Resources.DbConnectionOpenException, dbConnection.Database, ex.Message));
 
                 throw;
             }
@@ -68,7 +75,7 @@ namespace Shuttle.Core.Data
 
         public IDatabaseContext Suppressed()
         {
-            return new DatabaseContext(ProviderName, Connection, _dbCommandFactory, _databaseContextCache)
+            return new DatabaseContext(_logger, ProviderName, Connection, _dbCommandFactory, _databaseContextCache)
             {
                 Transaction = Transaction,
                 _dispose = false

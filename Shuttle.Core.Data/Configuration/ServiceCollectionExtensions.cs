@@ -1,19 +1,21 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddDataAccess(this IServiceCollection services, Action<DataAccessConfigurator> configure = null)
+        public static IServiceCollection AddDataAccess(this IServiceCollection services, Action<DataAccessOptions> options = null)
         {
             Guard.AgainstNull(services, nameof(services));
 
-            var configurator = new DataAccessConfigurator(services);
+            options?.Invoke(new DataAccessOptions(services));
 
-            configure?.Invoke(configurator);
+            services.TryAddSingleton<IValidateOptions<CommandSettings>, CommandSettingsValidator>();
+            services.TryAddSingleton<IValidateOptions<ConnectionSettings>, ConnectionSettingsValidator>();
 
             services.TryAddSingleton<IDatabaseContextCache, ThreadStaticDatabaseContextCache>();
             services.TryAddSingleton<IDatabaseContextFactory, DatabaseContextFactory>();
@@ -26,5 +28,5 @@ namespace Shuttle.Core.Data
 
             return services;
         }
-	}
+    }
 }
