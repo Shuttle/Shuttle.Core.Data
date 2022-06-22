@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -31,6 +32,8 @@ namespace Shuttle.Core.Data.Tests
 		            configure.AddConnection(DefaultConnectionStringName, DefaultProviderName, DefaultConnectionString);
 	            }
             );
+
+            Services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
 
             Provider = Services.BuildServiceProvider();
         }

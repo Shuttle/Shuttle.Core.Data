@@ -6,6 +6,8 @@ namespace Shuttle.Core.Data
 {
     public class DataAccessOptions
     {
+        public const string SectionName = "Shuttle:DataAccess";
+        
         private readonly IServiceCollection _services;
 
         public DataAccessOptions(IServiceCollection services)
@@ -13,6 +15,13 @@ namespace Shuttle.Core.Data
             Guard.AgainstNull(services, nameof(services));
 
             _services = services;
+
+            _services.AddOptions<CommandSettings>().Configure<IConfiguration>((option, configuration) =>
+            {
+                var commandSettings = configuration.GetSection(SectionName).Get<CommandSettings>();
+
+                option.CommandTimeout = commandSettings.CommandTimeout;
+            });
         }
 
         public DataAccessOptions AddConnection(string name, string providerName, string connectionString)
@@ -54,7 +63,7 @@ namespace Shuttle.Core.Data
         {
             _services.Configure<CommandSettings>(option =>
             {
-                option.Timeout = timeout;
+                option.CommandTimeout = timeout;
             });
 
             return this;

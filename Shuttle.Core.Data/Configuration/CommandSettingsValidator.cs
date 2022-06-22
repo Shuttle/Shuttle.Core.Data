@@ -9,7 +9,7 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(options, nameof(options));
 
-            if (options.Timeout < 0)
+            if (options.CommandTimeout < 0)
             {
                 return ValidateOptionsResult.Fail(Resources.TimeoutException);
             }
