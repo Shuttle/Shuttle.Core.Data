@@ -18,9 +18,9 @@ namespace Shuttle.Core.Data
 
             _services.AddOptions<CommandSettings>().Configure<IConfiguration>((option, configuration) =>
             {
-                var commandSettings = configuration.GetSection(SectionName).Get<CommandSettings>();
+                var settings = configuration.GetSection(SectionName).Get<CommandSettings>();
 
-                option.CommandTimeout = commandSettings?.CommandTimeout ?? 0;
+                option.CommandTimeout = settings?.CommandTimeout ?? 0;
             });
         }
 
