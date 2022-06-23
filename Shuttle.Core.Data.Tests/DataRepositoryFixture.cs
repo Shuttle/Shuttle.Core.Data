@@ -23,7 +23,7 @@ namespace Shuttle.Core.Data.Tests
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = repository.FetchAllUsing(query.Object).ToList();
+			var result = repository.FetchItems(query.Object).ToList();
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);
@@ -44,7 +44,7 @@ namespace Shuttle.Core.Data.Tests
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = repository.FetchItemUsing(query.Object);
+			var result = repository.FetchItem(query.Object);
 
 			Assert.IsNotNull(result);
 			Assert.AreSame(anObject, result);
@@ -60,7 +60,7 @@ namespace Shuttle.Core.Data.Tests
 
 			var repository = new DataRepository<object>(gateway.Object, new Mock<IDataRowMapper<object>>().Object);
 
-			var result = repository.FetchItemUsing(query.Object);
+			var result = repository.FetchItem(query.Object);
 
 			Assert.IsNull(result);
 		}
@@ -93,7 +93,7 @@ namespace Shuttle.Core.Data.Tests
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = repository.FetchMappedRowsUsing(query.Object).ToList();
+			var result = repository.FetchMappedRows(query.Object).ToList();
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);
@@ -116,7 +116,7 @@ namespace Shuttle.Core.Data.Tests
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = repository.FetchMappedRowUsing(query.Object);
+			var result = repository.FetchMappedRow(query.Object);
 
 			Assert.IsNotNull(result);
 			Assert.AreSame(dataRow, result.Row);

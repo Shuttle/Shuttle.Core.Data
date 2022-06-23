@@ -20,7 +20,7 @@ namespace Shuttle.Core.Data
             {
                 var commandSettings = configuration.GetSection(SectionName).Get<CommandSettings>();
 
-                option.CommandTimeout = commandSettings.CommandTimeout;
+                option.CommandTimeout = commandSettings?.CommandTimeout ?? 0;
             });
         }
 

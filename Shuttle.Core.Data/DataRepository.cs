@@ -18,26 +18,26 @@ namespace Shuttle.Core.Data
 			_dataRowMapper = dataRowMapper;
 		}
 
-		public IEnumerable<T> FetchAllUsing(IQuery query)
+		public IEnumerable<T> FetchItems(IQuery query)
 		{
 			return _databaseGateway.GetRows(query).MappedRowsUsing(_dataRowMapper).Select(row => row.Result).ToList();
 		}
 
-		public T FetchItemUsing(IQuery query)
+		public T FetchItem(IQuery query)
 		{
 			var row = _databaseGateway.GetRow(query);
 
 			return row == null ? default(T) : _dataRowMapper.Map(row).Result;
 		}
 
-		public MappedRow<T> FetchMappedRowUsing(IQuery query)
+		public MappedRow<T> FetchMappedRow(IQuery query)
 		{
 			var row = _databaseGateway.GetRow(query);
 
 			return row == null ? null : _dataRowMapper.Map(row);
 		}
 
-		public IEnumerable<MappedRow<T>> FetchMappedRowsUsing(IQuery query)
+		public IEnumerable<MappedRow<T>> FetchMappedRows(IQuery query)
 		{
 			return _databaseGateway.GetRows(query).MappedRowsUsing(_dataRowMapper);
 		}

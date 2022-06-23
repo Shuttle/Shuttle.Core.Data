@@ -10,9 +10,18 @@ Provides a thin abstraction over ADO.NET.
 
 The `Shuttle.Core.Data` package provides a thin abstraction over ADO.NET by making use of the `DbProviderFactories` (see `Shuttle.Core.Data.SqlClient` for .Net Core Provider Factory adapter).  Even though it provides object/relational mapping mechanisms it is in no way an ORM.
 
-## Registration
+## Configuration
 
-You can register the relevant dependencies using `ComponentRegistryExtensions.RegisterDataAccess(IComponentRegistry)`.
+The relevant data access components may be configuration using `IServiceColletion`:
+
+```c#
+services.AddDataAccess(options => 
+{
+	options.AddConnection(name, providerName, connectionString);
+	options.AddConnectionString(name, providerName);
+	options.AddCommandTimeout(timeout);
+});
+```
 
 # IDatabaseContextFactory
 
@@ -21,9 +30,9 @@ As per usual, in order to access a database, we need a database connection.  A d
 The `DatabaseContextFactory` implementation makes use of an `IDbConnectionFactory` implementation, that creates a `System.Data.IDbConnection` by using the provider name and connection string, an `IDbCommandFactory` that creates a `System.Data.IDbCommand` by using `IDbConnection` instance.  The `DatabaseContextFactory` also requires an instance of a `IDatabaseContextCache` that stores connections and is assigned to the `DatabaseContext` in order to obtain the active connection.
 
 ``` c#
-var factory = DatabaseContextFactory.Default();
+var factory = provider.GetRequiredService<DatabaseContextFactory>();
 
-using (var context = factory.Create("connectionStringName"))
+using (var context = factory.Create("connection-name"))
 {
 	// database interaction
 }
@@ -48,7 +57,7 @@ You can pre-configure your database context factory using this interface.  If yo
 ``` c#
 IDatabaseContext Create();
 
-void ConfigureWith(string connectionStringName);
+void ConfigureWith(string connection-name);
 void ConfigureWith(string providerName, string connectionString);
 void ConfigureWith(IDbConnection dbConnection);
 ```
@@ -59,10 +68,10 @@ The `DatabaseGateway` is used to execute `IQuery` instances in order return data
 
 The following section each describe the methods available in the `IDatabaseGateway` interface.
 
-## GetReaderUsing
+## GetReader
 
 ``` c#
-IDataReader GetReaderUsing(IQuery query);
+IDataReader GetReader(IQuery query);
 ```
 
 Returns an `IDataReader` instance for the given `select` statement:
@@ -71,16 +80,16 @@ Returns an `IDataReader` instance for the given `select` statement:
 var factory = DatabaseContextFactory.Default();
 var gateway = new DatabaseGateway();
 
-using (var context = factory.Create("connectionStringName"))
+using (var context = factory.Create("connection-name"))
 {
-	var reader = gateway.GetReaderUsing(RawQuery.Create("select Id, Username from dbo.Member"));
+	var reader = gateway.GetReader(RawQuery.Create("select Id, Username from dbo.Member"));
 }
 ```
 
-## ExecuteUsing
+## Execute
 
 ``` c#
-int ExecuteUsing(IQuery query);
+int Execute(IQuery query);
 ```
 
 Executes the given query and returns the number of rows affected:
@@ -89,16 +98,16 @@ Executes the given query and returns the number of rows affected:
 var factory = DatabaseContextFactory.Default();
 var gateway = new DatabaseGateway();
 
-using (var context = factory.Create("connectionStringName"))
+using (var context = factory.Create("connection-name"))
 {
-	gateway.ExecuteUsing(RawQuery.Create("delete from dbo.Member where Username = 'mr.resistor'"));
+	gateway.Execute(RawQuery.Create("delete from dbo.Member where Username = 'mr.resistor'"));
 }
 ```
 
-## GetScalarUsing<T>
+## GetScalar<T>
 
 ``` c#
-T GetScalarUsing<T>(IQuery query);
+T GetScalar<T>(IQuery query);
 ```
 
 Get the scalar value returned by the `select` query.  The query shoud return only one value (scalar):
@@ -107,22 +116,22 @@ Get the scalar value returned by the `select` query.  The query shoud return onl
 var factory = DatabaseContextFactory.Default();
 var gateway = new DatabaseGateway();
 
-using (var context = factory.Create("connectionStringName"))
+using (var context = factory.Create("connection-name"))
 {
-	var username = gateway.GetScalarUsing<string>(
+	var username = gateway.GetScalar<string>(
 		RawQuery.Create("select Username from dbo.Member where Id = 10")
 	);
 	
-	var id = gateway.GetScalarUsing<int>(
+	var id = gateway.GetScalar<int>(
 		RawQuery.Create("select Id from dbo.Member where Username = 'mr.resistor'")
 	);
 }
 ```
 
-## GetDataTableFor
+## GetDataTable
 
 ``` c#
-DataTable GetDataTableFor(IQuery query);
+DataTable GetDataTable(IQuery query);
 ```
 
 Returns a `DataTable` containing the rows returned for the given `select` statement.
@@ -131,16 +140,16 @@ Returns a `DataTable` containing the rows returned for the given `select` statem
 var factory = DatabaseContextFactory.Default();
 var gateway = new DatabaseGateway();
 
-using (var context = factory.Create("connectionStringName"))
+using (var context = factory.Create("connection-name"))
 {
-	var table = gateway.GetDataTableFor(RawQuery.Create("select Id, Username from dbo.Member"));
+	var table = gateway.GetDataTable(RawQuery.Create("select Id, Username from dbo.Member"));
 }
 ```
 
-## GetRowsUsing
+## GetRows
 
 ``` c#
-IEnumerable<DataRow> GetRowsUsing(IQuery query);
+IEnumerable<DataRow> GetRows(IQuery query);
 ```
 
 Returns an enumerable containing the `DataRow` instances returned for a `select` query:
@@ -149,17 +158,17 @@ Returns an enumerable containing the `DataRow` instances returned for a `select`
 var factory = DatabaseContextFactory.Default();
 var gateway = new DatabaseGateway();
 
-using (var context = factory.Create("connectionStringName"))
+using (var context = factory.Create("connection-name"))
 {
-	var rows = gateway.GetRowsUsing(RawQuery.Create("select Id, Username from dbo.Member"));
+	var rows = gateway.GetRows(RawQuery.Create("select Id, Username from dbo.Member"));
 }
 ```
 
 
-## GetSingleRowUsing
+## GetRow
 
 ``` c#
-DataRow GetSingleRowUsing(IQuery query);
+DataRow GetRow(IQuery query);
 ```
 
 Returns a single `DataRow` containing the values returned for a `select` statement that returns exactly one row:
@@ -168,9 +177,9 @@ Returns a single `DataRow` containing the values returned for a `select` stateme
 var factory = DatabaseContextFactory.Default();
 var gateway = new DatabaseGateway();
 
-using (var context = factory.Create("connectionStringName"))
+using (var context = factory.Create("connection-name"))
 {
-	var row = gateway.GetSingleRowUsing(
+	var row = gateway.GetRow(
 		RawQuery.Create("select Id, Username, EMail, DateActivated from dbo.Member where Id = 10")
 	);
 }
@@ -182,37 +191,37 @@ An `IDataRepository<T>` implementation is responsible for returning a hydrated o
 
 The following methods can be used to interact with your object type.
 
-## FetchAllUsing
+## FetchItems
 
 ``` c#
-IEnumerable<T> FetchAllUsing(IQuery query);
+IEnumerable<T> FetchItems(IQuery query);
 ```
 
 Uses the `select` clause represented by the `IQuery` instance to create a list of objects of type `T`.  The `select` clause will need to select all the required columns and will, typically, return more than one instance.
 
-## FetchItemUsing
+## FetchItem
 
 ``` c#
-T FetchItemUsing(IQuery query);
+T FetchItem(IQuery query);
 ```
 
 Returns a single object instance of type `T` that is hydrated using the data returned from the `select` clause represented by the `IQuery` instance.
 
-## FetchMappedRowsUsing
+## FetchMappedRows
 
 ``` c#
-IEnumerable<MappedRow<T>> FetchMappedRowsUsing(IQuery query);
+IEnumerable<MappedRow<T>> FetchMappedRows(IQuery query);
 ```
 
-This is similar to the `FetchAllUsing` method but instead returns a list of `MappedRow<T>` instances.  Uses the `select` clause represented by the `IQuery` instance to create a list of `MappedRow` instances of type `T`.  The `select` clause will need to select all the required columns and will, typically, return more than one instance.
+This is similar to the `FetchItems` method but instead returns a list of `MappedRow<T>` instances.  Uses the `select` clause represented by the `IQuery` instance to create a list of `MappedRow` instances of type `T`.  The `select` clause will need to select all the required columns and will, typically, return more than one instance.
 
-## FetchMappedRowUsing
+## FetchMappedRow
 
 ``` c#
-MappedRow<T> FetchMappedRowUsing(IQuery query);
+MappedRow<T> FetchMappedRow(IQuery query);
 ```
 
-Similar to the `FetchItemUsing` method but instead return a `MappedRow<T>` instance that is hydrated using the data returned from the `select` clause represented by the `IQuery` instance.
+Similar to the `FetchItem` method but instead return a `MappedRow<T>` instance that is hydrated using the data returned from the `select` clause represented by the `IQuery` instance.
 
 ## Contains
 
