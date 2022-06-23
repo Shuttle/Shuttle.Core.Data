@@ -12,7 +12,7 @@ The `Shuttle.Core.Data` package provides a thin abstraction over ADO.NET by maki
 
 ## Configuration
 
-The relevant data access components may be configuration using `IServiceColletion`:
+The relevant components may be configured using `IServiceColletion`:
 
 ```c#
 services.AddDataAccess(options => 
@@ -21,6 +21,21 @@ services.AddDataAccess(options =>
 	options.AddConnectionString(name, providerName);
 	options.AddCommandTimeout(timeout);
 });
+```
+
+The `appsettings.json` structure is as follows:
+
+```json
+{
+	"ConnectionStrings": {
+		"connection-name": "connection-string"
+	},
+	"Shuttle": {
+		"DataAccess": {
+			"CommandTimeout": 25
+		} 
+	}
+}
 ```
 
 # IDatabaseContextFactory
