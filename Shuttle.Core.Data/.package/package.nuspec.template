@@ -16,7 +16,7 @@
 		<copyright>Copyright (c) #{Year}#, Eben Roux</copyright>
 		<tags>orm micro-orm microorm data-access</tags>
 		<dependencies>
-			#{Dependencies}#
+#{Dependencies}#
 		</dependencies>
 	</metadata>
 	<files>
