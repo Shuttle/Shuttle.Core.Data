@@ -15,13 +15,18 @@ namespace Shuttle.Core.Data
             Guard.AgainstNull(services, nameof(services));
 
             _services = services;
+        }
 
+        public DataAccessOptions ReadCommandTimeout(string sectionName = null)
+        {
             _services.AddOptions<CommandSettings>().Configure<IConfiguration>((option, configuration) =>
             {
-                var settings = configuration.GetSection(SectionName).Get<CommandSettings>();
+                var settings = configuration.GetSection(sectionName ?? SectionName).Get<CommandSettings>();
 
                 option.CommandTimeout = settings?.CommandTimeout ?? 0;
             });
+
+            return this;
         }
 
         public DataAccessOptions AddConnection(string name, string providerName, string connectionString)
