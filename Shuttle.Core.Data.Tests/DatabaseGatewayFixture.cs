@@ -2,7 +2,6 @@
 using System.Data;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
@@ -18,7 +17,7 @@ namespace Shuttle.Core.Data.Tests
 
 			commandFactory.Setup(m => m.CreateCommandUsing(It.IsAny<IDbConnection>(), It.IsAny<IQuery>())).Returns(command.Object);
 
-			return new DatabaseContextFactory(new NullLoggerFactory(), Provider.GetRequiredService<IOptionsMonitor<ConnectionSettings>>(), GetDbConnectionFactory(), commandFactory.Object, new ThreadStaticDatabaseContextCache()).Create(DefaultConnectionStringName);
+			return new DatabaseContextFactory(Provider.GetRequiredService<IOptionsMonitor<ConnectionSettings>>(), GetDbConnectionFactory(), commandFactory.Object, new ThreadStaticDatabaseContextCache()).Create(DefaultConnectionStringName);
 		}
 
 		[Test]

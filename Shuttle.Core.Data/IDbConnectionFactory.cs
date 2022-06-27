@@ -1,9 +1,12 @@
+using System;
 using System.Data;
 
 namespace Shuttle.Core.Data
 {
     public interface IDbConnectionFactory 
     {
-	    IDbConnection CreateConnection(string providerName, string connectionString);
+        event EventHandler<DbConnectionCreatedEventArgs> DbConnectionCreated;
+
+        IDbConnection CreateConnection(string providerName, string connectionString);
     }
 }

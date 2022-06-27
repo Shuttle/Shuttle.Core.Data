@@ -4,8 +4,6 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
 
@@ -24,8 +22,6 @@ namespace Shuttle.Core.Data.Tests
         protected Fixture()
         {
             DbProviderFactories.RegisterFactory("System.Data.SqlClient", SqlClientFactory.Instance);
-
-            Services.AddLogging();
 
             Services.AddDataAccess(configure =>
 	            {
@@ -61,11 +57,6 @@ namespace Shuttle.Core.Data.Tests
         protected IQueryMapper GetQueryMapper()
         {
 	        return Provider.GetRequiredService<IQueryMapper>();
-        }
-
-        protected ILogger<T> GetNullLogger<T>()
-        {
-	        return new Logger<T>(new NullLoggerFactory());
         }
     }
 }

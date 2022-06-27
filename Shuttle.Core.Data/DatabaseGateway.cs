@@ -2,23 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using Microsoft.Extensions.Logging;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
 	public class DatabaseGateway : IDatabaseGateway
 	{
-		private readonly ILogger<DatabaseGateway> _logger;
 		private readonly IDatabaseContextCache _databaseContextCache;
 		
-		public DatabaseGateway(ILogger<DatabaseGateway> logger, IDatabaseContextCache databaseContextCache)
+		public DatabaseGateway(IDatabaseContextCache databaseContextCache)
 		{
-			Guard.AgainstNull(logger, nameof(logger));
 			Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
 
-			_logger = logger;
 			_databaseContextCache = databaseContextCache;
 		}
 
@@ -39,18 +34,6 @@ namespace Shuttle.Core.Data
 			}
 		}
 
-		private void Trace(IDbCommand command)
-		{
-			var parameters = new StringBuilder();
-
-			foreach (IDataParameter parameter in command.Parameters)
-			{
-				parameters.AppendFormat(" / {0} = {1}", parameter.ParameterName, parameter.Value);
-			}
-
-			_logger.LogTrace($"{command.CommandText} {parameters}");
-		}
-
 		public IEnumerable<DataRow> GetRows(IQuery query)
 		{
 			return GetDataTable(query).Rows.Cast<DataRow>();
@@ -68,32 +51,19 @@ namespace Shuttle.Core.Data
 			return table.Rows[0];
 		}
 
+		public event EventHandler<DbCommandCreatedEventArgs> DbCommandCreated = delegate
+		{
+		};
+
 		public IDataReader GetReader(IQuery query)
 		{
 		    Guard.AgainstNull(query, nameof(query));
 
 			using (var command = _databaseContextCache.Current.CreateCommandToExecute(query))
 			{
-				if (_logger.IsEnabled(LogLevel.Trace))
-				{
-					Trace(command);
-				}
+				DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
 
-			    try
-			    {
-			        return command.ExecuteReader();
-			    }
-			    catch (Exception ex)
-			    {
-				    (_logger).LogError(ex.Message);
-
-					if (!_logger.IsEnabled(LogLevel.Trace))
-					{
-			            Trace(command);
-			        }
-
-			        throw;
-			    }
+			    return command.ExecuteReader();
 			}
 		}
 
@@ -103,26 +73,9 @@ namespace Shuttle.Core.Data
 
 			using (var command = _databaseContextCache.Current.CreateCommandToExecute(query))
 			{
-				if (_logger.IsEnabled(LogLevel.Trace))
-				{
-					Trace(command);
-				}
+				DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
 
-			    try
-			    {
-			        return command.ExecuteNonQuery();
-			    }
-			    catch (Exception ex)
-			    {
-			        _logger.LogError(ex.Message);
-
-					if (!_logger.IsEnabled(LogLevel.Trace))
-					{
-			            Trace(command);
-			        }
-
-			        throw;
-			    }
+				return command.ExecuteNonQuery();
             }
 		}
 
@@ -132,28 +85,9 @@ namespace Shuttle.Core.Data
 
 			using (var command = _databaseContextCache.Current.CreateCommandToExecute(query))
 			{
-				if (_logger.IsEnabled(LogLevel.Trace))
-				{
-					Trace(command);
-				}
+				DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
 
-			    object scalar;
-
-			    try
-                {
-			        scalar = command.ExecuteScalar();
-			    }
-			    catch (Exception ex)
-			    {
-			        _logger.LogError(ex.Message);
-
-					if (!_logger.IsEnabled(LogLevel.Trace))
-					{
-			            Trace(command);
-			        }
-
-			        throw;
-			    }
+				var scalar = command.ExecuteScalar();
 
                 return scalar != null && scalar != DBNull.Value ? (T)scalar : default(T);
 			}

@@ -1,5 +1,5 @@
+using System;
 using System.Data;
-using Microsoft.Extensions.Logging;
 #if !NETSTANDARD2_0
 using System.Data.Common;
 #endif
@@ -9,27 +9,20 @@ namespace Shuttle.Core.Data
 {
 	public class DbConnectionFactory : IDbConnectionFactory
 	{
-		private readonly ILogger<DbConnectionFactory> _logger;
-
 #if (NETSTANDARD2_0)
 		private readonly IDbProviderFactories _providerFactories;
 
-	    public DbConnectionFactory(ILogger<DbConnectionFactory> logger, IDbProviderFactories providerFactories)
+	    public DbConnectionFactory(IDbProviderFactories providerFactories)
 	    {
-            Guard.AgainstNull(logger, nameof(logger));
             Guard.AgainstNull(providerFactories, nameof(providerFactories));
 
-            _logger = logger;
             _providerFactories = providerFactories;
 	    }
-#else
-		public DbConnectionFactory(ILogger<DbConnectionFactory> logger)
-		{
-			Guard.AgainstNull(logger, nameof(logger));
-			
-			_logger = logger;
-		}
 #endif
+
+		public event EventHandler<DbConnectionCreatedEventArgs> DbConnectionCreated = delegate
+		{
+		};
 
 		public IDbConnection CreateConnection(string providerName, string connectionString)
 		{
@@ -50,10 +43,7 @@ namespace Shuttle.Core.Data
 
 			connection.ConnectionString = connectionString;
 
-            if (_logger.IsEnabled(LogLevel.Trace))
-            {
-	            _logger.LogTrace(string.Format(Resources.VerboseDbConnectionCreated, connection.DataSource, connection.Database));
-            }
+			DbConnectionCreated.Invoke(this, new DbConnectionCreatedEventArgs(connection));
 
 			return connection;
 		}

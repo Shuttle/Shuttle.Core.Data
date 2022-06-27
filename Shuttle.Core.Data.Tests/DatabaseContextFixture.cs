@@ -14,7 +14,7 @@ namespace Shuttle.Core.Data.Tests
 		{
 		    Assert.Throws<ArgumentException>(() =>
 		    {
-		        using (new DatabaseContext(GetNullLogger<DatabaseContext>(), "System.Data.SqlClient", new SqlConnection("```"), new Mock<IDbCommandFactory>().Object, new DatabaseContextCache()))
+		        using (new DatabaseContext("System.Data.SqlClient", new SqlConnection("```"), new Mock<IDbCommandFactory>().Object, new DatabaseContextCache()))
 		        {
 		        }
 		    });
@@ -26,7 +26,7 @@ namespace Shuttle.Core.Data.Tests
 		    Assert.Throws<SqlException>(() =>
 		    {
 		        using (
-		            new DatabaseContext(GetNullLogger<DatabaseContext>(), "System.Data.SqlClient", new SqlConnection("data source=.;initial catalog=idontexist;integrated security=sspi"),
+		            new DatabaseContext("System.Data.SqlClient", new SqlConnection("data source=.;initial catalog=idontexist;integrated security=sspi"),
 		                new Mock<IDbCommandFactory>().Object, new DatabaseContextCache()))
 		        {
 		        }
@@ -37,7 +37,7 @@ namespace Shuttle.Core.Data.Tests
 		public void Should_be_able_to_create_a_valid_connection()
 		{
 			using (
-				new DatabaseContext(GetNullLogger<DatabaseContext>(), "System.Data.SqlClient", GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString),
+				new DatabaseContext("System.Data.SqlClient", GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString),
 					new Mock<IDbCommandFactory>().Object, new DatabaseContextCache()))
 			{
 			}
@@ -48,7 +48,7 @@ namespace Shuttle.Core.Data.Tests
 		{
 			using (
 				var connection =
-					new DatabaseContext(GetNullLogger<DatabaseContext>(), "System.Data.SqlClient", GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString),
+					new DatabaseContext("System.Data.SqlClient", GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString),
 						new Mock<IDbCommandFactory>().Object, new DatabaseContextCache()))
 			{
 				connection.BeginTransaction();
@@ -61,7 +61,7 @@ namespace Shuttle.Core.Data.Tests
 		{
 			using (
 				var connection =
-					new DatabaseContext(GetNullLogger<DatabaseContext>(), "System.Data.SqlClient", GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString),
+					new DatabaseContext("System.Data.SqlClient", GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString),
 						new Mock<IDbCommandFactory>().Object, new DatabaseContextCache()))
 			{
 				connection.BeginTransaction();
@@ -73,7 +73,7 @@ namespace Shuttle.Core.Data.Tests
 		{
 			using (
 				var connection =
-					new DatabaseContext(GetNullLogger<DatabaseContext>(), "System.Data.SqlClient", GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString),
+					new DatabaseContext("System.Data.SqlClient", GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString),
 						new Mock<IDbCommandFactory>().Object, new DatabaseContextCache()))
 			{
 				connection.CommitTransaction();
@@ -85,7 +85,7 @@ namespace Shuttle.Core.Data.Tests
 		{
 			using (
 				var connection =
-					new DatabaseContext(GetNullLogger<DatabaseContext>(), "System.Data.SqlClient", GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString),
+					new DatabaseContext("System.Data.SqlClient", GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString),
 						new Mock<IDbCommandFactory>().Object, new DatabaseContextCache()))
 			{
 				connection.Dispose();
@@ -104,7 +104,7 @@ namespace Shuttle.Core.Data.Tests
 			dbCommandFactory.Setup(m => m.CreateCommandUsing(dbConnection, query.Object)).Returns(dbCommand.Object);
 
 			using (
-				var connection = new DatabaseContext(GetNullLogger<DatabaseContext>(), "System.Data.SqlClient", dbConnection, dbCommandFactory.Object, new DatabaseContextCache()))
+				var connection = new DatabaseContext("System.Data.SqlClient", dbConnection, dbCommandFactory.Object, new DatabaseContextCache()))
 			{
 				connection.CreateCommandToExecute(query.Object);
 			}

@@ -1,6 +1,5 @@
 using System;
 using System.Data;
-using Microsoft.Extensions.Logging;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
@@ -8,20 +7,17 @@ namespace Shuttle.Core.Data
     public class DatabaseContext : IDatabaseContext
     {
         private readonly IDatabaseContextCache _databaseContextCache;
-        private readonly ILogger<DatabaseContext> _logger;
         private readonly IDbCommandFactory _dbCommandFactory;
         private bool _dispose;
         private bool _disposed;
 
-        public DatabaseContext(ILogger<DatabaseContext> logger, string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory,
+        public DatabaseContext(string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory,
             IDatabaseContextCache databaseContextCache)
         {
-            Guard.AgainstNull(logger, nameof(logger));
             Guard.AgainstNullOrEmptyString(providerName, "providerName");
             Guard.AgainstNull(dbConnection, nameof(dbConnection));
             Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
 
-            _logger = logger;
             _dbCommandFactory = dbCommandFactory;
             _databaseContextCache = databaseContextCache;
             _dispose = true;
@@ -31,30 +27,9 @@ namespace Shuttle.Core.Data
             ProviderName = providerName;
             Connection = dbConnection;
 
-            try
+            if (dbConnection.State == ConnectionState.Closed)
             {
-                if (dbConnection.State == ConnectionState.Closed)
-                {
-                    Connection.Open();
-
-                    if (logger.IsEnabled(LogLevel.Trace))
-                    {
-                        logger.LogTrace(string.Format(Resources.VerboseDbConnectionOpened, dbConnection.Database));
-                    }
-                }
-                else
-                {
-                    if (logger.IsEnabled(LogLevel.Trace))
-                    {
-                        logger.LogTrace(string.Format(Resources.VerboseDbConnectionAlreadyOpen, dbConnection.Database));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(string.Format(Resources.DbConnectionOpenException, dbConnection.Database, ex.Message));
-
-                throw;
+                Connection.Open();
             }
 
             _databaseContextCache.Add(this);
@@ -75,7 +50,7 @@ namespace Shuttle.Core.Data
 
         public IDatabaseContext Suppressed()
         {
-            return new DatabaseContext(_logger, ProviderName, Connection, _dbCommandFactory, _databaseContextCache)
+            return new DatabaseContext(ProviderName, Connection, _dbCommandFactory, _databaseContextCache)
             {
                 Transaction = Transaction,
                 _dispose = false

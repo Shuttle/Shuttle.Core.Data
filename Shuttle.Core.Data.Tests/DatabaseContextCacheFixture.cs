@@ -11,11 +11,11 @@ namespace Shuttle.Core.Data.Tests
         {
             var cache = new DatabaseContextCache();
 
-            var context1 = new DatabaseContext(GetNullLogger<DatabaseContext>(), "mock-1", new Mock<IDbConnection>().Object, new Mock<IDbCommandFactory>().Object, cache).WithName("mock-1");
+            var context1 = new DatabaseContext("mock-1", new Mock<IDbConnection>().Object, new Mock<IDbCommandFactory>().Object, cache).WithName("mock-1");
 
             Assert.That(cache.Current.Key, Is.EqualTo(context1.Key));
 
-            var context2 = new DatabaseContext(GetNullLogger<DatabaseContext>(), "mock-2", new Mock<IDbConnection>().Object, new Mock<IDbCommandFactory>().Object, cache).WithName("mock-2");
+            var context2 = new DatabaseContext("mock-2", new Mock<IDbConnection>().Object, new Mock<IDbCommandFactory>().Object, cache).WithName("mock-2");
 
             Assert.That(cache.Current.Key, Is.EqualTo(context2.Key));
 

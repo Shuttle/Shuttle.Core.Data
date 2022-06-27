@@ -17,18 +17,6 @@ namespace Shuttle.Core.Data
             _services = services;
         }
 
-        public DataAccessOptions ReadCommandTimeout(string sectionName = null)
-        {
-            _services.AddOptions<CommandSettings>().Configure<IConfiguration>((option, configuration) =>
-            {
-                var settings = configuration.GetSection(sectionName ?? SectionName).Get<CommandSettings>();
-
-                option.CommandTimeout = settings?.CommandTimeout ?? 0;
-            });
-
-            return this;
-        }
-
         public DataAccessOptions AddConnection(string name, string providerName, string connectionString)
         {
             Guard.AgainstNullOrEmptyString(name, nameof(name));
@@ -69,6 +57,18 @@ namespace Shuttle.Core.Data
             _services.Configure<CommandSettings>(option =>
             {
                 option.CommandTimeout = timeout;
+            });
+
+            return this;
+        }
+
+        public DataAccessOptions ReadCommandTimeout(string key = null)
+        {
+            _services.AddOptions<CommandSettings>().Configure<IConfiguration>((option, configuration) =>
+            {
+                var settings = configuration.GetRequiredSection(key ?? SectionName).Get<CommandSettings>();
+
+                option.CommandTimeout = settings.CommandTimeout;
             });
 
             return this;
