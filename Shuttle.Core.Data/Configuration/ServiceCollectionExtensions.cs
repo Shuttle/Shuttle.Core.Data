@@ -17,7 +17,7 @@ namespace Shuttle.Core.Data
             builder?.Invoke(options);
 
             services.TryAddSingleton<IValidateOptions<CommandSettings>, CommandSettingsValidator>();
-            services.TryAddSingleton<IValidateOptions<ConnectionSettings>, ConnectionSettingsValidator>();
+            services.TryAddSingleton<IValidateOptions<ConnectionStringSettings>, ConnectionStringSettingsValidator>();
 
             services.TryAddSingleton<IDatabaseContextCache, ThreadStaticDatabaseContextCache>();
             services.TryAddSingleton<IDatabaseContextFactory, DatabaseContextFactory>();

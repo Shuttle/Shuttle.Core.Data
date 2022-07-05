@@ -17,13 +17,13 @@ namespace Shuttle.Core.Data
             _services = services;
         }
 
-        public DataAccessOptions AddConnection(string name, string providerName, string connectionString)
+        public DataAccessOptions AddConnectionString(string name, string providerName, string connectionString)
         {
             Guard.AgainstNullOrEmptyString(name, nameof(name));
             Guard.AgainstNullOrEmptyString(providerName, nameof(providerName));
             Guard.AgainstNullOrEmptyString(connectionString, nameof(connectionString));
 
-            _services.Configure<ConnectionSettings>(name, option =>
+            _services.Configure<ConnectionStringSettings>(name, option =>
             {
                 option.ConnectionString = connectionString;
                 option.ProviderName = providerName;
@@ -38,7 +38,7 @@ namespace Shuttle.Core.Data
             Guard.AgainstNullOrEmptyString(name, nameof(name));
             Guard.AgainstNullOrEmptyString(providerName, nameof(providerName));
             
-            _services.AddOptions<ConnectionSettings>(name).Configure<IConfiguration>((option, configuration) =>
+            _services.AddOptions<ConnectionStringSettings>(name).Configure<IConfiguration>((option, configuration) =>
             {
                 var connectionString = configuration.GetConnectionString(name);
                 

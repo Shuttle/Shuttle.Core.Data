@@ -1,6 +1,6 @@
 ﻿namespace Shuttle.Core.Data
 {
-    public class ConnectionSettings
+    public class ConnectionStringSettings
     {
         public string Name { get; set; }
         public string ProviderName { get; set; }

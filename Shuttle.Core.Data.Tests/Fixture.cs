@@ -25,7 +25,7 @@ namespace Shuttle.Core.Data.Tests
 
             Services.AddDataAccess(configure =>
 	            {
-		            configure.AddConnection(DefaultConnectionStringName, DefaultProviderName, DefaultConnectionString);
+		            configure.AddConnectionString(DefaultConnectionStringName, DefaultProviderName, DefaultConnectionString);
 	            }
             );
 

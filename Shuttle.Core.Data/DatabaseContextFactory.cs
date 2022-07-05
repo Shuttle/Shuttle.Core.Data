@@ -7,13 +7,13 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseContextFactory : IDatabaseContextFactory
     {
-        private readonly IOptionsMonitor<ConnectionSettings> _connectionSettings;
+        private readonly IOptionsMonitor<ConnectionStringSettings> _connectionSettings;
         private string _connectionString;
         private string _connectionStringName;
         private IDbConnection _dbConnection;
         private string _providerName;
 
-        public DatabaseContextFactory(IOptionsMonitor<ConnectionSettings> connectionSettings,
+        public DatabaseContextFactory(IOptionsMonitor<ConnectionStringSettings> connectionSettings,
             IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory,
             IDatabaseContextCache databaseContextCache)
         {

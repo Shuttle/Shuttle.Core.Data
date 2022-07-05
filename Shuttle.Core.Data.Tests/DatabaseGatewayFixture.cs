@@ -17,7 +17,7 @@ namespace Shuttle.Core.Data.Tests
 
 			commandFactory.Setup(m => m.CreateCommandUsing(It.IsAny<IDbConnection>(), It.IsAny<IQuery>())).Returns(command.Object);
 
-			return new DatabaseContextFactory(Provider.GetRequiredService<IOptionsMonitor<ConnectionSettings>>(), GetDbConnectionFactory(), commandFactory.Object, new ThreadStaticDatabaseContextCache()).Create(DefaultConnectionStringName);
+			return new DatabaseContextFactory(Provider.GetRequiredService<IOptionsMonitor<ConnectionStringSettings>>(), GetDbConnectionFactory(), commandFactory.Object, new ThreadStaticDatabaseContextCache()).Create(DefaultConnectionStringName);
 		}
 
 		[Test]
