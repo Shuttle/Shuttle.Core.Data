@@ -41,12 +41,12 @@ services.AddDataAccess(options =>
 });
 ```
 
-The default command timeout may also be specified by reading it from configuration:
+The default command timeout may also be specified by getting it from configuration:
 
 ```c#
 services.AddDataAccess(options => 
 {
-	options.ReadCommandTimeout(sectionName);
+	options.GetCommandTimeout(sectionName);
 });
 ```
 

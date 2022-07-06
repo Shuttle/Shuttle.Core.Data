@@ -62,7 +62,7 @@ namespace Shuttle.Core.Data
             return this;
         }
 
-        public DataAccessOptions ReadCommandTimeout(string key = null)
+        public DataAccessOptions GetCommandTimeout(string key = null)
         {
             _services.AddOptions<CommandSettings>().Configure<IConfiguration>((option, configuration) =>
             {
