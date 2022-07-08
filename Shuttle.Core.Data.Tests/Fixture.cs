@@ -23,9 +23,9 @@ namespace Shuttle.Core.Data.Tests
         {
             DbProviderFactories.RegisterFactory("System.Data.SqlClient", SqlClientFactory.Instance);
 
-            Services.AddDataAccess(configure =>
+            Services.AddDataAccess(builder =>
 	            {
-		            configure.AddConnectionString(DefaultConnectionStringName, DefaultProviderName, DefaultConnectionString);
+		            builder.AddConnectionString(DefaultConnectionStringName, DefaultProviderName, DefaultConnectionString);
 	            }
             );
 

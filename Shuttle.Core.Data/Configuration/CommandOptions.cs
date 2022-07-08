@@ -1,6 +1,6 @@
 namespace Shuttle.Core.Data
 {
-    public class CommandSettings
+    public class CommandOptions
     {
         public int CommandTimeout { get; set; }
     }

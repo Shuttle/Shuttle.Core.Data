@@ -3,9 +3,9 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
-    public class CommandSettingsValidator : IValidateOptions<CommandSettings>
+    public class CommandOptionsValidator : IValidateOptions<CommandOptions>
     {
-        public ValidateOptionsResult Validate(string name, CommandSettings options)
+        public ValidateOptionsResult Validate(string name, CommandOptions options)
         {
             Guard.AgainstNull(options, nameof(options));
 

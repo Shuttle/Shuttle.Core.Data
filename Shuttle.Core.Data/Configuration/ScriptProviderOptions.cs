@@ -2,7 +2,7 @@ using System.Reflection;
 
 namespace Shuttle.Core.Data
 {
-    public class ScriptProviderSettings
+    public class ScriptProviderOptions
     {
         public Assembly ResourceAssembly { get; set; }
         public string ResourceNameFormat { get; set; }

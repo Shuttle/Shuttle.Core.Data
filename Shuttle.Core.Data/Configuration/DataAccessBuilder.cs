@@ -4,26 +4,26 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
-    public class DataAccessOptions
+    public class DataAccessBuilder
     {
         public const string SectionName = "Shuttle:DataAccess";
         
         private readonly IServiceCollection _services;
 
-        public DataAccessOptions(IServiceCollection services)
+        public DataAccessBuilder(IServiceCollection services)
         {
             Guard.AgainstNull(services, nameof(services));
 
             _services = services;
         }
 
-        public DataAccessOptions AddConnectionString(string name, string providerName, string connectionString)
+        public DataAccessBuilder AddConnectionString(string name, string providerName, string connectionString)
         {
             Guard.AgainstNullOrEmptyString(name, nameof(name));
             Guard.AgainstNullOrEmptyString(providerName, nameof(providerName));
             Guard.AgainstNullOrEmptyString(connectionString, nameof(connectionString));
 
-            _services.Configure<ConnectionStringSettings>(name, option =>
+            _services.Configure<ConnectionStringOptions>(name, option =>
             {
                 option.ConnectionString = connectionString;
                 option.ProviderName = providerName;
@@ -33,12 +33,12 @@ namespace Shuttle.Core.Data
             return this;
         }
 
-        public DataAccessOptions AddConnectionString(string name, string providerName)
+        public DataAccessBuilder AddConnectionString(string name, string providerName)
         {
             Guard.AgainstNullOrEmptyString(name, nameof(name));
             Guard.AgainstNullOrEmptyString(providerName, nameof(providerName));
             
-            _services.AddOptions<ConnectionStringSettings>(name).Configure<IConfiguration>((option, configuration) =>
+            _services.AddOptions<ConnectionStringOptions>(name).Configure<IConfiguration>((option, configuration) =>
             {
                 var connectionString = configuration.GetConnectionString(name);
                 
@@ -52,9 +52,9 @@ namespace Shuttle.Core.Data
             return this;
         }
 
-        public DataAccessOptions AddCommandTimeout(int timeout)
+        public DataAccessBuilder WithCommandTimeout(int timeout)
         {
-            _services.Configure<CommandSettings>(option =>
+            _services.Configure<CommandOptions>(option =>
             {
                 option.CommandTimeout = timeout;
             });
@@ -62,11 +62,11 @@ namespace Shuttle.Core.Data
             return this;
         }
 
-        public DataAccessOptions GetCommandTimeout(string key = null)
+        public DataAccessBuilder GetCommandTimeout(string key = null)
         {
-            _services.AddOptions<CommandSettings>().Configure<IConfiguration>((option, configuration) =>
+            _services.AddOptions<CommandOptions>().Configure<IConfiguration>((option, configuration) =>
             {
-                var settings = configuration.GetRequiredSection(key ?? SectionName).Get<CommandSettings>();
+                var settings = configuration.GetRequiredSection(key ?? SectionName).Get<CommandOptions>();
 
                 option.CommandTimeout = settings.CommandTimeout;
             });

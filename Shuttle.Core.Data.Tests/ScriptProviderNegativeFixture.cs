@@ -11,7 +11,7 @@ namespace Shuttle.Core.Data.Tests
 		public void Should_fail_when_there_is_no_ambient_database_context()
 		{
 			Assert.Throws<InvalidOperationException>(
-				() => new ScriptProvider(Options.Create(new ScriptProviderSettings()), new DatabaseContextCache()).Get("throw"));
+				() => new ScriptProvider(Options.Create(new ScriptProviderOptions()), new DatabaseContextCache()).Get("throw"));
 		}
 	}
 }

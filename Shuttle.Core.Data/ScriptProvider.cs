@@ -9,18 +9,18 @@ namespace Shuttle.Core.Data
 	public class ScriptProvider : IScriptProvider
 	{
 		private static readonly object Padlock = new object();
-		private readonly ScriptProviderSettings _settings;
+		private readonly ScriptProviderOptions _options;
 		private readonly IDatabaseContextCache _databaseContextCache;
 		private readonly string[] _emptyFiles = Array.Empty<string>();
 
 		private readonly Dictionary<string, string> _scripts = new Dictionary<string, string>();
 
-		public ScriptProvider(IOptions<ScriptProviderSettings> options, IDatabaseContextCache databaseContextCache)
+		public ScriptProvider(IOptions<ScriptProviderOptions> options, IDatabaseContextCache databaseContextCache)
 		{
 			Guard.AgainstNull(options, nameof(options));
 			Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
 
-			_settings = options.Value;
+			_options = options.Value;
 			_databaseContextCache = databaseContextCache;
 		}
 
@@ -69,9 +69,9 @@ namespace Shuttle.Core.Data
 
 				var files = _emptyFiles;
 
-				if (!string.IsNullOrEmpty(_settings.ScriptFolder) && Directory.Exists(_settings.ScriptFolder))
+				if (!string.IsNullOrEmpty(_options.ScriptFolder) && Directory.Exists(_options.ScriptFolder))
 				{
-					files = Directory.GetFiles(_settings.ScriptFolder, FormattedFileName(scriptName), SearchOption.AllDirectories);
+					files = Directory.GetFiles(_options.ScriptFolder, FormattedFileName(scriptName), SearchOption.AllDirectories);
 				}
 
 				if (files.Length == 0)
@@ -83,7 +83,7 @@ namespace Shuttle.Core.Data
 
 				if (files.Length > 1)
 				{
-					throw new InvalidOperationException(string.Format(Resources.ScriptCountException, _settings.ScriptFolder,
+					throw new InvalidOperationException(string.Format(Resources.ScriptCountException, _options.ScriptFolder,
 						scriptName, files.Length));
 				}
 
@@ -93,12 +93,12 @@ namespace Shuttle.Core.Data
 
 		private string FormattedFileName(string scriptName)
 		{
-			return FormattedScriptPath(_settings.FileNameFormat, scriptName);
+			return FormattedScriptPath(_options.FileNameFormat, scriptName);
 		}
 
 		private string FormattedResourceName(string scriptName)
 		{
-			return FormattedScriptPath(_settings.ResourceNameFormat, scriptName);
+			return FormattedScriptPath(_options.ResourceNameFormat, scriptName);
 		}
 
 		private string FormattedScriptPath(string format, string scriptName)
@@ -108,14 +108,14 @@ namespace Shuttle.Core.Data
 
 		private void AddEmbeddedScript(string scriptName)
 		{
-			if (_settings.ResourceAssembly == null)
+			if (_options.ResourceAssembly == null)
 			{
 				throw new InvalidOperationException(Resources.ResourceAssemblyMissingException);
 			}
 
-			var path = _settings.ResourceNameFormat != null ? FormattedResourceName(scriptName) : scriptName;
+			var path = _options.ResourceNameFormat != null ? FormattedResourceName(scriptName) : scriptName;
 
-			using (var stream = _settings.ResourceAssembly.GetManifestResourceStream(path))
+			using (var stream = _options.ResourceAssembly.GetManifestResourceStream(path))
 			{
 				if (stream == null)
 				{

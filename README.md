@@ -17,17 +17,17 @@ The `Shuttle.Core.Data` package provides a thin abstraction over ADO.NET by maki
 Connections may be added by providing all the required information:
 
 ```c#
-services.AddDataAccess(options => 
+services.AddDataAccess(builder => 
 {
-	options.AddConnection(name, providerName, connectionString);
+	builder.AddConnection(name, providerName, connectionString);
 });
 ```
 A connection may also be added by omitting the `connectionString`, in which case it will be read from the `ConnectionStrings` section:
 
 ```c#
-services.AddDataAccess(options => 
+services.AddDataAccess(builder => 
 {
-	options.AddConnectionString(name, providerName);
+	builder.AddConnectionString(name, providerName);
 });
 ```
 ### Commands
@@ -35,18 +35,18 @@ services.AddDataAccess(options =>
 The default command timeout may be added:
 
 ```c#
-services.AddDataAccess(options => 
+services.AddDataAccess(builder => 
 {
-	options.AddCommandTimeout(timeout);
+	builder.AddCommandTimeout(timeout);
 });
 ```
 
 The default command timeout may also be specified by getting it from configuration:
 
 ```c#
-services.AddDataAccess(options => 
+services.AddDataAccess(builder => 
 {
-	options.GetCommandTimeout(sectionName);
+	builder.GetCommandTimeout(sectionName);
 });
 ```
 

@@ -3,9 +3,9 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
-    public class ConnectionStringSettingsValidator : IValidateOptions<ConnectionStringSettings>
+    public class ConnectionStringOptionsValidator : IValidateOptions<ConnectionStringOptions>
     {
-        public ValidateOptionsResult Validate(string name, ConnectionStringSettings options)
+        public ValidateOptionsResult Validate(string name, ConnectionStringOptions options)
         {
             Guard.AgainstNullOrEmptyString(name, nameof(name));
             Guard.AgainstNull(options, nameof(options));

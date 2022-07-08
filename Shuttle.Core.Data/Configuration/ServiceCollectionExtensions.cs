@@ -8,16 +8,16 @@ namespace Shuttle.Core.Data
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddDataAccess(this IServiceCollection services, Action<DataAccessOptions> builder = null)
+        public static IServiceCollection AddDataAccess(this IServiceCollection services, Action<DataAccessBuilder> builder = null)
         {
             Guard.AgainstNull(services, nameof(services));
 
-            var options = new DataAccessOptions(services);
+            var options = new DataAccessBuilder(services);
 
             builder?.Invoke(options);
 
-            services.TryAddSingleton<IValidateOptions<CommandSettings>, CommandSettingsValidator>();
-            services.TryAddSingleton<IValidateOptions<ConnectionStringSettings>, ConnectionStringSettingsValidator>();
+            services.TryAddSingleton<IValidateOptions<CommandOptions>, CommandOptionsValidator>();
+            services.TryAddSingleton<IValidateOptions<ConnectionStringOptions>, ConnectionStringOptionsValidator>();
 
             services.TryAddSingleton<IDatabaseContextCache, ThreadStaticDatabaseContextCache>();
             services.TryAddSingleton<IDatabaseContextFactory, DatabaseContextFactory>();

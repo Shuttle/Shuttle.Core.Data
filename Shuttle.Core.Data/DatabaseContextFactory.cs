@@ -7,22 +7,22 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseContextFactory : IDatabaseContextFactory
     {
-        private readonly IOptionsMonitor<ConnectionStringSettings> _connectionSettings;
+        private readonly IOptionsMonitor<ConnectionStringOptions> _connectionStringOptions;
         private string _connectionString;
         private string _connectionStringName;
         private IDbConnection _dbConnection;
         private string _providerName;
 
-        public DatabaseContextFactory(IOptionsMonitor<ConnectionStringSettings> connectionSettings,
+        public DatabaseContextFactory(IOptionsMonitor<ConnectionStringOptions> connectionStringOptions,
             IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory,
             IDatabaseContextCache databaseContextCache)
         {
-            Guard.AgainstNull(connectionSettings, nameof(connectionSettings));
+            Guard.AgainstNull(connectionStringOptions, nameof(connectionStringOptions));
             Guard.AgainstNull(dbConnectionFactory, nameof(dbConnectionFactory));
             Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
             Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
 
-            _connectionSettings = connectionSettings;
+            _connectionStringOptions = connectionStringOptions;
 
             DbConnectionFactory = dbConnectionFactory;
             DbCommandFactory = dbCommandFactory;
@@ -31,7 +31,7 @@ namespace Shuttle.Core.Data
 
         public IDatabaseContext Create(string name)
         {
-            var connectionSettings = _connectionSettings.Get(name);
+            var connectionSettings = _connectionStringOptions.Get(name);
 
             if (connectionSettings == null || string.IsNullOrEmpty(connectionSettings.Name))
             {
