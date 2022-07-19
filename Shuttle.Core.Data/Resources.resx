@@ -121,10 +121,6 @@
     <value>Successfully opened connection string with name '{0}'.</value>
     <comment>{0} = the name of the connection configuration</comment>
   </data>
-  <data name="ConnectionStringApproveException" xml:space="preserve">
-    <value>DbConnection open failed for connection string name '{0}': {1}</value>
-    <comment>{0} = connection string name, {1} = exception message</comment>
-  </data>
   <data name="ConnectionStringHiddenValue" xml:space="preserve">
     <value>[hidden]</value>
   </data>
@@ -147,10 +143,6 @@
   <data name="VerboseDbConnectionOpened" xml:space="preserve">
     <value>DbConnection opened to database '{0}'.</value>
     <comment>{0} = database</comment>
-  </data>
-  <data name="ConnectionSettingsMissing" xml:space="preserve">
-    <value>Could not find connection settings named '{0}'.</value>
-    <comment>{0} = the name of the connection settings</comment>
   </data>
   <data name="DatabaseContextConnectionStringNotFoundException" xml:space="preserve">
     <value>Attempt to retrieve non-existent database context with connection string '{0}'.</value>

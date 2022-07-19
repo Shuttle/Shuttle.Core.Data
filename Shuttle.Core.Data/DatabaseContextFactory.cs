@@ -31,14 +31,14 @@ namespace Shuttle.Core.Data
 
         public IDatabaseContext Create(string name)
         {
-            var connectionSettings = _connectionStringOptions.Get(name);
+            var connectionStringOptions = _connectionStringOptions.Get(name);
 
-            if (connectionSettings == null || string.IsNullOrEmpty(connectionSettings.Name))
+            if (connectionStringOptions == null || string.IsNullOrEmpty(connectionStringOptions.Name))
             {
-                throw new InvalidOperationException(string.Format(Resources.ConnectionSettingsMissing, name));
+                throw new InvalidOperationException(string.Format(Resources.ConnectionStringMissingException, name));
             }
 
-            return Create(connectionSettings.ProviderName, connectionSettings.ConnectionString);
+            return Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString);
         }
 
         public IDatabaseContext Create(string providerName, string connectionString)

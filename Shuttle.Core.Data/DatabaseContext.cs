@@ -36,7 +36,7 @@ namespace Shuttle.Core.Data
         }
 
         public Guid Key { get; }
-        public string Name { get; private set; }
+        public string Name { get; private set; } = string.Empty;
         public IDbTransaction Transaction { get; private set; }
         public string ProviderName { get; }
         public IDbConnection Connection { get; private set; }

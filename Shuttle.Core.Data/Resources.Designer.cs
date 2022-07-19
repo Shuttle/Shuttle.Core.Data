@@ -61,29 +61,11 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not find connection settings named &apos;{0}&apos;..
-        /// </summary>
-        public static string ConnectionSettingsMissing {
-            get {
-                return ResourceManager.GetString("ConnectionSettingsMissing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Successfully opened connection string with name &apos;{0}&apos;..
         /// </summary>
         public static string ConnectionStringApproved {
             get {
                 return ResourceManager.GetString("ConnectionStringApproved", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DbConnection open failed for connection string name &apos;{0}&apos;: {1}.
-        /// </summary>
-        public static string ConnectionStringApproveException {
-            get {
-                return ResourceManager.GetString("ConnectionStringApproveException", resourceCulture);
             }
         }
         
