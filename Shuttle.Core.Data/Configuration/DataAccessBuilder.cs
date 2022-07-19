@@ -7,14 +7,14 @@ namespace Shuttle.Core.Data
     public class DataAccessBuilder
     {
         public const string SectionName = "Shuttle:DataAccess";
-        
-        private readonly IServiceCollection _services;
+
+        public IServiceCollection Services { get; }
 
         public DataAccessBuilder(IServiceCollection services)
         {
             Guard.AgainstNull(services, nameof(services));
 
-            _services = services;
+            Services = services;
         }
 
         public DataAccessBuilder AddConnectionString(string name, string providerName, string connectionString)
@@ -23,7 +23,7 @@ namespace Shuttle.Core.Data
             Guard.AgainstNullOrEmptyString(providerName, nameof(providerName));
             Guard.AgainstNullOrEmptyString(connectionString, nameof(connectionString));
 
-            _services.Configure<ConnectionStringOptions>(name, option =>
+            Services.Configure<ConnectionStringOptions>(name, option =>
             {
                 option.ConnectionString = connectionString;
                 option.ProviderName = providerName;
@@ -38,7 +38,7 @@ namespace Shuttle.Core.Data
             Guard.AgainstNullOrEmptyString(name, nameof(name));
             Guard.AgainstNullOrEmptyString(providerName, nameof(providerName));
             
-            _services.AddOptions<ConnectionStringOptions>(name).Configure<IConfiguration>((option, configuration) =>
+            Services.AddOptions<ConnectionStringOptions>(name).Configure<IConfiguration>((option, configuration) =>
             {
                 var connectionString = configuration.GetConnectionString(name);
                 
@@ -54,7 +54,7 @@ namespace Shuttle.Core.Data
 
         public DataAccessBuilder WithCommandTimeout(int timeout)
         {
-            _services.Configure<CommandOptions>(option =>
+            Services.Configure<CommandOptions>(option =>
             {
                 option.CommandTimeout = timeout;
             });
@@ -64,7 +64,7 @@ namespace Shuttle.Core.Data
 
         public DataAccessBuilder GetCommandTimeout(string key = null)
         {
-            _services.AddOptions<CommandOptions>().Configure<IConfiguration>((option, configuration) =>
+            Services.AddOptions<CommandOptions>().Configure<IConfiguration>((option, configuration) =>
             {
                 var settings = configuration.GetRequiredSection(key ?? SectionName).Get<CommandOptions>();
 
