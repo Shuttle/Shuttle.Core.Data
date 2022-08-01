@@ -7,7 +7,7 @@ namespace Shuttle.Core.Data
     {
 		private readonly int _commandTimeout;
 
-	    public DbCommandFactory(IOptions<CommandOptions> options)
+	    public DbCommandFactory(IOptions<DataAccessOptions> options)
 	    {
 		    _commandTimeout = options.Value.CommandTimeout;
 	    }

@@ -12,12 +12,17 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(services, nameof(services));
 
-            var options = new DataAccessBuilder(services);
+            var dataAccessBuilder = new DataAccessBuilder(services);
 
-            builder?.Invoke(options);
+            builder?.Invoke(dataAccessBuilder);
 
-            services.TryAddSingleton<IValidateOptions<CommandOptions>, CommandOptionsValidator>();
+            services.TryAddSingleton<IValidateOptions<DataAccessOptions>, DataAccessOptionsValidator>();
             services.TryAddSingleton<IValidateOptions<ConnectionStringOptions>, ConnectionStringOptionsValidator>();
+
+            services.AddOptions<DataAccessOptions>().Configure(options =>
+            {
+                options.CommandTimeout = dataAccessBuilder.Options.CommandTimeout;
+            });
 
             services.TryAddSingleton<IDatabaseContextCache, ThreadStaticDatabaseContextCache>();
             services.TryAddSingleton<IDatabaseContextFactory, DatabaseContextFactory>();

@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shuttle.Core.Contract;
 
@@ -7,6 +9,14 @@ namespace Shuttle.Core.Data
     public class DataAccessBuilder
     {
         public const string SectionName = "Shuttle:DataAccess";
+
+        private DataAccessOptions _dataAccessOptions = new DataAccessOptions();
+
+        public DataAccessOptions Options
+        {
+            get => _dataAccessOptions;
+            set => _dataAccessOptions = value ?? throw new ArgumentNullException(nameof(value));
+        }
 
         public IServiceCollection Services { get; }
 
@@ -47,28 +57,6 @@ namespace Shuttle.Core.Data
                 option.ConnectionString = connectionString;
                 option.ProviderName = providerName;
                 option.Name = name;
-            });
-
-            return this;
-        }
-
-        public DataAccessBuilder WithCommandTimeout(int timeout)
-        {
-            Services.Configure<CommandOptions>(option =>
-            {
-                option.CommandTimeout = timeout;
-            });
-
-            return this;
-        }
-
-        public DataAccessBuilder GetCommandTimeout(string key = null)
-        {
-            Services.AddOptions<CommandOptions>().Configure<IConfiguration>((option, configuration) =>
-            {
-                var settings = configuration.GetRequiredSection(key ?? SectionName).Get<CommandOptions>();
-
-                option.CommandTimeout = settings.CommandTimeout;
             });
 
             return this;
