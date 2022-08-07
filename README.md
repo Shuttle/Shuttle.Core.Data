@@ -22,6 +22,7 @@ services.AddDataAccess(builder =>
 	builder.AddConnection(name, providerName, connectionString);
 });
 ```
+
 A connection may also be added by omitting the `connectionString`, in which case it will be read from the `ConnectionStrings` section:
 
 ```c#
@@ -30,27 +31,19 @@ services.AddDataAccess(builder =>
 	builder.AddConnectionString(name, providerName);
 });
 ```
-### Commands
 
-The default command timeout may be added:
+### Options
 
-```c#
-services.AddDataAccess(builder => 
-{
-	builder.AddCommandTimeout(timeout);
-});
-```
-
-The default command timeout may also be specified by getting it from configuration:
+The relevant options may be set using the builder:
 
 ```c#
 services.AddDataAccess(builder => 
 {
-	builder.GetCommandTimeout(sectionName);
+	builder.Options.CommandTimeout = timeout;
 });
 ```
 
-If no `sectionName` is provided the following default `appsettings.json` structure will be used:
+The default JSON settings structure is as follows:
 
 ```json
 {
@@ -64,9 +57,9 @@ If no `sectionName` is provided the following default `appsettings.json` structu
 
 # IDatabaseContextFactory
 
-As per usual, in order to access a database, we need a database connection.  A database connection is represented by a `IDatabaseContext` instance that may be obtained by using an instance of an `IDatabaseContextFactory` implementation.
+In order to access a database we need a database connection.  A database connection is represented by an `IDatabaseContext` instance that may be obtained by using an instance of an `IDatabaseContextFactory` implementation.
 
-The `DatabaseContextFactory` implementation makes use of an `IDbConnectionFactory` implementation, that creates a `System.Data.IDbConnection` by using the provider name and connection string, an `IDbCommandFactory` that creates a `System.Data.IDbCommand` by using `IDbConnection` instance.  The `DatabaseContextFactory` also requires an instance of a `IDatabaseContextCache` that stores connections and is assigned to the `DatabaseContext` in order to obtain the active connection.
+The `DatabaseContextFactory` implementation makes use of an `IDbConnectionFactory` implementation which creates a `System.Data.IDbConnection` by using the provider name and connection string.  An `IDbCommandFactory` creates a `System.Data.IDbCommand` by using an `IDbConnection` instance.  The `DatabaseContextFactory` also requires an instance of an `IDatabaseContextCache` that stores connections and is assigned to the `DatabaseContext` in order to obtain the active connection.
 
 ``` c#
 var factory = provider.GetRequiredService<DatabaseContextFactory>();
@@ -87,18 +80,6 @@ using (var context = factory.Create(existingIDbConnection))
 {
 	// database interaction
 }
-```
-
-# IConfiguredDatabaseContextFactory
-
-You can pre-configure your database context factory using this interface.  If you typically connect to only one data source this may be helpful:
-
-``` c#
-IDatabaseContext Create();
-
-void ConfigureWith(string connection-name);
-void ConfigureWith(string providerName, string connectionString);
-void ConfigureWith(IDbConnection dbConnection);
 ```
 
 # IDatabaseGateway
@@ -143,15 +124,15 @@ using (var context = factory.Create("connection-name"))
 }
 ```
 
-## GetScalar<T>
+## GetScalar
 
-``` c#
+```c#
 T GetScalar<T>(IQuery query);
 ```
 
 Get the scalar value returned by the `select` query.  The query shoud return only one value (scalar):
 
-``` c#
+```c#
 var factory = DatabaseContextFactory.Default();
 var gateway = new DatabaseGateway();
 
@@ -203,7 +184,6 @@ using (var context = factory.Create("connection-name"))
 }
 ```
 
-
 ## GetRow
 
 ``` c#
@@ -224,7 +204,7 @@ using (var context = factory.Create("connection-name"))
 }
 ```
 
-# IDataRepository<T>
+# IDataRepository
 
 An `IDataRepository<T>` implementation is responsible for returning a hydrated object.  To this end you make use of the `DataReposity<T>` class that takes a `IDatabaseGateway` instance along with a `IDataRowMapper<T>` used to create the hydrated instance.
 
@@ -347,7 +327,7 @@ public T MapFrom(DataRow row)
 
 This will return the typed value of the specified column as contained in the passed-in `DataRow`.
 
-# IDataRowMapper<T>
+# IDataRowMapper
 
 You use this interface to implement a mapper for a `DataRow` that will result in an object of type `T`:
 
