@@ -117,40 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ConnectionStringApproved" xml:space="preserve">
-    <value>Successfully opened connection string with name '{0}'.</value>
-    <comment>{0} = the name of the connection configuration</comment>
-  </data>
   <data name="ConnectionStringHiddenValue" xml:space="preserve">
     <value>[hidden]</value>
-  </data>
-  <data name="DbConnectionOpenException" xml:space="preserve">
-    <value>DbConnection open failed for database '{0}': {1}</value>
-    <comment>{0} = database name, {1} = exception message</comment>
   </data>
   <data name="DbProviderFactoryCreateConnectionException" xml:space="preserve">
     <value>Could not create a connection from provider factory '{0}'.</value>
     <comment>{0} = provider name</comment>
   </data>
-  <data name="VerboseDbConnectionAlreadyOpen" xml:space="preserve">
-    <value>DbConnection already open to database '{0}'.</value>
-    <comment>{0} = database</comment>
-  </data>
-  <data name="VerboseDbConnectionCreated" xml:space="preserve">
-    <value>DbConnection opened to database '{0}' on data source '{1}'.</value>
-    <comment>{0} = database, {1} = data source</comment>
-  </data>
-  <data name="VerboseDbConnectionOpened" xml:space="preserve">
-    <value>DbConnection opened to database '{0}'.</value>
-    <comment>{0} = database</comment>
-  </data>
   <data name="DatabaseContextConnectionStringNotFoundException" xml:space="preserve">
     <value>Attempt to retrieve non-existent database context with connection string '{0}'.</value>
     <comment>{0} = connection string (secured)</comment>
   </data>
-  <data name="DatabaseContextFactoryNotConfiguredException" xml:space="preserve">
-    <value>IDatabaseContextFactory instance of type '{0}' has not been configured.  Cannot call 'Create()' directly.</value>
-    <comment>{0} = full type name of IDatabaseContextFactory instance</comment>
+  <data name="DatabaseContextFactoryOptionsException" xml:space="preserve">
+    <value>DatabaseContextFactoryOptions have not been configured.  Cannot call 'Create()' directly.</value>
   </data>
   <data name="DatabaseContextKeyNotFoundException" xml:space="preserve">
     <value>Attempt to retrieve non-existent database context with key '{0}'.</value>
@@ -181,10 +160,6 @@
   <data name="RecordNotFoundException" xml:space="preserve">
     <value>Could not find a record for '{0}' with id '{1}'.</value>
     <comment>{0} = entity name, {1} = id/key</comment>
-  </data>
-  <data name="DuplicateConnectionConfigurationException" xml:space="preserve">
-    <value>Connection configuration with name '{0}' has already been registered.</value>
-    <comment>{0} = connection configuration name</comment>
   </data>
   <data name="TimeoutException" xml:space="preserve">
     <value>Timeout may not be less than 0.</value>

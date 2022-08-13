@@ -50,11 +50,7 @@ namespace Shuttle.Core.Data
             
             Services.AddOptions<ConnectionStringOptions>(name).Configure<IConfiguration>((option, configuration) =>
             {
-                var connectionString = configuration.GetConnectionString(name);
-                
-                Guard.AgainstNullOrEmptyString(connectionString, nameof(connectionString));
-
-                option.ConnectionString = connectionString;
+                option.ConnectionString = configuration.GetConnectionString(name);
                 option.ProviderName = providerName;
                 option.Name = name;
             });

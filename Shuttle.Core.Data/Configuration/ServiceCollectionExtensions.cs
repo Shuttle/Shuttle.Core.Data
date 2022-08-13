@@ -22,6 +22,7 @@ namespace Shuttle.Core.Data
             services.AddOptions<DataAccessOptions>().Configure(options =>
             {
                 options.CommandTimeout = dataAccessBuilder.Options.CommandTimeout;
+                options.DatabaseContextFactory = dataAccessBuilder.Options.DatabaseContextFactory;
             });
 
             services.TryAddSingleton<IDatabaseContextCache, ThreadStaticDatabaseContextCache>();

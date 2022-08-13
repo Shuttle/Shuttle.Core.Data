@@ -40,6 +40,13 @@ The relevant options may be set using the builder:
 services.AddDataAccess(builder => 
 {
 	builder.Options.CommandTimeout = timeout;
+	builder.Options.DatabaseContextFactory = new DatabaseContextFactoryOptions
+    {
+        ConnectionStringName = "connection-string-name",
+		// -- or --
+        ProviderName = "provider-name",
+        ConnectionString = "connection-string"
+    }
 });
 ```
 

@@ -61,15 +61,6 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Successfully opened connection string with name &apos;{0}&apos;..
-        /// </summary>
-        public static string ConnectionStringApproved {
-            get {
-                return ResourceManager.GetString("ConnectionStringApproved", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to [hidden].
         /// </summary>
         public static string ConnectionStringHiddenValue {
@@ -97,11 +88,11 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to IDatabaseContextFactory instance of type &apos;{0}&apos; has not been configured.  Cannot call &apos;Create()&apos; directly..
+        ///   Looks up a localized string similar to DatabaseContextFactoryOptions have not been configured.  Cannot call &apos;Create()&apos; directly..
         /// </summary>
-        public static string DatabaseContextFactoryNotConfiguredException {
+        public static string DatabaseContextFactoryOptionsException {
             get {
-                return ResourceManager.GetString("DatabaseContextFactoryNotConfiguredException", resourceCulture);
+                return ResourceManager.GetString("DatabaseContextFactoryOptionsException", resourceCulture);
             }
         }
         
@@ -133,29 +124,11 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DbConnection open failed for database &apos;{0}&apos;: {1}.
-        /// </summary>
-        public static string DbConnectionOpenException {
-            get {
-                return ResourceManager.GetString("DbConnectionOpenException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Could not create a connection from provider factory &apos;{0}&apos;..
         /// </summary>
         public static string DbProviderFactoryCreateConnectionException {
             get {
                 return ResourceManager.GetString("DbProviderFactoryCreateConnectionException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Connection configuration with name &apos;{0}&apos; has already been registered..
-        /// </summary>
-        public static string DuplicateConnectionConfigurationException {
-            get {
-                return ResourceManager.GetString("DuplicateConnectionConfigurationException", resourceCulture);
             }
         }
         
@@ -219,33 +192,6 @@ namespace Shuttle.Core.Data {
         public static string TimeoutException {
             get {
                 return ResourceManager.GetString("TimeoutException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DbConnection already open to database &apos;{0}&apos;..
-        /// </summary>
-        public static string VerboseDbConnectionAlreadyOpen {
-            get {
-                return ResourceManager.GetString("VerboseDbConnectionAlreadyOpen", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DbConnection opened to database &apos;{0}&apos; on data source &apos;{1}&apos;..
-        /// </summary>
-        public static string VerboseDbConnectionCreated {
-            get {
-                return ResourceManager.GetString("VerboseDbConnectionCreated", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DbConnection opened to database &apos;{0}&apos;..
-        /// </summary>
-        public static string VerboseDbConnectionOpened {
-            get {
-                return ResourceManager.GetString("VerboseDbConnectionOpened", resourceCulture);
             }
         }
     }

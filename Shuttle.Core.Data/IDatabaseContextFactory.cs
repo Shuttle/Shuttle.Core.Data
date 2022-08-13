@@ -9,10 +9,6 @@ namespace Shuttle.Core.Data
 		IDatabaseContext Create(string providerName, IDbConnection dbConnection);
         IDatabaseContext Create();
 
-        IDatabaseContextFactory ConfigureWith(string connectionStringName);
-        IDatabaseContextFactory ConfigureWith(string providerName, string connectionString);
-        IDatabaseContextFactory ConfigureWith(IDbConnection dbConnection);
-
         IDbConnectionFactory DbConnectionFactory { get; }
         IDbCommandFactory DbCommandFactory { get; }
         IDatabaseContextCache DatabaseContextCache { get; }
