@@ -64,14 +64,14 @@ namespace Shuttle.Core.Data
 
         public IDatabaseContext Create()
         {
-            if (!string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.ConnectionStringName))
+            if (!string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionStringName))
             {
-                return Create(_dataAccessOptions.DatabaseContextFactory.ConnectionStringName);
+                return Create(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionStringName);
             }
 
-            if (!string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.ProviderName) && !string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.ConnectionString))
+            if (!string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.DefaultProviderName) && !string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionString))
             {
-                return Create(_dataAccessOptions.DatabaseContextFactory.ProviderName, _dataAccessOptions.DatabaseContextFactory.ConnectionString);
+                return Create(_dataAccessOptions.DatabaseContextFactory.DefaultProviderName, _dataAccessOptions.DatabaseContextFactory.DefaultConnectionString);
             }
 
             throw new InvalidOperationException(Resources.DatabaseContextFactoryOptionsException);

@@ -2,8 +2,8 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseContextFactoryOptions
     {
-        public string ConnectionStringName { get; set; }
-        public string ProviderName { get; set; }
-        public string ConnectionString { get; set; }
+        public string DefaultConnectionStringName { get; set; }
+        public string DefaultProviderName { get; set; }
+        public string DefaultConnectionString { get; set; }
     }
 }
