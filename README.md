@@ -42,10 +42,10 @@ services.AddDataAccess(builder =>
 	builder.Options.CommandTimeout = timeout;
 	builder.Options.DatabaseContextFactory = new DatabaseContextFactoryOptions
     {
-        ConnectionStringName = "connection-string-name",
+        DefaultConnectionStringName = "connection-string-name",
 		// -- or --
-        ProviderName = "provider-name",
-        ConnectionString = "connection-string"
+        DefaultProviderName = "provider-name",
+        DefaultConnectionString = "connection-string"
     }
 });
 ```
@@ -56,7 +56,14 @@ The default JSON settings structure is as follows:
 {
 	"Shuttle": {
 		"DataAccess": {
-			"CommandTimeout": 25
+			"CommandTimeout": 25,
+			"DatabaseContextFactory":
+			{
+				"DefaultConnectionStringName": "connection-string-name",
+				// or
+				"DefaultProviderName": "provider-name",
+				"DefaultConnectionString": "connection-string"
+			}
 		} 
 	}
 }
