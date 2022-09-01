@@ -21,42 +21,42 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(query, nameof(query));
 
-            return _dataRowMapper.MapRow<T>(_databaseGateway.GetSingleRowUsing(query));
+            return _dataRowMapper.MapRow<T>(_databaseGateway.GetRow(query));
         }
 
         public IEnumerable<MappedRow<T>> MapRows<T>(IQuery query) where T : new()
         {
             Guard.AgainstNull(query, nameof(query));
 
-            return _dataRowMapper.MapRows<T>(_databaseGateway.GetRowsUsing(query));
+            return _dataRowMapper.MapRows<T>(_databaseGateway.GetRows(query));
         }
 
         public T MapObject<T>(IQuery query) where T : new()
         {
             Guard.AgainstNull(query, nameof(query));
 
-            return _dataRowMapper.MapObject<T>(_databaseGateway.GetSingleRowUsing(query));
+            return _dataRowMapper.MapObject<T>(_databaseGateway.GetRow(query));
         }
 
         public IEnumerable<T> MapObjects<T>(IQuery query) where T : new()
         {
             Guard.AgainstNull(query, nameof(query));
 
-            return _dataRowMapper.MapObjects<T>(_databaseGateway.GetRowsUsing(query));
+            return _dataRowMapper.MapObjects<T>(_databaseGateway.GetRows(query));
         }
 
         public T MapValue<T>(IQuery query)
         {
             Guard.AgainstNull(query, nameof(query));
 
-            return _dataRowMapper.MapValue<T>(_databaseGateway.GetSingleRowUsing(query));
+            return _dataRowMapper.MapValue<T>(_databaseGateway.GetRow(query));
         }
 
         public IEnumerable<T> MapValues<T>(IQuery query)
         {
             Guard.AgainstNull(query, nameof(query));
 
-            return _dataRowMapper.MapValues<T>(_databaseGateway.GetRowsUsing(query));
+            return _dataRowMapper.MapValues<T>(_databaseGateway.GetRows(query));
         }
     }
 }

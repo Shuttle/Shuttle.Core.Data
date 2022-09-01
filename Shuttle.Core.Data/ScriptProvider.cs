@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
@@ -8,16 +9,19 @@ namespace Shuttle.Core.Data
 	public class ScriptProvider : IScriptProvider
 	{
 		private static readonly object Padlock = new object();
-		private readonly IScriptProviderConfiguration _configuration;
-		private readonly string[] _emptyFiles = new string[0];
+		private readonly ScriptProviderOptions _options;
+		private readonly IDatabaseContextCache _databaseContextCache;
+		private readonly string[] _emptyFiles = Array.Empty<string>();
 
 		private readonly Dictionary<string, string> _scripts = new Dictionary<string, string>();
 
-		public ScriptProvider(IScriptProviderConfiguration configuration)
+		public ScriptProvider(IOptions<ScriptProviderOptions> options, IDatabaseContextCache databaseContextCache)
 		{
-			Guard.AgainstNull(configuration, nameof(configuration));
+			Guard.AgainstNull(options, nameof(options));
+			Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
 
-			_configuration = configuration;
+			_options = options.Value;
+			_databaseContextCache = databaseContextCache;
 		}
 
 		public string Get(string scriptName)
@@ -46,9 +50,10 @@ namespace Shuttle.Core.Data
 
 		private string Key(string scriptName)
 		{
-			DatabaseContextInvariant();
-
-			return $"[{DatabaseContext.Current.ProviderName}]-{scriptName}";
+			lock (Padlock)
+			{
+				return $"[{_databaseContextCache.Current.ProviderName}]-{scriptName}";
+			}
 		}
 
 		private void AddScript(string scriptName)
@@ -64,9 +69,9 @@ namespace Shuttle.Core.Data
 
 				var files = _emptyFiles;
 
-				if (!string.IsNullOrEmpty(_configuration.ScriptFolder) && Directory.Exists(_configuration.ScriptFolder))
+				if (!string.IsNullOrEmpty(_options.ScriptFolder) && Directory.Exists(_options.ScriptFolder))
 				{
-					files = Directory.GetFiles(_configuration.ScriptFolder, FormattedFileName(scriptName), SearchOption.AllDirectories);
+					files = Directory.GetFiles(_options.ScriptFolder, FormattedFileName(scriptName), SearchOption.AllDirectories);
 				}
 
 				if (files.Length == 0)
@@ -78,7 +83,7 @@ namespace Shuttle.Core.Data
 
 				if (files.Length > 1)
 				{
-					throw new InvalidOperationException(string.Format(Resources.ScriptCountException, _configuration.ScriptFolder,
+					throw new InvalidOperationException(string.Format(Resources.ScriptCountException, _options.ScriptFolder,
 						scriptName, files.Length));
 				}
 
@@ -88,39 +93,29 @@ namespace Shuttle.Core.Data
 
 		private string FormattedFileName(string scriptName)
 		{
-			return FormattedScriptPath(_configuration.FileNameFormat, scriptName);
+			return FormattedScriptPath(_options.FileNameFormat, scriptName);
 		}
 
 		private string FormattedResourceName(string scriptName)
 		{
-			return FormattedScriptPath(_configuration.ResourceNameFormat, scriptName);
+			return FormattedScriptPath(_options.ResourceNameFormat, scriptName);
 		}
 
 		private string FormattedScriptPath(string format, string scriptName)
 		{
-			DatabaseContextInvariant();
-
-			return format.Replace("{ScriptName}", scriptName).Replace("{ProviderName}", DatabaseContext.Current.ProviderName);
-		}
-
-		private static void DatabaseContextInvariant()
-		{
-			if (DatabaseContext.Current == null)
-			{
-				throw new InvalidOperationException(Resources.DatabaseContextMissing);
-			}
+			return format.Replace("{ScriptName}", scriptName).Replace("{ProviderName}", _databaseContextCache.Current.ProviderName);
 		}
 
 		private void AddEmbeddedScript(string scriptName)
 		{
-			if (_configuration.ResourceAssembly == null)
+			if (_options.ResourceAssembly == null)
 			{
 				throw new InvalidOperationException(Resources.ResourceAssemblyMissingException);
 			}
 
-			var path = _configuration.ResourceNameFormat != null ? FormattedResourceName(scriptName) : scriptName;
+			var path = _options.ResourceNameFormat != null ? FormattedResourceName(scriptName) : scriptName;
 
-			using (var stream = _configuration.ResourceAssembly.GetManifestResourceStream(path))
+			using (var stream = _options.ResourceAssembly.GetManifestResourceStream(path))
 			{
 				if (stream == null)
 				{

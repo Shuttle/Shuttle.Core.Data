@@ -1,53 +1,52 @@
 using System;
 using System.Data;
+using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
     public class DatabaseContextFactory : IDatabaseContextFactory
     {
-        public IConnectionConfigurationProvider ConfigurationProvider { get; }
-        private string _connectionString;
-        private string _connectionStringName;
-        private IDbConnection _dbConnection;
-        private string _providerName;
+        private readonly IOptionsMonitor<ConnectionStringOptions> _connectionStringOptions;
+        private readonly DataAccessOptions _dataAccessOptions;
 
-        public DatabaseContextFactory(IConnectionConfigurationProvider connectionConfigurationProvider,
+        public DatabaseContextFactory(IOptionsMonitor<ConnectionStringOptions> connectionStringOptions, IOptions<DataAccessOptions> dataAccessOptions,
             IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory,
             IDatabaseContextCache databaseContextCache)
         {
-            Guard.AgainstNull(connectionConfigurationProvider, nameof(connectionConfigurationProvider));
+            Guard.AgainstNull(connectionStringOptions, nameof(connectionStringOptions));
+            Guard.AgainstNull(dataAccessOptions, nameof(dataAccessOptions));
+            Guard.AgainstNull(dataAccessOptions.Value, nameof(dataAccessOptions.Value));
             Guard.AgainstNull(dbConnectionFactory, nameof(dbConnectionFactory));
             Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
             Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
 
-            ConfigurationProvider = connectionConfigurationProvider;
+            _connectionStringOptions = connectionStringOptions;
+            _dataAccessOptions = dataAccessOptions.Value;
+
             DbConnectionFactory = dbConnectionFactory;
             DbCommandFactory = dbCommandFactory;
             DatabaseContextCache = databaseContextCache;
-
-            DatabaseContext.Assign(databaseContextCache);
         }
 
         public IDatabaseContext Create(string name)
         {
-            var configuration = ConfigurationProvider.Get(name);
+            var connectionStringOptions = _connectionStringOptions.Get(name);
 
-            if (configuration == null)
+            if (connectionStringOptions == null || string.IsNullOrEmpty(connectionStringOptions.Name))
             {
-                throw new InvalidOperationException(string.Format(Resources.ConnectionConfigurationMissing, GetType().FullName, name));
+                throw new InvalidOperationException(string.Format(Resources.ConnectionStringMissingException, name));
             }
 
-            return Create(configuration.ProviderName, configuration.ConnectionString);
+            return Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString);
         }
 
         public IDatabaseContext Create(string providerName, string connectionString)
         {
             return DatabaseContextCache.ContainsConnectionString(connectionString)
                 ? DatabaseContextCache.GetConnectionString(connectionString).Suppressed()
-                : new DatabaseContext(providerName,
-                    DbConnectionFactory.CreateConnection(providerName, connectionString),
-                    DbCommandFactory);
+                : new DatabaseContext(providerName, DbConnectionFactory.CreateConnection(providerName, connectionString),
+                    DbCommandFactory, DatabaseContextCache);
         }
 
         public IDatabaseContext Create(string providerName, IDbConnection dbConnection)
@@ -56,7 +55,7 @@ namespace Shuttle.Core.Data
 
             return DatabaseContextCache.ContainsConnectionString(dbConnection.ConnectionString)
                 ? DatabaseContextCache.GetConnectionString(dbConnection.ConnectionString).Suppressed()
-                : new DatabaseContext(providerName, dbConnection, DbCommandFactory);
+                : new DatabaseContext(providerName, dbConnection, DbCommandFactory, DatabaseContextCache);
         }
 
         public IDbConnectionFactory DbConnectionFactory { get; }
@@ -65,72 +64,17 @@ namespace Shuttle.Core.Data
 
         public IDatabaseContext Create()
         {
-            if (!string.IsNullOrEmpty(_connectionStringName))
+            if (!string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionStringName))
             {
-                return Create(_connectionStringName);
+                return Create(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionStringName);
             }
 
-            if (!string.IsNullOrEmpty(_providerName) && !string.IsNullOrEmpty(_connectionString))
+            if (!string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.DefaultProviderName) && !string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionString))
             {
-                return Create(_providerName, _connectionString);
+                return Create(_dataAccessOptions.DatabaseContextFactory.DefaultProviderName, _dataAccessOptions.DatabaseContextFactory.DefaultConnectionString);
             }
 
-            if (_dbConnection != null)
-            {
-                return Create(_providerName, _dbConnection);
-            }
-
-            throw new InvalidOperationException(string.Format(
-                Resources.DatabaseContextFactoryNotConfiguredException, GetType().FullName));
-        }
-
-        public IDatabaseContextFactory ConfigureWith(string connectionStringName)
-        {
-            ClearConfiguredValues();
-
-            _connectionStringName = connectionStringName;
-
-            return this;
-        }
-
-        public IDatabaseContextFactory ConfigureWith(string providerName, string connectionString)
-        {
-            ClearConfiguredValues();
-
-            _providerName = providerName;
-            _connectionString = connectionString;
-
-            return this;
-        }
-
-        public IDatabaseContextFactory ConfigureWith(IDbConnection dbConnection)
-        {
-            ClearConfiguredValues();
-
-            _dbConnection = dbConnection;
-
-            return this;
-        }
-
-#if (NETSTANDARD2_0)
-        public static IDatabaseContextFactory Default(IDbProviderFactories dbProviderFactories)
-        {
-            var dbConnectionFactory = new DbConnectionFactory(dbProviderFactories);
-#else
-        public static IDatabaseContextFactory Default()
-        {
-            var dbConnectionFactory = new DbConnectionFactory();
-#endif
-
-            return new DatabaseContextFactory(new ConnectionConfigurationProvider(), dbConnectionFactory, new DbCommandFactory(), new ThreadStaticDatabaseContextCache());
-        }
-
-        private void ClearConfiguredValues()
-        {
-            _connectionStringName = null;
-            _providerName = null;
-            _connectionString = null;
-            _dbConnection = null;
+            throw new InvalidOperationException(Resources.DatabaseContextFactoryOptionsException);
         }
     }
 }

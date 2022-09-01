@@ -2,26 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Logging;
 
 namespace Shuttle.Core.Data
 {
 	public class DatabaseGateway : IDatabaseGateway
 	{
-		private readonly ILog _log;
-
-		public DatabaseGateway()
+		private readonly IDatabaseContextCache _databaseContextCache;
+		
+		public DatabaseGateway(IDatabaseContextCache databaseContextCache)
 		{
-			_log = Log.For(this);
+			Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
+
+			_databaseContextCache = databaseContextCache;
 		}
 
-		public DataTable GetDataTableFor(IQuery query)
+		public DataTable GetDataTable(IQuery query)
 		{
             Guard.AgainstNull(query, nameof(query));
 
-			using (var reader = GetReaderUsing(query))
+			using (var reader = GetReader(query))
 			{
 				var results = new DataTable();
 
@@ -34,26 +34,14 @@ namespace Shuttle.Core.Data
 			}
 		}
 
-		private void Trace(IDbCommand command)
+		public IEnumerable<DataRow> GetRows(IQuery query)
 		{
-			var parameters = new StringBuilder();
-
-			foreach (IDataParameter parameter in command.Parameters)
-			{
-				parameters.AppendFormat(" / {0} = {1}", parameter.ParameterName, parameter.Value);
-			}
-
-			_log.Trace($"{command.CommandText} {parameters}");
+			return GetDataTable(query).Rows.Cast<DataRow>();
 		}
 
-		public IEnumerable<DataRow> GetRowsUsing(IQuery query)
+		public DataRow GetRow(IQuery query)
 		{
-			return GetDataTableFor(query).Rows.Cast<DataRow>();
-		}
-
-		public DataRow GetSingleRowUsing(IQuery query)
-		{
-			var table = GetDataTableFor(query);
+			var table = GetDataTable(query);
 
 			if ((table == null) || (table.Rows.Count == 0))
 			{
@@ -63,104 +51,43 @@ namespace Shuttle.Core.Data
 			return table.Rows[0];
 		}
 
-		public IDataReader GetReaderUsing(IQuery query)
+		public event EventHandler<DbCommandCreatedEventArgs> DbCommandCreated = delegate
+		{
+		};
+
+		public IDataReader GetReader(IQuery query)
 		{
 		    Guard.AgainstNull(query, nameof(query));
 
-			using (var command = GuardedDatabaseContext().CreateCommandToExecute(query))
+			using (var command = _databaseContextCache.Current.CreateCommandToExecute(query))
 			{
-				if (Log.IsTraceEnabled)
-				{
-					Trace(command);
-				}
+				DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
 
-			    try
-			    {
-			        return command.ExecuteReader();
-			    }
-			    catch (Exception ex)
-			    {
-			        _log.Error(ex.Message);
-
-			        if (!Log.IsTraceEnabled)
-			        {
-			            Trace(command);
-			        }
-
-			        throw;
-			    }
+			    return command.ExecuteReader();
 			}
 		}
 
-		private static IDatabaseContext GuardedDatabaseContext()
-		{
-			var result = DatabaseContext.Current;
-
-			if (result == null)
-			{
-				throw new InvalidOperationException(Resources.DatabaseContextMissing);
-			}
-
-			return result;
-		}
-
-		public int ExecuteUsing(IQuery query)
+		public int Execute(IQuery query)
 		{
 		    Guard.AgainstNull(query, nameof(query));
 
-			using (var command = GuardedDatabaseContext().CreateCommandToExecute(query))
+			using (var command = _databaseContextCache.Current.CreateCommandToExecute(query))
 			{
-				if (Log.IsTraceEnabled)
-				{
-					Trace(command);
-				}
+				DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
 
-			    try
-			    {
-			        return command.ExecuteNonQuery();
-			    }
-			    catch (Exception ex)
-			    {
-			        _log.Error(ex.Message);
-
-			        if (!Log.IsTraceEnabled)
-			        {
-			            Trace(command);
-			        }
-
-			        throw;
-			    }
+				return command.ExecuteNonQuery();
             }
 		}
 
-		public T GetScalarUsing<T>(IQuery query)
+		public T GetScalar<T>(IQuery query)
 		{
 		    Guard.AgainstNull(query, nameof(query));
 
-			using (var command = GuardedDatabaseContext().CreateCommandToExecute(query))
+			using (var command = _databaseContextCache.Current.CreateCommandToExecute(query))
 			{
-				if (Log.IsTraceEnabled)
-				{
-					Trace(command);
-				}
+				DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
 
-			    object scalar;
-
-			    try
-                {
-			        scalar = command.ExecuteScalar();
-			    }
-			    catch (Exception ex)
-			    {
-			        _log.Error(ex.Message);
-
-			        if (!Log.IsTraceEnabled)
-			        {
-			            Trace(command);
-			        }
-
-			        throw;
-			    }
+				var scalar = command.ExecuteScalar();
 
                 return scalar != null && scalar != DBNull.Value ? (T)scalar : default(T);
 			}

@@ -9,17 +9,19 @@
 		<license type="expression">BSD-3-Clause</license>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<icon>images\logo.png</icon>
+		<readme>docs\README.md</readme>
 		<repository type="git" url="https://github.com/Shuttle/Shuttle.Core.Data.git" />
 		<projectUrl>https://github.com/Shuttle/Shuttle.Core.Data</projectUrl>
 		<description>Provides an abstraction over ADO.NET.</description>
 		<copyright>Copyright (c) #{Year}#, Eben Roux</copyright>
 		<tags>orm micro-orm microorm data-access</tags>
 		<dependencies>
-			#{Dependencies}#
+#{Dependencies}#
 		</dependencies>
 	</metadata>
 	<files>
 		<file src="..\..\..\.media\logo.png" target="images" />
+		<file src="..\..\..\README.md" target="docs\" />
 		<file src="lib\**\*.*" target="lib" />
 	</files>
 </package>

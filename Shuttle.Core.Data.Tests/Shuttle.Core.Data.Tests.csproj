@@ -34,8 +34,4 @@
         <Compile Remove="ConnectionConfigurationProvider.cs" Condition="'$(TargetFramework)' != 'net461'" />
         <Compile Remove="DefaultDbProviderFactories.cs" Condition="'$(TargetFramework)' != 'netcoreapp2.1'" />
     </ItemGroup>
-
-    <Target Name="ReSharperTestRunner" AfterTargets="AfterBuild">
-        <Copy SourceFiles="App.config" DestinationFiles="$(OutDir)\ReSharperTestRunner.dll.config" />
-    </Target>
 </Project>

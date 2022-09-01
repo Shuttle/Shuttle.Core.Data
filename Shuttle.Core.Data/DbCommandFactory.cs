@@ -1,5 +1,5 @@
 using System.Data;
-using Shuttle.Core.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Shuttle.Core.Data
 {
@@ -7,14 +7,9 @@ namespace Shuttle.Core.Data
     {
 		private readonly int _commandTimeout;
 
-	    public DbCommandFactory()
-			: this(ConfigurationItem<int>.ReadSetting("Shuttle.Core.Data.DbCommandFactory.CommandTimeout", 15).GetValue())
+	    public DbCommandFactory(IOptions<DataAccessOptions> options)
 	    {
-	    }
-
-	    private DbCommandFactory(int commandTimeout)
-	    {
-		    _commandTimeout = commandTimeout;
+		    _commandTimeout = options.Value.CommandTimeout;
 	    }
 
 	    public IDbCommand CreateCommandUsing(IDbConnection connection, IQuery query)

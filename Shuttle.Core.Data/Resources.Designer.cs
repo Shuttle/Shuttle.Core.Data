@@ -19,7 +19,7 @@ namespace Shuttle.Core.Data {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -61,33 +61,6 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The &apos;IConnectionConfigurationProvider&apos; of type &apos;{0}&apos; returned &apos;null&apos; for connection configuration name &apos;{1}&apos;..
-        /// </summary>
-        public static string ConnectionConfigurationMissing {
-            get {
-                return ResourceManager.GetString("ConnectionConfigurationMissing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Successfully opened connection string with name &apos;{0}&apos;..
-        /// </summary>
-        public static string ConnectionStringApproved {
-            get {
-                return ResourceManager.GetString("ConnectionStringApproved", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DbConnection open failed for connection string name &apos;{0}&apos;: {1}.
-        /// </summary>
-        public static string ConnectionStringApproveException {
-            get {
-                return ResourceManager.GetString("ConnectionStringApproveException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to [hidden].
         /// </summary>
         public static string ConnectionStringHiddenValue {
@@ -97,20 +70,11 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The required connection string with name &apos;{0}&apos; is not specified in the application configuration file..
+        ///   Looks up a localized string similar to Connection settings named &apos;{0}&apos; has no connection string..
         /// </summary>
-        public static string ConnectionStringMissing {
+        public static string ConnectionStringMissingException {
             get {
-                return ResourceManager.GetString("ConnectionStringMissing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No `IDatabaseContextCache` implementation has been assigned to the `DatabaseContext`..
-        /// </summary>
-        public static string DatabaseContextCacheMissingException {
-            get {
-                return ResourceManager.GetString("DatabaseContextCacheMissingException", resourceCulture);
+                return ResourceManager.GetString("ConnectionStringMissingException", resourceCulture);
             }
         }
         
@@ -124,11 +88,11 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to IDatabaseContextFactory instance of type &apos;{0}&apos; has not been configured.  Cannot call &apos;Create()&apos; directly..
+        ///   Looks up a localized string similar to DatabaseContextFactoryOptions have not been configured.  Cannot call &apos;Create()&apos; directly..
         /// </summary>
-        public static string DatabaseContextFactoryNotConfiguredException {
+        public static string DatabaseContextFactoryOptionsException {
             get {
-                return ResourceManager.GetString("DatabaseContextFactoryNotConfiguredException", resourceCulture);
+                return ResourceManager.GetString("DatabaseContextFactoryOptionsException", resourceCulture);
             }
         }
         
@@ -160,15 +124,6 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DbConnection open failed for database &apos;{0}&apos;: {1}.
-        /// </summary>
-        public static string DbConnectionOpenException {
-            get {
-                return ResourceManager.GetString("DbConnectionOpenException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Could not create a connection from provider factory &apos;{0}&apos;..
         /// </summary>
         public static string DbProviderFactoryCreateConnectionException {
@@ -192,6 +147,15 @@ namespace Shuttle.Core.Data {
         public static string EmbeddedScriptMissingException {
             get {
                 return ResourceManager.GetString("EmbeddedScriptMissingException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection settings named &apos;{0}&apos; has no provider name..
+        /// </summary>
+        public static string ProviderNameMissingException {
+            get {
+                return ResourceManager.GetString("ProviderNameMissingException", resourceCulture);
             }
         }
         
@@ -223,29 +187,11 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DbConnection already open to database &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Timeout may not be less than 0..
         /// </summary>
-        public static string VerboseDbConnectionAlreadyOpen {
+        public static string TimeoutException {
             get {
-                return ResourceManager.GetString("VerboseDbConnectionAlreadyOpen", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DbConnection opened to database &apos;{0}&apos; on data source &apos;{1}&apos;..
-        /// </summary>
-        public static string VerboseDbConnectionCreated {
-            get {
-                return ResourceManager.GetString("VerboseDbConnectionCreated", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DbConnection opened to database &apos;{0}&apos;..
-        /// </summary>
-        public static string VerboseDbConnectionOpened {
-            get {
-                return ResourceManager.GetString("VerboseDbConnectionOpened", resourceCulture);
+                return ResourceManager.GetString("TimeoutException", resourceCulture);
             }
         }
     }

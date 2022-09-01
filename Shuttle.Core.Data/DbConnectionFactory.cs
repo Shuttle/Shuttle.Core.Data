@@ -1,16 +1,14 @@
+using System;
 using System.Data;
 #if !NETSTANDARD2_0
 using System.Data.Common;
 #endif
-using Shuttle.Core.Logging;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
 	public class DbConnectionFactory : IDbConnectionFactory
 	{
-	    private readonly ILog _log;
-
 #if (NETSTANDARD2_0)
 		private readonly IDbProviderFactories _providerFactories;
 
@@ -18,15 +16,13 @@ namespace Shuttle.Core.Data
 	    {
             Guard.AgainstNull(providerFactories, nameof(providerFactories));
 
-	        _providerFactories = providerFactories;
-	        _log = Log.For(this);
+            _providerFactories = providerFactories;
 	    }
-#else
-		public DbConnectionFactory()
-		{
-			_log = Log.For(this);
-		}
 #endif
+
+		public event EventHandler<DbConnectionCreatedEventArgs> DbConnectionCreated = delegate
+		{
+		};
 
 		public IDbConnection CreateConnection(string providerName, string connectionString)
 		{
@@ -47,10 +43,7 @@ namespace Shuttle.Core.Data
 
 			connection.ConnectionString = connectionString;
 
-            if (Log.IsVerboseEnabled)
-            {
-                _log.Verbose(string.Format(Resources.VerboseDbConnectionCreated, connection.DataSource, connection.Database));
-            }
+			DbConnectionCreated.Invoke(this, new DbConnectionCreatedEventArgs(connection));
 
 			return connection;
 		}
