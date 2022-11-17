@@ -6,7 +6,9 @@ namespace Shuttle.Core.Data
 	{
 		[ThreadStatic] private static DatabaseContextCache _cache;
 
-		public IDatabaseContext Current => GuardedCache().Current;
+		public bool HasCurrent => GuardedCache().HasCurrent;
+
+        public IDatabaseContext Current => GuardedCache().Current;
 
 	    public ActiveDatabaseContext Use(string name)
 		{

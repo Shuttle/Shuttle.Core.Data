@@ -2,7 +2,8 @@ namespace Shuttle.Core.Data
 {
 	public interface IDatabaseContextCache
 	{
-		IDatabaseContext Current { get; }
+		bool HasCurrent { get; }
+        IDatabaseContext Current { get; }
 		ActiveDatabaseContext Use(string name);
 		ActiveDatabaseContext Use(IDatabaseContext context);
         bool Contains(string name);

@@ -10,6 +10,7 @@ namespace Shuttle.Core.Data
         private readonly IDbCommandFactory _dbCommandFactory;
         private bool _dispose;
         private bool _disposed;
+        private IDatabaseContext _activeContext;
 
         public DatabaseContext(string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory,
             IDatabaseContextCache databaseContextCache)
@@ -31,6 +32,8 @@ namespace Shuttle.Core.Data
             {
                 Connection.Open();
             }
+
+            _activeContext = databaseContextCache.HasCurrent ? databaseContextCache.Current : null;
 
             _databaseContextCache.Add(this);
         }
@@ -102,6 +105,11 @@ namespace Shuttle.Core.Data
         public void Dispose()
         {
             _databaseContextCache.Remove(this);
+
+            if (_activeContext != null)
+            {
+                _databaseContextCache.Use(_activeContext);
+            }
 
             Dispose(true);
 

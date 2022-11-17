@@ -16,6 +16,8 @@ namespace Shuttle.Core.Data
 
         public DatabaseContextCollection DatabaseContexts { get; }
 
+        public bool HasCurrent => _current != null;
+
         public IDatabaseContext Current
         {
             get
