@@ -3,7 +3,7 @@
 <package>
 	<metadata>
 		<id>Shuttle.Core.Data</id>
-		<version>13.0.1</version>
+		<version>13.0.2</version>
 		<authors>Eben Roux</authors>
 		<owners>Eben Roux</owners>
 		<license type="expression">BSD-3-Clause</license>
@@ -20,7 +20,7 @@
       <dependency id="Microsoft.Extensions.Configuration.Binder" version="6.0.0" />
       <dependency id="Microsoft.Extensions.DependencyInjection" version="6.0.0" />
       <dependency id="Microsoft.Extensions.Options" version="6.0.0" />
-      <dependency id="Shuttle.Core.Contract" version="10.1.0" />
+      <dependency id="Shuttle.Core.Contract" version="10.1.2" />
 		</dependencies>
 	</metadata>
 	<files>

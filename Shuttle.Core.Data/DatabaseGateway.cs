@@ -12,10 +12,8 @@ namespace Shuttle.Core.Data
 		
 		public DatabaseGateway(IDatabaseContextCache databaseContextCache)
 		{
-			Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
-
-			_databaseContextCache = databaseContextCache;
-		}
+			_databaseContextCache = Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
+        }
 
 		public DataTable GetDataTable(IQuery query)
 		{

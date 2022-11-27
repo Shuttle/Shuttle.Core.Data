@@ -1,5 +1,6 @@
 using System.Data;
 using Microsoft.Extensions.Options;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
@@ -9,15 +10,17 @@ namespace Shuttle.Core.Data
 
 	    public DbCommandFactory(IOptions<DataAccessOptions> options)
 	    {
-		    _commandTimeout = options.Value.CommandTimeout;
+		    Guard.AgainstNull(options, nameof(options));
+
+		    _commandTimeout = Guard.AgainstNull(options.Value, nameof(options.Value)).CommandTimeout;
 	    }
 
 	    public IDbCommand CreateCommandUsing(IDbConnection connection, IQuery query)
         {
-            var command = connection.CreateCommand();
+            var command = Guard.AgainstNull(connection, nameof(connection)).CreateCommand();
 
         	command.CommandTimeout = _commandTimeout;
-            query.Prepare(command);
+            Guard.AgainstNull(query, nameof(query)).Prepare(command);
 
             return command;
         }

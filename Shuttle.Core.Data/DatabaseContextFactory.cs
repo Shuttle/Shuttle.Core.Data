@@ -14,19 +14,14 @@ namespace Shuttle.Core.Data
             IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory,
             IDatabaseContextCache databaseContextCache)
         {
-            Guard.AgainstNull(connectionStringOptions, nameof(connectionStringOptions));
             Guard.AgainstNull(dataAccessOptions, nameof(dataAccessOptions));
-            Guard.AgainstNull(dataAccessOptions.Value, nameof(dataAccessOptions.Value));
-            Guard.AgainstNull(dbConnectionFactory, nameof(dbConnectionFactory));
-            Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
-            Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
+            
+            _connectionStringOptions = Guard.AgainstNull(connectionStringOptions, nameof(connectionStringOptions));
+            _dataAccessOptions = Guard.AgainstNull(dataAccessOptions.Value, nameof(dataAccessOptions.Value));
 
-            _connectionStringOptions = connectionStringOptions;
-            _dataAccessOptions = dataAccessOptions.Value;
-
-            DbConnectionFactory = dbConnectionFactory;
-            DbCommandFactory = dbCommandFactory;
-            DatabaseContextCache = databaseContextCache;
+            DbConnectionFactory = Guard.AgainstNull(dbConnectionFactory, nameof(dbConnectionFactory));
+            DbCommandFactory = Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
+            DatabaseContextCache = Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
         }
 
         public IDatabaseContext Create(string name)

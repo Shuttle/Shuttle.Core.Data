@@ -11,6 +11,8 @@ namespace Shuttle.Core.Data
 
         public ProcedureQuery(string procedure)
         {
+            Guard.AgainstNullOrEmptyString(procedure, nameof(procedure));
+
             _procedure = procedure;
             _parameterValues = new Dictionary<IMappedColumn, object>();
         }
@@ -30,6 +32,8 @@ namespace Shuttle.Core.Data
 
         public IQueryParameter AddParameterValue(IMappedColumn column, object value)
         {
+            Guard.AgainstNull(column, nameof(column));
+
             _parameterValues.Add(column, value);
 
             return this;

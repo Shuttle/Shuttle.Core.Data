@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
@@ -8,14 +10,10 @@ namespace Shuttle.Core.Data
         public static IEnumerable<MappedRow<T>> MappedRowsUsing<T>(this IEnumerable<DataRow> rows,
                                                                    IDataRowMapper<T> mapper) where T : class
         {
-            var result = new List<MappedRow<T>>();
+            Guard.AgainstNull(rows, nameof(rows));
+            Guard.AgainstNull(mapper, nameof(mapper));
 
-            foreach (var row in rows)
-            {
-                result.Add(mapper.Map(row));
-            }
-
-            return result;
+            return rows.Select(mapper.Map).ToList();
         }
     }
 }

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
@@ -9,6 +11,8 @@ namespace Shuttle.Core.Data
 
         public MappedData Add<T>(MappedRow<T> mappedRow)
         {
+            Guard.AgainstNull(mappedRow, nameof(mappedRow));
+
             var key = Key<T>();
 
             if (_data.ContainsKey(key))
@@ -23,6 +27,8 @@ namespace Shuttle.Core.Data
 
         public MappedData Add<T>(IEnumerable<MappedRow<T>> mappedRows)
         {
+            Guard.AgainstNull(mappedRows, nameof(mappedRows));
+
             var key = Key<T>();
 
             if (_data.ContainsKey(key))
@@ -54,17 +60,9 @@ namespace Shuttle.Core.Data
 
         public IEnumerable<MappedRow<T>> MappedRows<T>(Func<MappedRow<T>, bool> func)
         {
-            var result = new List<MappedRow<T>>();
+            Guard.AgainstNull(func, nameof(func));
 
-            foreach (var mappedRow in MappedRows<T>())
-            {
-                if (func.Invoke(mappedRow))
-                {
-                    result.Add(mappedRow);
-                }
-            }
-
-            return result;
+            return MappedRows<T>().Where(func.Invoke).ToList();
         }
     }
 }

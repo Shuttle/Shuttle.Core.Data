@@ -10,9 +10,7 @@ namespace Shuttle.Core.Data
 
         public DbCommandCreatedEventArgs(IDbCommand command)
         {
-            Guard.AgainstNull(command, nameof(command));
-
-            Command = command;
+            Command = Guard.AgainstNull(command, nameof(command));
         }
     }
 }

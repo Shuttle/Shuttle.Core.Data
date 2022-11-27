@@ -1,143 +1,152 @@
 using System;
 using System.Data;
+using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
-	public class MappedColumn<T> : IMappedColumn
-	{
-		public string ColumnName { get; protected set; }
-		public DbType DbType { get; private set; }
-		public int? Size { get; protected set; }
-		public byte? Precision { get; protected set; }
-		public byte? Scale { get; protected set; }
+    public class MappedColumn<T> : IMappedColumn
+    {
+        private Type _underlyingSystemType;
 
-		private Type _underlyingSystemType;
+        public MappedColumn(string columnName, DbType type)
+            : this(columnName, type, null)
+        {
+        }
 
-		public MappedColumn(string columnName, DbType type)
-			: this(columnName, type, null)
-		{
-		}
+        public MappedColumn(string columnName, DbType type, int? size)
+        {
+            ColumnName = columnName;
+            DbType = type;
+            Size = size;
+            Precision = null;
+            Scale = null;
 
-		public MappedColumn(string columnName, DbType type, int? size)
-		{
-			ColumnName = columnName;
-			DbType = type;
-			Size = size;
-			Precision = null;
-			Scale = null;
+            GetUnderlyingSystemType();
+        }
 
-			GetUnderlyingSystemType();
-		}
+        public MappedColumn(string columnName, DbType type, byte precision, byte scale)
+        {
+            ColumnName = columnName;
+            DbType = type;
+            Precision = precision;
+            Scale = scale;
+            Size = null;
 
-		public MappedColumn(string columnName, DbType type, byte precision, byte scale)
-		{
-			ColumnName = columnName;
-			DbType = type;
-			Precision = precision;
-			Scale = scale;
-			Size = null;
+            GetUnderlyingSystemType();
+        }
 
-			GetUnderlyingSystemType();
-		}
+        public string ColumnName { get; protected set; }
+        public DbType DbType { get; }
+        public int? Size { get; protected set; }
+        public byte? Precision { get; protected set; }
+        public byte? Scale { get; protected set; }
 
-		public static implicit operator string(MappedColumn<T> column)
-		{
-			return column.ColumnName;
-		}
+        public string FlattenedColumnName()
+        {
+            return ColumnName.Replace(".", "_");
+        }
 
-		private void GetUnderlyingSystemType()
-		{
-			_underlyingSystemType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
-		}
+        public object RetrieveRawValueFrom(DataRow row)
+        {
+            return row[ColumnName];
+        }
 
-		public T MapFrom(DataRow row)
-		{
-			if (row.Table.Columns.Contains(ColumnName))
-			{
-				return (row.IsNull(ColumnName)
-							? default(T)
-							: (T)Convert.ChangeType(RetrieveRawValueFrom(row), _underlyingSystemType));
-			}
+        public bool IsNullFor(DataRow row)
+        {
+            return row.IsNull(ColumnName);
+        }
 
-			return default(T);
-		}
+        public IDbDataParameter CreateDataParameter(IDbCommand command, object value)
+        {
+            var result = command.CreateParameter();
 
-		public T MapFrom(IDataRecord record)
-		{
-			var ordinal = Ordinal(record);
+            result.ParameterName = string.Concat("@", FlattenedColumnName());
+            result.DbType = DbType;
+            result.Value = value ?? DBNull.Value;
 
-			if (ordinal > -1)
-			{
-				return (record.IsDBNull(ordinal)
-							? default(T)
-							: (T)Convert.ChangeType(RetrieveRawValueFrom(record), _underlyingSystemType));
-			}
+            if (Size.HasValue)
+            {
+                result.Size = Size.Value;
+            }
 
-			return default(T);
-		}
+            if (Precision.HasValue)
+            {
+                result.Precision = Precision.Value;
+            }
 
-		private object RetrieveRawValueFrom(IDataRecord record)
-		{
-			return record[ColumnName];
-		}
+            result.Scale = Scale ?? 0;
 
-		private int Ordinal(IDataRecord reader)
-		{
-			try
-			{
-				return reader.GetOrdinal(ColumnName);
-			}
-			catch
-			{
-				return -1;
-			}
-		}
+            return result;
+        }
 
-		public string FlattenedColumnName()
-		{
-			return ColumnName.Replace(".", "_");
-		}
+        private void GetUnderlyingSystemType()
+        {
+            _underlyingSystemType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+        }
 
-		public object RetrieveRawValueFrom(DataRow row)
-		{
-			return row[ColumnName];
-		}
+        public T MapFrom(DataRow row)
+        {
+            Guard.AgainstNull(row, nameof(row));
 
-		public bool IsNullFor(DataRow row)
-		{
-			return row.IsNull(ColumnName);
-		}
+            if (row.Table.Columns.Contains(ColumnName))
+            {
+                return row.IsNull(ColumnName)
+                    ? default
+                    : (T)Convert.ChangeType(RetrieveRawValueFrom(row), _underlyingSystemType);
+            }
 
-		public IDbDataParameter CreateDataParameter(IDbCommand command, object value)
-		{
-			var result = command.CreateParameter();
+            return default;
+        }
 
-			result.ParameterName = string.Concat("@", FlattenedColumnName());
-			result.DbType = DbType;
-			result.Value = value ?? DBNull.Value;
+        public T MapFrom(IDataRecord record)
+        {
+            Guard.AgainstNull(record, nameof(record));
 
-			if (Size.HasValue)
-			{
-				result.Size = Size.Value;
-			}
+            var ordinal = Ordinal(record);
 
-			if (Precision.HasValue)
-			{
-				result.Precision = Precision.Value;
-			}
+            if (ordinal > -1)
+            {
+                return record.IsDBNull(ordinal)
+                    ? default
+                    : (T)Convert.ChangeType(RetrieveRawValueFrom(record), _underlyingSystemType);
+            }
 
-			result.Scale = Scale ?? 0;
+            return default;
+        }
 
-			return result;
-		}
+        public static implicit operator string(MappedColumn<T> column)
+        {
+            Guard.AgainstNull(column, nameof(column));
 
-		public MappedColumn<T> Rename(string name)
-		{
-			return Size.HasValue
-					   ? new MappedColumn<T>(name, DbType, Size.Value)
-					   : Precision.HasValue
-							 ? new MappedColumn<T>(name, DbType, Precision.Value, Scale ?? 0)
-							 : new MappedColumn<T>(name, DbType);
-		}
-	}
+            return column.ColumnName;
+        }
+
+        private int Ordinal(IDataRecord reader)
+        {
+            try
+            {
+                return reader.GetOrdinal(ColumnName);
+            }
+            catch
+            {
+                return -1;
+            }
+        }
+
+        public MappedColumn<T> Rename(string name)
+        {
+            Guard.AgainstNullOrEmptyString(name, nameof(name));
+
+            return Size.HasValue
+                ? new MappedColumn<T>(name, DbType, Size.Value)
+                : Precision.HasValue
+                    ? new MappedColumn<T>(name, DbType, Precision.Value, Scale ?? 0)
+                    : new MappedColumn<T>(name, DbType);
+        }
+
+        private object RetrieveRawValueFrom(IDataRecord record)
+        {
+            return record[ColumnName];
+        }
+    }
 }

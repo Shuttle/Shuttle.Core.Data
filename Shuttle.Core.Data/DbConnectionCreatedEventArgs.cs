@@ -10,9 +10,7 @@ namespace Shuttle.Core.Data
 
         public DbConnectionCreatedEventArgs(IDbConnection connection)
         {
-            Guard.AgainstNull(connection, nameof(connection));
-
-            Connection = connection;
+            Connection = Guard.AgainstNull(connection, nameof(connection));
         }
     }
 }

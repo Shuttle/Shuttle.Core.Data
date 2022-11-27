@@ -68,7 +68,7 @@ namespace Shuttle.Core.Data
         {
             if (row == null)
             {
-                return default(T);
+                return default;
             }
 
             var result = new T();
@@ -109,8 +109,8 @@ namespace Shuttle.Core.Data
             var underlyingSystemType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
 
             return row?[0] == null
-                ? default(T)
-                : (T) Convert.ChangeType(row[0], underlyingSystemType);
+                ? default
+                : (T)Convert.ChangeType(row[0], underlyingSystemType);
         }
     }
 }

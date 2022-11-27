@@ -10,9 +10,7 @@ namespace Shuttle.Core.Data
 
         public ActiveDatabaseContext(IDatabaseContextCache databaseContextCache, IDatabaseContext current)
         {
-            Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
-
-            _databaseContextCache = databaseContextCache;
+            _databaseContextCache = Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
             _current = current;
         }
 

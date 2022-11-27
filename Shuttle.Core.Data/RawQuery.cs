@@ -11,9 +11,7 @@ namespace Shuttle.Core.Data
 
         public RawQuery(string sql)
         {
-            Guard.AgainstNullOrEmptyString(sql, nameof(sql));
-
-            _sql = sql;
+            _sql = Guard.AgainstNullOrEmptyString(sql, nameof(sql));
             _parameterValues = new Dictionary<IMappedColumn, object>();
         }
 
@@ -32,6 +30,8 @@ namespace Shuttle.Core.Data
 
         public IQueryParameter AddParameterValue(IMappedColumn column, object value)
         {
+            Guard.AgainstNull(column, nameof(column));
+
             _parameterValues.Add(column, value);
 
             return this;

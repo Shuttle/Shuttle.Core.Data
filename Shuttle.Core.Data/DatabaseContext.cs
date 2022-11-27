@@ -10,23 +10,19 @@ namespace Shuttle.Core.Data
         private readonly IDbCommandFactory _dbCommandFactory;
         private bool _dispose;
         private bool _disposed;
-        private IDatabaseContext _activeContext;
+        private readonly IDatabaseContext _activeContext;
 
         public DatabaseContext(string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory,
             IDatabaseContextCache databaseContextCache)
         {
-            Guard.AgainstNullOrEmptyString(providerName, "providerName");
-            Guard.AgainstNull(dbConnection, nameof(dbConnection));
-            Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
-
-            _dbCommandFactory = dbCommandFactory;
-            _databaseContextCache = databaseContextCache;
+            _dbCommandFactory = Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
+            _databaseContextCache = Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
             _dispose = true;
 
             Key = Guid.NewGuid();
 
-            ProviderName = providerName;
-            Connection = dbConnection;
+            ProviderName = Guard.AgainstNullOrEmptyString(providerName, "providerName");
+            Connection = Guard.AgainstNull(dbConnection, nameof(dbConnection));
 
             if (dbConnection.State == ConnectionState.Closed)
             {
@@ -69,7 +65,7 @@ namespace Shuttle.Core.Data
 
         public IDbCommand CreateCommandToExecute(IQuery query)
         {
-            var command = _dbCommandFactory.CreateCommandUsing(Connection, query);
+            var command = _dbCommandFactory.CreateCommandUsing(Connection, Guard.AgainstNull(query, nameof(query)));
             command.Transaction = Transaction;
             return command;
         }

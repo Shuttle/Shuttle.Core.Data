@@ -14,10 +14,8 @@ namespace Shuttle.Core.Data
 
 	    public DbConnectionFactory(IDbProviderFactories providerFactories)
 	    {
-            Guard.AgainstNull(providerFactories, nameof(providerFactories));
-
-            _providerFactories = providerFactories;
-	    }
+            _providerFactories = Guard.AgainstNull(providerFactories, nameof(providerFactories));
+        }
 #endif
 
 		public event EventHandler<DbConnectionCreatedEventArgs> DbConnectionCreated = delegate

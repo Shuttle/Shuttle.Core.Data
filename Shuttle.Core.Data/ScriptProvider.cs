@@ -18,11 +18,10 @@ namespace Shuttle.Core.Data
 		public ScriptProvider(IOptions<ScriptProviderOptions> options, IDatabaseContextCache databaseContextCache)
 		{
 			Guard.AgainstNull(options, nameof(options));
-			Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
 
-			_options = options.Value;
-			_databaseContextCache = databaseContextCache;
-		}
+			_options = Guard.AgainstNull(options.Value, nameof(options.Value));
+            _databaseContextCache = Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
+        }
 
 		public string Get(string scriptName)
 		{
@@ -31,7 +30,7 @@ namespace Shuttle.Core.Data
 
 		public string Get(string scriptName, params object[] parameters)
 		{
-			Guard.AgainstNullOrEmptyString(scriptName, "scriptName");
+			Guard.AgainstNullOrEmptyString(scriptName, nameof(scriptName));
 
 			var key = Key(scriptName);
 
