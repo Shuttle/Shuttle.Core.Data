@@ -102,7 +102,7 @@ namespace Shuttle.Core.Data
         {
             _databaseContextCache.Remove(this);
 
-            if (_activeContext != null)
+            if (_activeContext != null && _databaseContextCache.Contains(_activeContext))
             {
                 _databaseContextCache.Use(_activeContext);
             }

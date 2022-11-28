@@ -79,15 +79,6 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Attempt to retrieve non-existent database context with connection string &apos;{0}&apos;..
-        /// </summary>
-        public static string DatabaseContextConnectionStringNotFoundException {
-            get {
-                return ResourceManager.GetString("DatabaseContextConnectionStringNotFoundException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to DatabaseContextFactoryOptions have not been configured.  Cannot call &apos;Create()&apos; directly..
         /// </summary>
         public static string DatabaseContextFactoryOptionsException {
@@ -120,6 +111,15 @@ namespace Shuttle.Core.Data {
         public static string DatabaseContextNameNotFoundException {
             get {
                 return ResourceManager.GetString("DatabaseContextNameNotFoundException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attempt to retrieve non-existent database context..
+        /// </summary>
+        public static string DatabaseContextNotFoundException {
+            get {
+                return ResourceManager.GetString("DatabaseContextNotFoundException", resourceCulture);
             }
         }
         

@@ -124,9 +124,8 @@
     <value>Could not create a connection from provider factory '{0}'.</value>
     <comment>{0} = provider name</comment>
   </data>
-  <data name="DatabaseContextConnectionStringNotFoundException" xml:space="preserve">
-    <value>Attempt to retrieve non-existent database context with connection string '{0}'.</value>
-    <comment>{0} = connection string (secured)</comment>
+  <data name="DatabaseContextNotFoundException" xml:space="preserve">
+    <value>Attempt to retrieve non-existent database context.</value>
   </data>
   <data name="DatabaseContextFactoryOptionsException" xml:space="preserve">
     <value>DatabaseContextFactoryOptions have not been configured.  Cannot call 'Create()' directly.</value>

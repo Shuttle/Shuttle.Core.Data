@@ -20,20 +20,10 @@ namespace Shuttle.Core.Data
 			return GuardedCache().Use(context);
 		}
 
-		public bool Contains(string name)
+		public IDatabaseContext Find(Predicate<IDatabaseContext> match)
 		{
-			return GuardedCache().Contains(name);
+			return GuardedCache().Find(match);
 		}
-
-        public bool ContainsConnectionString(string connectionString)
-        {
-            return GuardedCache().ContainsConnectionString(connectionString);
-        }
-
-        public IDatabaseContext GetConnectionString(string connectionString)
-        {
-            return GuardedCache().GetConnectionString(connectionString);
-        }
 
         public void Add(IDatabaseContext context)
 		{

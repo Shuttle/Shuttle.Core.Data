@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Data.Common;
+using System.Collections.Generic;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
     public class DatabaseContextCache : IDatabaseContextCache
     {
+        private readonly List<IDatabaseContext> _databaseContexts = new List<IDatabaseContext>();
         private IDatabaseContext _current;
 
         public DatabaseContextCache()
         {
             _current = null;
-            DatabaseContexts = new DatabaseContextCollection();
         }
-
-        public DatabaseContextCollection DatabaseContexts { get; }
 
         public bool HasCurrent => _current != null;
 
@@ -31,30 +29,13 @@ namespace Shuttle.Core.Data
             }
         }
 
-        public ActiveDatabaseContext Use(string name)
-        {
-            Guard.AgainstNullOrEmptyString(name, nameof(name));
-
-            var current = _current;
-
-            _current = DatabaseContexts.Find(candidate =>
-                candidate.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-
-            if (_current == null)
-            {
-                throw new Exception(string.Format(Resources.DatabaseContextNameNotFoundException, name));
-            }
-
-            return new ActiveDatabaseContext(this, current);
-        }
-
         public ActiveDatabaseContext Use(IDatabaseContext context)
         {
             Guard.AgainstNull(context, nameof(context));
 
             var current = _current;
 
-            _current = DatabaseContexts.Find(candidate => candidate.Key.Equals(context.Key));
+            _current = _databaseContexts.Find(candidate => candidate.Key.Equals(context.Key));
 
             if (_current == null)
             {
@@ -64,67 +45,11 @@ namespace Shuttle.Core.Data
             return new ActiveDatabaseContext(this, current);
         }
 
-        public bool Contains(string name)
+        public IDatabaseContext Find(Predicate<IDatabaseContext> match)
         {
-            Guard.AgainstNullOrEmptyString(name, nameof(name));
+            Guard.AgainstNull(match, nameof(match));
 
-            return DatabaseContexts.Find(candidate =>
-                candidate.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) != null;
-        }
-
-        public bool ContainsConnectionString(string connectionString)
-        {
-            Guard.AgainstNullOrEmptyString(connectionString, nameof(connectionString));
-
-            return FindDatabaseContext(connectionString) != null;
-        }
-
-        private IDatabaseContext FindDatabaseContext(string connectionString)
-        {
-            var result = DatabaseContexts.Find(candidate =>
-                candidate.Connection.ConnectionString.Equals(connectionString,
-                    StringComparison.OrdinalIgnoreCase));
-
-            if (result == null)
-            {
-                var matchDbConnectionStringBuilder = new DbConnectionStringBuilder
-                {
-                    ConnectionString = connectionString.ToLowerInvariant()
-                };
-
-                matchDbConnectionStringBuilder.Remove("password");
-                matchDbConnectionStringBuilder.Remove("pwd");
-
-                result = DatabaseContexts.Find(candidate =>
-                {
-                    var candidateDbConnectionStringBuilder = new DbConnectionStringBuilder
-                    {
-                        ConnectionString = candidate.Connection.ConnectionString
-                    };
-
-                    candidateDbConnectionStringBuilder.Remove("password");
-                    candidateDbConnectionStringBuilder.Remove("pwd");
-
-                    return candidateDbConnectionStringBuilder.ConnectionString.Equals(matchDbConnectionStringBuilder.ConnectionString,
-                        StringComparison.OrdinalIgnoreCase);
-                });
-            }
-
-            return result;
-        }
-
-        public IDatabaseContext GetConnectionString(string connectionString)
-        {
-            Guard.AgainstNullOrEmptyString(connectionString, nameof(connectionString));
-
-            var result = FindDatabaseContext(connectionString);
-
-            if (result == null)
-            {
-                throw new Exception(string.Format(Resources.DatabaseContextConnectionStringNotFoundException, connectionString));
-            }
-
-            return result;
+            return _databaseContexts.Find(match);
         }
 
         public void Add(IDatabaseContext context)
@@ -136,7 +61,7 @@ namespace Shuttle.Core.Data
                 throw new Exception(string.Format(Resources.DuplicateDatabaseContextKeyException, context.Key));
             }
 
-            DatabaseContexts.Add(context);
+            _databaseContexts.Add(context);
             Use(context);
         }
 
@@ -156,29 +81,29 @@ namespace Shuttle.Core.Data
                 _current = null;
             }
 
-            DatabaseContexts.Remove(candidate);
-        }
-
-        public IDatabaseContext Get(string name)
-        {
-            Guard.AgainstNullOrEmptyString(name, nameof(name));
-
-            var result = DatabaseContexts.Find(candidate =>
-                candidate.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-
-            if (result == null)
-            {
-                throw new Exception(string.Format(Resources.DatabaseContextNameNotFoundException, name));
-            }
-
-            return result;
+            _databaseContexts.Remove(candidate);
         }
 
         private IDatabaseContext Find(IDatabaseContext context)
         {
-            Guard.AgainstNull(context, nameof(context));
+            return Find(candidate => candidate.Key.Equals(context.Key));
+        }
 
-            return DatabaseContexts.Find(candidate => candidate.Key.Equals(context.Key));
+        public ActiveDatabaseContext Use(string name)
+        {
+            Guard.AgainstNullOrEmptyString(name, nameof(name));
+
+            var current = _current;
+
+            _current = _databaseContexts.Find(candidate =>
+                candidate.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+            if (_current == null)
+            {
+                throw new Exception(string.Format(Resources.DatabaseContextNameNotFoundException, name));
+            }
+
+            return new ActiveDatabaseContext(this, current);
         }
     }
 }
