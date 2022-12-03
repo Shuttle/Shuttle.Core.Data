@@ -58,5 +58,10 @@ namespace Shuttle.Core.Data.Tests
         {
 	        return Provider.GetRequiredService<IQueryMapper>();
         }
+
+        protected IDataRowMapper GetDataRowMapper()
+        {
+	        return Provider.GetRequiredService<IDataRowMapper>();
+        }
     }
 }

@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
@@ -39,7 +41,29 @@ namespace Shuttle.Core.Data
 
         public static IQueryParameter Create(string sql, params object[] args)
         {
-            return new RawQuery(string.Format(sql, args));
+            return new RawQuery(args != null && args.Length > 0 ? string.Format(sql, args) : sql);
+        }
+
+        public static IQueryParameter Create(string sql, dynamic parameters)
+        {
+            var result = new RawQuery(sql);
+
+            if (parameters != null)
+            {
+                foreach (var pi in ((object)parameters).GetType().GetProperties())
+                {
+                    try
+                    {
+                        result.AddParameterValue(new MappedColumn(pi.Name, pi.PropertyType, MappedColumn.GetDbType(pi.PropertyType)), pi.GetValue(parameters));
+                    }
+                    catch
+                    {
+                        throw new InvalidOperationException(string.Format(Resources.DynamicGetValueException, pi.Name));
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

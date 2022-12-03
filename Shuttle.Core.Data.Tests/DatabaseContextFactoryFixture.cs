@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace Shuttle.Core.Data.Tests
 {
-	[TestFixture]
+    [TestFixture]
 	public class DatabaseContextFactoryFixture : Fixture
 	{
 		[Test]

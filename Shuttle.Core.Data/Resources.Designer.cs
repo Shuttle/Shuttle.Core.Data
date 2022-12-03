@@ -133,11 +133,29 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There is no `DbType` mapping for system type `{0}`..
+        /// </summary>
+        public static string DbTypeMappingException {
+            get {
+                return ResourceManager.GetString("DbTypeMappingException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There is already a database context with key &apos;{0}&apos; in the IDatabaseContextCache..
         /// </summary>
         public static string DuplicateDatabaseContextKeyException {
             get {
                 return ResourceManager.GetString("DuplicateDatabaseContextKeyException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not retrieve the value for property `{0}` from `parameters`..
+        /// </summary>
+        public static string DynamicGetValueException {
+            get {
+                return ResourceManager.GetString("DynamicGetValueException", resourceCulture);
             }
         }
         

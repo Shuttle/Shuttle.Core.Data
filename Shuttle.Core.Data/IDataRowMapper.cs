@@ -11,6 +11,8 @@ namespace Shuttle.Core.Data
         IEnumerable<T> MapObjects<T>(IEnumerable<DataRow> rows) where T : new();
         T MapValue<T>(DataRow row);
         IEnumerable<T> MapValues<T>(IEnumerable<DataRow> rows);
+        dynamic MapItem(DataRow row);
+        IEnumerable<dynamic> MapItems(IEnumerable<DataRow> rows);
     }
 
     public interface IDataRowMapper<T> where T : class

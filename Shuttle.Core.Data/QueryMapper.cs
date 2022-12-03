@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using Shuttle.Core.Contract;
@@ -43,7 +44,7 @@ namespace Shuttle.Core.Data
             {
                 var columns = GetColumns(reader);
 
-                while (reader.Read())
+                if (reader.Read())
                 {
                     return Map<T>(GetPropertyInfo<T>(), reader, columns);
                 }
@@ -77,8 +78,6 @@ namespace Shuttle.Core.Data
 
             using (var reader = _databaseGateway.GetReader(query))
             {
-                var columns = GetColumns(reader);
-
                 while (reader.Read())
                 {
                     return MapRowValue<T>(reader);
@@ -96,8 +95,6 @@ namespace Shuttle.Core.Data
 
             using (var reader = _databaseGateway.GetReader(query))
             {
-                var columns = GetColumns(reader);
-
                 while (reader.Read())
                 {
                     var value = MapRowValue<T>(reader);
@@ -106,6 +103,54 @@ namespace Shuttle.Core.Data
                     {
                         result.Add(value);
                     }
+                }
+            }
+
+            return result;
+        }
+
+        private static dynamic DynamicMap(IDataRecord record, Dictionary<string, int> columns)
+        {
+            var result = new ExpandoObject() as IDictionary<string, object>;
+
+            foreach (var pair in columns)
+            {
+                result.Add(pair.Key, record.GetValue(pair.Value));
+            }
+
+            return result;
+        }
+
+        public dynamic MapItem(IQuery query)
+        {
+            Guard.AgainstNull(query, nameof(query));
+
+            using (var reader = _databaseGateway.GetReader(query))
+            {
+                var columns = GetColumns(reader);
+
+                if (reader.Read())
+                {
+                    return DynamicMap(reader, columns);
+                }
+            }
+
+            return default;
+        }
+
+        public IEnumerable<dynamic> MapItems(IQuery query)
+        {
+            Guard.AgainstNull(query, nameof(query));
+
+            var result = new List<dynamic>();
+
+            using (var reader = _databaseGateway.GetReader(query))
+            {
+                var columns = GetColumns(reader);
+
+                while (reader.Read())
+                {
+                    result.Add(DynamicMap(reader, columns));
                 }
             }
 

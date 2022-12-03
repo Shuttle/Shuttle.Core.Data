@@ -2,7 +2,7 @@
 
 namespace Shuttle.Core.Data
 {
-	public class ThreadStaticDatabaseContextCache : IDatabaseContextCache
+    public class ThreadStaticDatabaseContextCache : IDatabaseContextCache
 	{
 		[ThreadStatic] private static DatabaseContextCache _cache;
 

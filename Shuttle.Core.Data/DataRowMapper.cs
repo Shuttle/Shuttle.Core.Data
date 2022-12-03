@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using Shuttle.Core.Contract;
@@ -49,6 +50,34 @@ namespace Shuttle.Core.Data
             return rows?.Select(MapRowValue<T>).ToList() ?? new List<T>();
         }
 
+        public dynamic MapItem(DataRow row)
+        {
+            Guard.AgainstNull(row, nameof(row));
+
+            return DynamicMap(row);
+        }
+
+        public IEnumerable<dynamic> MapItems(IEnumerable<DataRow> rows)
+        {
+            Guard.AgainstNull(rows, nameof(rows));
+
+            return rows.Any()
+                ? rows.Select(row => DynamicMap(row)).ToList()
+                : Enumerable.Empty<dynamic>();
+        }
+
+        private static dynamic DynamicMap(DataRow row)
+        {
+            var result = new ExpandoObject() as IDictionary<string, object>;
+
+            foreach (DataColumn column in row.Table.Columns)
+            {
+                result.Add(column.ColumnName, row[column]);
+            }
+
+            return result;
+        }
+
         private PropertyInfo[] GetPropertyInfo<T>()
         {
             lock (_lock)
@@ -64,7 +93,7 @@ namespace Shuttle.Core.Data
             }
         }
 
-        private T Map<T>(PropertyInfo[] properties, DataRow row) where T : new()
+        private static T Map<T>(IEnumerable<PropertyInfo> properties, DataRow row) where T : new()
         {
             if (row == null)
             {

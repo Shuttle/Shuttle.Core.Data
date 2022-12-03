@@ -171,4 +171,12 @@
     <value>Connection settings named '{0}' has no provider name.</value>
     <comment>{0} = connection settings name</comment>
   </data>
+  <data name="DbTypeMappingException" xml:space="preserve">
+    <value>There is no `DbType` mapping for system type `{0}`.</value>
+    <comment>{0} = system type</comment>
+  </data>
+  <data name="DynamicGetValueException" xml:space="preserve">
+    <value>Could not retrieve the value for property `{0}` from `parameters`.</value>
+    <comment>{0} = property name</comment>
+  </data>
 </root>

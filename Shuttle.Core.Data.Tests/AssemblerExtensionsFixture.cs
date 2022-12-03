@@ -7,7 +7,7 @@ using Shuttle.Core.Data.Tests.Fakes;
 
 namespace Shuttle.Core.Data.Tests
 {
-	[TestFixture]
+    [TestFixture]
 	public class AssemblerExtensionsFixture
 	{
 		[Test]
