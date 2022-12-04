@@ -33,7 +33,7 @@ namespace Shuttle.Core.Data
                 throw new InvalidOperationException(string.Format(Resources.ConnectionStringMissingException, name));
             }
 
-            return Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString);
+            return Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString).WithName(name);
         }
 
         public IDatabaseContext Create(string providerName, string connectionString)

@@ -4,7 +4,7 @@
 PM> Install-Package Shuttle.Core.Data
 ```
 
-Provides a thin abstraction over ADO.NET.
+Provides an abstraction built directly on ADO.NET which falls within the Micro ORM space.
 
 # Overview
 
@@ -40,12 +40,11 @@ The relevant options may be set using the builder:
 services.AddDataAccess(builder => 
 {
 	builder.Options.CommandTimeout = timeout;
-	builder.Options.DatabaseContextFactory = new DatabaseContextFactoryOptions
-    {
-        DefaultConnectionStringName = "connection-string-name",
-		// -- or --
-        DefaultProviderName = "provider-name",
-        DefaultConnectionString = "connection-string"
+	
+	builder.Options.DatabaseContextFactory.DefaultConnectionStringName = "connection-string-name";
+	// -- or --
+    builder.Options.DatabaseContextFactory.DefaultProviderName = "provider-name",
+    builder.Options.DatabaseContextFactory.DefaultConnectionString = "connection-string"
     }
 });
 ```
@@ -76,25 +75,108 @@ In order to access a database we need a database connection.  A database connect
 The `DatabaseContextFactory` implementation makes use of an `IDbConnectionFactory` implementation which creates a `System.Data.IDbConnection` by using the provider name and connection string.  An `IDbCommandFactory` creates a `System.Data.IDbCommand` by using an `IDbConnection` instance.  The `DatabaseContextFactory` also requires an instance of an `IDatabaseContextCache` that stores connections and is assigned to the `DatabaseContext` in order to obtain the active connection.
 
 ``` c#
-var factory = provider.GetRequiredService<DatabaseContextFactory>();
+var databaseContextFactory = provider.GetRequiredService<DatabaseContextFactory>();
 
-using (var context = factory.Create("connection-name"))
+using (var context = databaseContextFactory.Create("connection-name"))
 {
 	// database interaction
 }
 
-using (var context = factory
+using (var context = databaseContextFactory
 	.Create("System.Data.SqlClient", 
 		"Data Source=.\sqlexpress;Initial Catalog=Shuttle;Integrated Security=SSPI"))
 {
 	// database interaction
 }
 
-using (var context = factory.Create(existingIDbConnection))
+using (var context = databaseContextFactory.Create(existingIDbConnection))
 {
 	// database interaction
 }
 ```
+
+# IQuery
+
+An `IQuery` encapsulates a database query that can be executed.  There is only one method that needs to be implemented:
+
+``` c#
+void Prepare(IDbCommand command);
+```
+
+This should ensure that the given `IDbCommand` is configured for execution by setting the relvant command attributes and parameters.
+
+## RawQuery
+
+The `RawQuery` represents a `Text` command type:
+
+``` c#
+public RawQuery(string sql);
+public static IQueryParameter Create(string sql, params object[] args);
+public static IQueryParameter Create(string sql, dynamic parameters);
+```
+
+You can either use the constructor or one of the static methods to specify the `sql` to use.  Parameters may either be added using the `AddParameterValue` of the returned `IQueryParameter` or they may be added as `params object[] args` in order to insert them at the required index.  When using `dynamic` parameters the object values are converted to `MappedColumn` instances and added as parameters using `AddParameterValue`.
+
+## ProcedureQuery
+
+The `ProcedureQuery` represents a `StoredProcedure` command type.
+
+## Dynamic mapping extensions
+
+Methods that take an `IQuery` instance as a parameter will typically also be implemented as an extension method that take the `sql` and `dynamic` parameters as input, e.g.:
+
+``` c#
+public static int DataAccessMethod(this IDataAccessInterface dataAccessInstance, string sql, dynamic parameters = null);
+```
+
+Where `DataAccessMethod` is the relevant method on the `IDataAccessInterface` that you would like to call.
+
+# MappedColumn
+
+Typically you would not want to create a `MappedColumn` each time you need it and these are also quite fixed.  A column mapping can, therefore, by defined statically:
+
+``` c#
+using System;
+using System.Data;
+using Shuttle.Core.Data;
+
+namespace Shuttle.Ordering.DataAccess
+{
+    public class OrderColumns
+    {
+        public static readonly MappedColumn<Guid> Id =
+            new MappedColumn<Guid>("Id", DbType.Guid);
+
+        public static readonly MappedColumn<string> OrderNumber =
+            new MappedColumn<string>("OrderNumber", DbType.String, 20);
+
+        public static readonly MappedColumn<string> OrderDate =
+            new MappedColumn<string>("OrderDate", DbType.DateTime);
+
+        public static readonly MappedColumn<string> CustomerName =
+        new MappedColumn<string>("CustomerName", DbType.String, 65);
+
+        public static readonly MappedColumn<string> CustomerEMail =
+            new MappedColumn<string>("CustomerEMail", DbType.String); // size omitted
+    }
+}
+```
+
+There are quite a few options that you can set on the `MappedColumn` in order to represent your column properly.
+
+## MapFrom
+
+``` c#
+public T MapFrom(DataRow row)
+```
+
+This will return the typed value of the specified column as contained in the passed-in `DataRow`.
+
+# IQueryParameter: IQuery
+
+An `IQueryParameter` inherits the `IQuery` interface and extends it by allowing you to add parameters to a query by specifying an `IMappedColumn` (see below) instance along with the value for the parameter.
+
+There are two implementations of this interface.
 
 # IDatabaseGateway
 
@@ -111,10 +193,10 @@ IDataReader GetReader(IQuery query);
 Returns an `IDataReader` instance for the given `select` statement:
 
 ``` c#
-var factory = DatabaseContextFactory.Default();
+var databaseContextFactory = DatabaseContextFactory.Default();
 var gateway = new DatabaseGateway();
 
-using (var context = factory.Create("connection-name"))
+using (var context = databaseContextFactory.Create("connection-name"))
 {
 	var reader = gateway.GetReader(RawQuery.Create("select Id, Username from dbo.Member"));
 }
@@ -129,10 +211,10 @@ int Execute(IQuery query);
 Executes the given query and returns the number of rows affected:
 
 ``` c#
-var factory = DatabaseContextFactory.Default();
+var databaseContextFactory = DatabaseContextFactory.Default();
 var gateway = new DatabaseGateway();
 
-using (var context = factory.Create("connection-name"))
+using (var context = databaseContextFactory.Create("connection-name"))
 {
 	gateway.Execute(RawQuery.Create("delete from dbo.Member where Username = 'mr.resistor'"));
 }
@@ -147,10 +229,10 @@ T GetScalar<T>(IQuery query);
 Get the scalar value returned by the `select` query.  The query shoud return only one value (scalar):
 
 ```c#
-var factory = DatabaseContextFactory.Default();
+var databaseContextFactory = DatabaseContextFactory.Default();
 var gateway = new DatabaseGateway();
 
-using (var context = factory.Create("connection-name"))
+using (var context = databaseContextFactory.Create("connection-name"))
 {
 	var username = gateway.GetScalar<string>(
 		RawQuery.Create("select Username from dbo.Member where Id = 10")
@@ -171,10 +253,10 @@ DataTable GetDataTable(IQuery query);
 Returns a `DataTable` containing the rows returned for the given `select` statement.
 
 ``` c#
-var factory = DatabaseContextFactory.Default();
+var databaseContextFactory = DatabaseContextFactory.Default();
 var gateway = new DatabaseGateway();
 
-using (var context = factory.Create("connection-name"))
+using (var context = databaseContextFactory.Create("connection-name"))
 {
 	var table = gateway.GetDataTable(RawQuery.Create("select Id, Username from dbo.Member"));
 }
@@ -189,10 +271,10 @@ IEnumerable<DataRow> GetRows(IQuery query);
 Returns an enumerable containing the `DataRow` instances returned for a `select` query:
 
 ``` c#
-var factory = DatabaseContextFactory.Default();
+var databaseContextFactory = DatabaseContextFactory.Default();
 var gateway = new DatabaseGateway();
 
-using (var context = factory.Create("connection-name"))
+using (var context = databaseContextFactory.Create("connection-name"))
 {
 	var rows = gateway.GetRows(RawQuery.Create("select Id, Username from dbo.Member"));
 }
@@ -207,10 +289,10 @@ DataRow GetRow(IQuery query);
 Returns a single `DataRow` containing the values returned for a `select` statement that returns exactly one row:
 
 ``` c#
-var factory = DatabaseContextFactory.Default();
+var databaseContextFactory = DatabaseContextFactory.Default();
 var gateway = new DatabaseGateway();
 
-using (var context = factory.Create("connection-name"))
+using (var context = databaseContextFactory.Create("connection-name"))
 {
 	var row = gateway.GetRow(
 		RawQuery.Create("select Id, Username, EMail, DateActivated from dbo.Member where Id = 10")
@@ -264,22 +346,6 @@ bool Contains(IQuery query);
 
 Returns `true` is the `IQuery` instance `select` clause returns an `int` scalar that equals `1`; else returns `false`.
 
-# IQuery
-
-An `IQuery` represent a database query that can be executed against the relevant database type.  There is only one method that needs to be implemented:
-
-``` c#
-void Prepare(IDbCommand command);
-```
-
-This should ensure that the given `IDbCommand` is configured for execution by setting the relvant command attributes and parameters.
-
-# IQueryParameter: IQuery
-
-An `IQueryParameter` inherits the `IQuery` interface and extends it by allowing you to add parameters to a query by specifying an `IMappedColumn` (see below) instance along with the value for the parameter.
-
-There are two implementations of this interface.
-
 ## RawQuery
 
 The `RawQuery` enables you to create any query using the native language structure:
@@ -299,47 +365,6 @@ var query = ProcedureQuery.Create("uspMemberById")
 	.AddParameterValue(new MappedColumn<Guid>("Id", DbType.Guid), 
 		new Guid('{75208260-CF93-454E-95EC-FE1903F3664E}'));
 ```
-
-# MappedColumn
-
-Typically you would not want to create a `MappedColumn` each time you need it and these are also quite fixed.  A column mapping can, therefore, by defined statically:
-
-``` c#
-using System;
-using System.Data;
-using Shuttle.Core.Data;
-
-namespace Shuttle.Ordering.DataAccess
-{
-    public class OrderColumns
-    {
-        public static readonly MappedColumn<Guid> Id =
-            new MappedColumn<Guid>("Id", DbType.Guid);
-
-        public static readonly MappedColumn<string> OrderNumber =
-            new MappedColumn<string>("OrderNumber", DbType.String, 20);
-
-        public static readonly MappedColumn<string> OrderDate =
-            new MappedColumn<string>("OrderDate", DbType.DateTime);
-
-        public static readonly MappedColumn<string> CustomerName =
-        new MappedColumn<string>("CustomerName", DbType.String, 65);
-
-        public static readonly MappedColumn<string> CustomerEMail =
-            new MappedColumn<string>("CustomerEMail", DbType.String, 130);
-    }
-}
-```
-
-There are quite a few options that you can set on the `MappedColumn` in order to represent your column properly.
-
-## MapFrom
-
-``` c#
-public T MapFrom(DataRow row)
-```
-
-This will return the typed value of the specified column as contained in the passed-in `DataRow`.
 
 # IDataRowMapper
 
