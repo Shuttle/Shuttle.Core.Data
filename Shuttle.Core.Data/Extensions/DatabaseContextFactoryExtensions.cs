@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 using System.Threading;
 using Shuttle.Core.Contract;
 
@@ -40,7 +41,7 @@ namespace Shuttle.Core.Data
 
             return IsAvailable(() =>
             {
-                using (databaseContextFactory.Create(providerName, dbConnection))
+                using (databaseContextFactory.Create(providerName, (DbConnection)dbConnection))
                 {
                 }
             }, cancellationToken, retries, secondsBetweenRetries);

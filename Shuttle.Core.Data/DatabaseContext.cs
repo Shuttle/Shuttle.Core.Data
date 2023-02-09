@@ -1,22 +1,23 @@
 using System;
 using System.Data;
+using System.Data.Common;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
     public class DatabaseContext : IDatabaseContext
     {
-        private readonly IDatabaseContextCache _databaseContextCache;
+        private readonly IDatabaseContextService _databaseContextService;
         private readonly IDbCommandFactory _dbCommandFactory;
         private bool _dispose;
         private bool _disposed;
         private readonly IDatabaseContext _activeContext;
 
         public DatabaseContext(string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory,
-            IDatabaseContextCache databaseContextCache)
+            IDatabaseContextService databaseContextService)
         {
             _dbCommandFactory = Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
-            _databaseContextCache = Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
+            _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             _dispose = true;
 
             Key = Guid.NewGuid();
@@ -29,9 +30,9 @@ namespace Shuttle.Core.Data
                 Connection.Open();
             }
 
-            _activeContext = databaseContextCache.HasCurrent ? databaseContextCache.Current : null;
+            _activeContext = databaseContextService.HasCurrent ? databaseContextService.Current : null;
 
-            _databaseContextCache.Add(this);
+            _databaseContextService.Add(this);
         }
 
         public Guid Key { get; }
@@ -49,7 +50,7 @@ namespace Shuttle.Core.Data
 
         public IDatabaseContext Suppressed()
         {
-            return new DatabaseContext(ProviderName, Connection, _dbCommandFactory, _databaseContextCache)
+            return new DatabaseContext(ProviderName, Connection, _dbCommandFactory, _databaseContextService)
             {
                 Transaction = Transaction,
                 _dispose = false
@@ -63,9 +64,9 @@ namespace Shuttle.Core.Data
             return this;
         }
 
-        public IDbCommand CreateCommandToExecute(IQuery query)
+        public IDbCommand CreateCommand(IQuery query)
         {
-            var command = _dbCommandFactory.CreateCommandUsing(Connection, Guard.AgainstNull(query, nameof(query)));
+            var command = _dbCommandFactory.Create(Connection, Guard.AgainstNull(query, nameof(query)));
             command.Transaction = Transaction;
             return command;
         }
@@ -100,11 +101,11 @@ namespace Shuttle.Core.Data
 
         public void Dispose()
         {
-            _databaseContextCache.Remove(this);
+            _databaseContextService.Remove(this);
 
-            if (_activeContext != null && _databaseContextCache.Contains(_activeContext))
+            if (_activeContext != null && _databaseContextService.Contains(_activeContext))
             {
-                _databaseContextCache.Use(_activeContext);
+                _databaseContextService.Use(_activeContext);
             }
 
             Dispose(true);

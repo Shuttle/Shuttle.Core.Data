@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 using System.Threading;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -41,17 +42,17 @@ namespace Shuttle.Core.Data.Tests
 
 			Assert.That(databaseContextFactory.Object.IsAvailable(new CancellationToken(), 0, 0), Is.True);
 			Assert.That(databaseContextFactory.Object.IsAvailable("name", new CancellationToken(), 0, 0), Is.True);
-			Assert.That(databaseContextFactory.Object.IsAvailable("provider-name", new Mock<IDbConnection>().Object, new CancellationToken(), 0, 0), Is.True);
+			Assert.That(databaseContextFactory.Object.IsAvailable("provider-name", new Mock<DbConnection>().Object, new CancellationToken(), 0, 0), Is.True);
 			Assert.That(databaseContextFactory.Object.IsAvailable("provider-name", "connection-string", new CancellationToken(), 0, 0), Is.True);
 
 			databaseContextFactory.Setup(m => m.Create()).Throws(new Exception());
 			databaseContextFactory.Setup(m => m.Create(It.IsAny<string>())).Throws(new Exception());
-			databaseContextFactory.Setup(m => m.Create(It.IsAny<string>(), It.IsAny<IDbConnection>())).Throws(new Exception());
+			databaseContextFactory.Setup(m => m.Create(It.IsAny<string>(), It.IsAny<DbConnection>())).Throws(new Exception());
 			databaseContextFactory.Setup(m => m.Create(It.IsAny<string>(), It.IsAny<string>())).Throws(new Exception());
 
 			Assert.That(databaseContextFactory.Object.IsAvailable(new CancellationToken(), 0, 0), Is.False);
 			Assert.That(databaseContextFactory.Object.IsAvailable("name", new CancellationToken(), 0, 0), Is.False);
-			Assert.That(databaseContextFactory.Object.IsAvailable("provider-name", new Mock<IDbConnection>().Object, new CancellationToken(), 0, 0), Is.False);
+			Assert.That(databaseContextFactory.Object.IsAvailable("provider-name", new Mock<DbConnection>().Object, new CancellationToken(), 0, 0), Is.False);
 			Assert.That(databaseContextFactory.Object.IsAvailable("provider-name", "connection-string", new CancellationToken(), 0, 0), Is.False);
 		}
 	}

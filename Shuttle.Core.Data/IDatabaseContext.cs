@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Data.Common;
 
 namespace Shuttle.Core.Data
 {
@@ -10,7 +11,7 @@ namespace Shuttle.Core.Data
 
         IDbTransaction Transaction { get; }
         IDbConnection Connection { get; }
-        IDbCommand CreateCommandToExecute(IQuery query);
+        IDbCommand CreateCommand(IQuery query);
 
         bool HasTransaction { get; }
         string ProviderName { get; }

@@ -2,7 +2,7 @@ using System;
 
 namespace Shuttle.Core.Data
 {
-	public interface IDatabaseContextCache
+	public interface IDatabaseContextService
 	{
 		bool HasCurrent { get; }
         IDatabaseContext Current { get; }

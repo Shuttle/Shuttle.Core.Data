@@ -11,7 +11,7 @@ namespace Shuttle.Core.Data.Tests
 		[SetUp]
 	    public void SetupContext()
 		{
-			var cache = new Mock<IDatabaseContextCache>();
+			var cache = new Mock<IDatabaseContextService>();
 
 			cache.Setup(m => m.Current).Returns(new Mock<IDatabaseContext>().Object);
 		}
@@ -20,7 +20,7 @@ namespace Shuttle.Core.Data.Tests
 	    public void Should_fail_when_there_is_no_ambient_database_context()
 	    {
 		    Assert.Throws<InvalidOperationException>(
-			    () => new ScriptProvider(Options.Create(new ScriptProviderOptions()), new DatabaseContextCache()).Get("throw"));
+			    () => new ScriptProvider(Options.Create(new ScriptProviderOptions()), new DatabaseContextService()).Get("throw"));
 	    }
 
 	    [Test]
@@ -38,9 +38,9 @@ namespace Shuttle.Core.Data.Tests
             Assert.AreEqual("select 'file-script'", script);
         }
 
-        private static IDatabaseContextCache MockDatabaseContextCache()
+        private static IDatabaseContextService MockDatabaseContextCache()
         {
-	        var databaseContextCache = new Mock<IDatabaseContextCache>();
+	        var databaseContextCache = new Mock<IDatabaseContextService>();
 
 	        databaseContextCache.Setup(m => m.Current).Returns(new Mock<IDatabaseContext>().Object);
 
@@ -53,7 +53,7 @@ namespace Shuttle.Core.Data.Tests
             var provider = new ScriptProvider(Options.Create(new ScriptProviderOptions
             {
                 ResourceAssembly = GetType().Assembly,
-                ResourceNameFormat = "Shuttle.Core.Data.Tests..scripts.System.Data.SqlClient.{ScriptName}.sql"
+                ResourceNameFormat = "Shuttle.Core.Data.Tests..scripts.Microsoft.Data.SqlClient.{ScriptName}.sql"
             }), MockDatabaseContextCache());
 
             var script = provider.Get("embedded-script");
@@ -70,7 +70,7 @@ namespace Shuttle.Core.Data.Tests
                 ResourceAssembly = GetType().Assembly
             }), MockDatabaseContextCache());
 
-            Assert.Throws<InvalidOperationException>(() => provider.Get("System.Data.SqlClient", "missing-script"));
+            Assert.Throws<InvalidOperationException>(() => provider.Get("Microsoft.Data.SqlClient", "missing-script"));
         }
     }
 }

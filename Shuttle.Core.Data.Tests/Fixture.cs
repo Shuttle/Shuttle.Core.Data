@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using NUnit.Framework;
 
 namespace Shuttle.Core.Data.Tests
@@ -16,12 +14,12 @@ namespace Shuttle.Core.Data.Tests
 	    protected static IServiceProvider Provider;
 
 	    protected static string DefaultConnectionStringName = "Shuttle";
-		protected static string DefaultProviderName = "System.Data.SqlClient";
-		protected static string DefaultConnectionString = "Server=.;Database=Shuttle;User ID=sa;Password=Pass!000";
+		protected static string DefaultProviderName = "Microsoft.Data.SqlClient";
+		protected static string DefaultConnectionString = "Server=.;Database=Shuttle;User ID=sa;Password=Pass!000;TrustServerCertificate=true";
 
         protected Fixture()
         {
-            DbProviderFactories.RegisterFactory("System.Data.SqlClient", SqlClientFactory.Instance);
+            DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
 
             Services.AddDataAccess(builder =>
 	            {

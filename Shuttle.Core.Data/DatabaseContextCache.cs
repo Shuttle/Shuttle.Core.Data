@@ -4,12 +4,12 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
-    public class DatabaseContextCache : IDatabaseContextCache
+    public class DatabaseContextService : IDatabaseContextService
     {
         private readonly List<IDatabaseContext> _databaseContexts = new List<IDatabaseContext>();
         private IDatabaseContext _current;
 
-        public DatabaseContextCache()
+        public DatabaseContextService()
         {
             _current = null;
         }

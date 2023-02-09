@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
+using System.Resources;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
@@ -96,14 +98,43 @@ namespace Shuttle.Core.Data
             return ColumnName.Replace(".", "_");
         }
 
+        public object RetrieveRawValueFrom(dynamic instance)
+        {
+            Guard.AgainstNull(instance, nameof(instance));
+
+            var property = instance.GetType().GetProperty(ColumnName);
+
+            if (property == null)
+            {
+                return null;
+            }
+
+            return property.GetValue(instance, null);
+        }
+
         public object RetrieveRawValueFrom(DataRow row)
         {
-            return row[ColumnName];
+            return Guard.AgainstNull(row, nameof(row))[ColumnName];
+        }
+
+        public object RetrieveRawValueFrom(IDataRecord record)
+        {
+            return Guard.AgainstNull(record, nameof(record))[ColumnName];
+        }
+
+        public bool IsNullFor(dynamic instance)
+        {
+            return Guard.AgainstNull(instance, nameof(instance))[ColumnName] == DBNull.Value;
         }
 
         public bool IsNullFor(DataRow row)
         {
-            return row.IsNull(ColumnName);
+            return Guard.AgainstNull(row, nameof(row)).IsNull(ColumnName);
+        }
+
+        public bool IsNullFor(IDataRecord record)
+        {
+            return Guard.AgainstNull(record, nameof(record)).IsDBNull(Ordinal(record));
         }
 
         public IDbDataParameter CreateDataParameter(IDbCommand command, object value)
@@ -127,6 +158,34 @@ namespace Shuttle.Core.Data
             result.Scale = Scale ?? 0;
 
             return result;
+        }
+
+        protected bool HasProperty(dynamic instance, string name)
+        {
+            return instance != null 
+                   && 
+                   (
+                       instance is ExpandoObject 
+                           ? ((IDictionary<string, object>)instance).ContainsKey(name) 
+                           : (bool)(instance.GetType().GetProperty(name) != null)
+                       );
+        }
+
+        public T MapFrom<T>(dynamic instance)
+        {
+            Guard.AgainstNull(instance, nameof(instance));
+
+            if (HasProperty(instance, ColumnName))
+            {
+                var type = typeof(T);
+                var value = instance.GetType().GetProperty(ColumnName).GetValue(instance, null);
+
+                return value == null || DBNull.Value.Equals(value)
+                    ? default
+                    : (T)Convert.ChangeType(RetrieveRawValueFrom(value), Nullable.GetUnderlyingType(type) ?? type);
+            }
+
+            return default;
         }
 
         public T MapFrom<T>(DataRow row)
@@ -170,11 +229,11 @@ namespace Shuttle.Core.Data
             return column.ColumnName;
         }
 
-        protected int Ordinal(IDataRecord reader)
+        protected int Ordinal(IDataRecord record)
         {
             try
             {
-                return reader.GetOrdinal(ColumnName);
+                return record.GetOrdinal(ColumnName);
             }
             catch
             {
@@ -192,13 +251,6 @@ namespace Shuttle.Core.Data
                     ? new MappedColumn(name, Type, DbType, Precision.Value, Scale ?? 0)
                     : new MappedColumn(name, Type, DbType);
         }
-
-        public object RetrieveRawValueFrom(IDataRecord record)
-        {
-            return record[ColumnName];
-        }
-
-
     }
 
     public class MappedColumn<T> : MappedColumn
@@ -223,6 +275,23 @@ namespace Shuttle.Core.Data
         private void GetUnderlyingSystemType()
         {
             _underlyingSystemType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+        }
+
+        public T MapFrom(dynamic instance)
+        {
+            Guard.AgainstNull(instance, nameof(instance));
+
+            if (HasProperty(instance, ColumnName))
+            {
+                var type = typeof(T);
+                var value = instance.GetType().GetProperty(ColumnName).GetValue(instance, null);
+
+                return value == null 
+                    ? default
+                    : (T)Convert.ChangeType(RetrieveRawValueFrom(instance), Nullable.GetUnderlyingType(type) ?? type);
+            }
+
+            return default;
         }
 
         public T MapFrom(DataRow row)

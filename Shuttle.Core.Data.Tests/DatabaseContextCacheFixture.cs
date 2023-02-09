@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Data.Common;
 using Moq;
 using NUnit.Framework;
 
@@ -9,13 +10,13 @@ namespace Shuttle.Core.Data.Tests
         [Test]
         public void Should_be_able_to_use_different_contexts()
         {
-            var cache = new DatabaseContextCache();
+            var cache = new DatabaseContextService();
 
-            var context1 = new DatabaseContext("mock-1", new Mock<IDbConnection>().Object, new Mock<IDbCommandFactory>().Object, cache).WithName("mock-1");
+            var context1 = new DatabaseContext("mock-1", new Mock<DbConnection>().Object, new Mock<IDbCommandFactory>().Object, cache).WithName("mock-1");
 
             Assert.That(cache.Current.Key, Is.EqualTo(context1.Key));
 
-            var context2 = new DatabaseContext("mock-2", new Mock<IDbConnection>().Object, new Mock<IDbCommandFactory>().Object, cache).WithName("mock-2");
+            var context2 = new DatabaseContext("mock-2", new Mock<DbConnection>().Object, new Mock<IDbCommandFactory>().Object, cache).WithName("mock-2");
 
             Assert.That(cache.Current.Key, Is.EqualTo(context2.Key));
 

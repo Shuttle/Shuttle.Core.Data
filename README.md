@@ -83,8 +83,8 @@ using (var context = databaseContextFactory.Create("connection-name"))
 }
 
 using (var context = databaseContextFactory
-	.Create("System.Data.SqlClient", 
-		"Data Source=.\sqlexpress;Initial Catalog=Shuttle;Integrated Security=SSPI"))
+	.Create("Microsoft.Data.SqlClient", 
+		"Data Source=.\sqlexpress;Initial Catalog=Shuttle;Integrated Security=SSPI;TrustServerCertificate=true"))
 {
 	// database interaction
 }

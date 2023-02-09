@@ -1,13 +1,15 @@
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Shuttle.Core.Data
 {
     public interface IDataRepository<T> where T : class
     {
-        IEnumerable<T> FetchItems(IQuery query);
-		T FetchItem(IQuery query);
-		MappedRow<T> FetchMappedRow(IQuery query);
-		IEnumerable<MappedRow<T>> FetchMappedRows(IQuery query);
-		bool Contains(IQuery query);
+        Task<IEnumerable<T>> FetchItems(IQuery query, CancellationToken cancellationToken = new CancellationToken());
+		Task<T> FetchItem(IQuery query, CancellationToken cancellationToken = new CancellationToken());
+		Task<MappedRow<T>> FetchMappedRow(IQuery query, CancellationToken cancellationToken = new CancellationToken());
+		Task<IEnumerable<MappedRow<T>>> FetchMappedRows(IQuery query, CancellationToken cancellationToken = new CancellationToken());
+		Task<bool> Contains(IQuery query, CancellationToken cancellationToken = new CancellationToken());
     }
 }

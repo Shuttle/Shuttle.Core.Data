@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 
@@ -18,12 +20,12 @@ namespace Shuttle.Core.Data.Tests
 			var dataRow = new DataTable().NewRow();
 			var anObject = new object();
 
-			gateway.Setup(m => m.GetRows(query.Object)).Returns(new List<DataRow> {dataRow});
+			gateway.Setup(m => m.GetRows(query.Object, CancellationToken.None)).ReturnsAsync(new List<DataRow> {dataRow});
 			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(new MappedRow<object>(dataRow, anObject));
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = repository.FetchItems(query.Object).ToList();
+			var result = repository.FetchItems(query.Object).Result.ToList();
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);
@@ -39,12 +41,12 @@ namespace Shuttle.Core.Data.Tests
 			var dataRow = new DataTable().NewRow();
 			var anObject = new object();
 
-			gateway.Setup(m => m.GetRow(query.Object)).Returns(dataRow);
+			gateway.Setup(m => m.GetRow(query.Object, CancellationToken.None)).ReturnsAsync(dataRow);
 			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(new MappedRow<object>(dataRow, anObject));
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = repository.FetchItem(query.Object);
+			var result = repository.FetchItem(query.Object).Result;
 
 			Assert.IsNotNull(result);
 			Assert.AreSame(anObject, result);
@@ -56,11 +58,11 @@ namespace Shuttle.Core.Data.Tests
 			var gateway = new Mock<IDatabaseGateway>();
 			var query = new Mock<IQuery>();
 
-			gateway.Setup(m => m.GetRow(query.Object)).Returns((DataRow) null);
+			gateway.Setup(m => m.GetRow(query.Object, CancellationToken.None)).ReturnsAsync((DataRow) null);
 
 			var repository = new DataRepository<object>(gateway.Object, new Mock<IDataRowMapper<object>>().Object);
 
-			var result = repository.FetchItem(query.Object);
+			var result = repository.FetchItem(query.Object).Result;
 
 			Assert.IsNull(result);
 		}
@@ -71,11 +73,11 @@ namespace Shuttle.Core.Data.Tests
 			var gateway = new Mock<IDatabaseGateway>();
 			var query = new Mock<IQuery>();
 
-			gateway.Setup(m => m.GetScalar<int>(query.Object)).Returns(1);
+			gateway.Setup(m => m.GetScalar<int>(query.Object, CancellationToken.None)).ReturnsAsync(1);
 
 			var repository = new DataRepository<object>(gateway.Object, new Mock<IDataRowMapper<object>>().Object);
 
-			Assert.IsTrue(repository.Contains(query.Object));
+			Assert.IsTrue(repository.Contains(query.Object).Result);
 		}
 
 		[Test]
@@ -88,12 +90,12 @@ namespace Shuttle.Core.Data.Tests
 			var anObject = new object();
 			var mappedRow = new MappedRow<object>(dataRow, anObject);
 
-			gateway.Setup(m => m.GetRows(query.Object)).Returns(new List<DataRow> {dataRow});
+			gateway.Setup(m => m.GetRows(query.Object, CancellationToken.None)).ReturnsAsync(new List<DataRow> {dataRow});
 			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(mappedRow);
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = repository.FetchMappedRows(query.Object).ToList();
+			var result = repository.FetchMappedRows(query.Object).Result.ToList();
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);
@@ -111,12 +113,12 @@ namespace Shuttle.Core.Data.Tests
 			var anObject = new object();
 			var mappedRow = new MappedRow<object>(dataRow, anObject);
 
-			gateway.Setup(m => m.GetRow(query.Object)).Returns(dataRow);
+			gateway.Setup(m => m.GetRow(query.Object, CancellationToken.None)).ReturnsAsync(dataRow);
 			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(mappedRow);
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = repository.FetchMappedRow(query.Object);
+			var result = repository.FetchMappedRow(query.Object).Result;
 
 			Assert.IsNotNull(result);
 			Assert.AreSame(dataRow, result.Row);

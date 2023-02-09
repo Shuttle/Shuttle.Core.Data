@@ -10,10 +10,8 @@ namespace Shuttle.Core.Data
         public static IEnumerable<MappedRow<T>> MappedRowsUsing<T>(this IEnumerable<DataRow> rows,
                                                                    IDataRowMapper<T> mapper) where T : class
         {
-            Guard.AgainstNull(rows, nameof(rows));
-            Guard.AgainstNull(mapper, nameof(mapper));
-
-            return rows.Select(mapper.Map).ToList();
+            return Guard.AgainstNull(rows, nameof(rows))
+                .Select(row => Guard.AgainstNull(mapper, nameof(mapper)).Map(row)).ToList();
         }
     }
 }

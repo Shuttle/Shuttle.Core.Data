@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Data.Common;
 
 namespace Shuttle.Core.Data
 {
@@ -7,6 +8,6 @@ namespace Shuttle.Core.Data
     {
         event EventHandler<DbConnectionCreatedEventArgs> DbConnectionCreated;
 
-        IDbConnection CreateConnection(string providerName, string connectionString);
+        DbConnection Create(string providerName, string connectionString);
     }
 }

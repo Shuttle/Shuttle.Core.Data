@@ -5,12 +5,12 @@ namespace Shuttle.Core.Data
 {
     public class ActiveDatabaseContext : IDisposable
     {
-        private readonly IDatabaseContextCache _databaseContextCache;
+        private readonly IDatabaseContextService _databaseContextService;
         private readonly IDatabaseContext _current;
 
-        public ActiveDatabaseContext(IDatabaseContextCache databaseContextCache, IDatabaseContext current)
+        public ActiveDatabaseContext(IDatabaseContextService databaseContextService, IDatabaseContext current)
         {
-            _databaseContextCache = Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
+            _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             _current = current;
         }
 
@@ -21,7 +21,7 @@ namespace Shuttle.Core.Data
                 return;
             }
 
-            _databaseContextCache.Use(_current);
+            _databaseContextService.Use(_current);
         }
     }
 }

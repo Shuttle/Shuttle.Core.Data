@@ -1,4 +1,5 @@
 using System.Data;
+using System.Data.Common;
 
 namespace Shuttle.Core.Data
 {
@@ -6,11 +7,11 @@ namespace Shuttle.Core.Data
 	{
 		IDatabaseContext Create(string name);
 		IDatabaseContext Create(string providerName, string connectionString);
-		IDatabaseContext Create(string providerName, IDbConnection dbConnection);
+		IDatabaseContext Create(string providerName, DbConnection dbConnection);
         IDatabaseContext Create();
 
         IDbConnectionFactory DbConnectionFactory { get; }
         IDbCommandFactory DbCommandFactory { get; }
-        IDatabaseContextCache DatabaseContextCache { get; }
+        IDatabaseContextService DatabaseContextService { get; }
     }
 }

@@ -6,57 +6,57 @@ namespace Shuttle.Core.Data
 {
     public static class DatabaseContextCacheExtensions
     {
-        public static bool Contains(this IDatabaseContextCache databaseContextCache, IDatabaseContext context)
+        public static bool Contains(this IDatabaseContextService databaseContextService, IDatabaseContext context)
         {
-            Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
+            Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             Guard.AgainstNull(context, nameof(context));
 
-            return databaseContextCache.Find(databaseContext => databaseContext.Key.Equals(context.Key)) != null;
+            return databaseContextService.Find(databaseContext => databaseContext.Key.Equals(context.Key)) != null;
         }
 
-        public static bool Contains(this IDatabaseContextCache databaseContextCache, string name)
+        public static bool Contains(this IDatabaseContextService databaseContextService, string name)
         {
-            Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
+            Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             Guard.AgainstNullOrEmptyString(name, nameof(name));
 
-            return databaseContextCache.Find(databaseContext => databaseContext.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)) != null;
+            return databaseContextService.Find(databaseContext => databaseContext.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)) != null;
         }
 
-        public static bool ContainsConnectionString(this IDatabaseContextCache databaseContextCache, string connectionString)
+        public static bool ContainsConnectionString(this IDatabaseContextService databaseContextService, string connectionString)
         {
-            Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
+            Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             Guard.AgainstNullOrEmptyString(connectionString, nameof(connectionString));
 
-            return databaseContextCache.FindConnectionString(connectionString) != null;
+            return databaseContextService.FindConnectionString(connectionString) != null;
         }
 
-        public static IDatabaseContext Get(this IDatabaseContextCache databaseContextCache, string name)
+        public static IDatabaseContext Get(this IDatabaseContextService databaseContextService, string name)
         {
-            Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
+            Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             Guard.AgainstNullOrEmptyString(name, nameof(name));
 
-            return databaseContextCache.Find(databaseContext => databaseContext.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)) ?? throw new Exception(Resources.DatabaseContextNotFoundException);
+            return databaseContextService.Find(databaseContext => databaseContext.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)) ?? throw new Exception(Resources.DatabaseContextNotFoundException);
         }
 
-        public static IDatabaseContext GetConnectionString(this IDatabaseContextCache databaseContextCache, string connectionString)
+        public static IDatabaseContext GetConnectionString(this IDatabaseContextService databaseContextService, string connectionString)
         {
-            return databaseContextCache.FindConnectionString(connectionString) ?? throw new Exception(Resources.DatabaseContextNotFoundException);
+            return databaseContextService.FindConnectionString(connectionString) ?? throw new Exception(Resources.DatabaseContextNotFoundException);
         }
 
-        public static ActiveDatabaseContext Use(this IDatabaseContextCache databaseContextCache, string name)
+        public static ActiveDatabaseContext Use(this IDatabaseContextService databaseContextService, string name)
         {
-            Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
+            Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             Guard.AgainstNullOrEmptyString(name, nameof(name));
 
-            return databaseContextCache.Use(databaseContextCache.Get(name));
+            return databaseContextService.Use(databaseContextService.Get(name));
         }
 
-        public static IDatabaseContext FindConnectionString(this IDatabaseContextCache databaseContextCache, string connectionString)
+        public static IDatabaseContext FindConnectionString(this IDatabaseContextService databaseContextService, string connectionString)
         {
-            Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
+            Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             Guard.AgainstNullOrEmptyString(connectionString, nameof(connectionString));
 
-            var result = databaseContextCache.Find(candidate =>
+            var result = databaseContextService.Find(candidate =>
                 candidate.Connection.ConnectionString.Equals(connectionString,
                     StringComparison.OrdinalIgnoreCase));
 
@@ -70,7 +70,7 @@ namespace Shuttle.Core.Data
                 matchDbConnectionStringBuilder.Remove("password");
                 matchDbConnectionStringBuilder.Remove("pwd");
 
-                result = databaseContextCache.Find(candidate =>
+                result = databaseContextService.Find(candidate =>
                 {
                     var candidateDbConnectionStringBuilder = new DbConnectionStringBuilder
                     {

@@ -10,17 +10,17 @@ namespace Shuttle.Core.Data
 	{
 		private static readonly object Padlock = new object();
 		private readonly ScriptProviderOptions _options;
-		private readonly IDatabaseContextCache _databaseContextCache;
+		private readonly IDatabaseContextService _databaseContextService;
 		private readonly string[] _emptyFiles = Array.Empty<string>();
 
 		private readonly Dictionary<string, string> _scripts = new Dictionary<string, string>();
 
-		public ScriptProvider(IOptions<ScriptProviderOptions> options, IDatabaseContextCache databaseContextCache)
+		public ScriptProvider(IOptions<ScriptProviderOptions> options, IDatabaseContextService databaseContextService)
 		{
 			Guard.AgainstNull(options, nameof(options));
 
 			_options = Guard.AgainstNull(options.Value, nameof(options.Value));
-            _databaseContextCache = Guard.AgainstNull(databaseContextCache, nameof(databaseContextCache));
+            _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
         }
 
 		public string Get(string scriptName)
@@ -51,7 +51,7 @@ namespace Shuttle.Core.Data
 		{
 			lock (Padlock)
 			{
-				return $"[{_databaseContextCache.Current.ProviderName}]-{scriptName}";
+				return $"[{_databaseContextService.Current.ProviderName}]-{scriptName}";
 			}
 		}
 
@@ -102,7 +102,7 @@ namespace Shuttle.Core.Data
 
 		private string FormattedScriptPath(string format, string scriptName)
 		{
-			return format.Replace("{ScriptName}", scriptName).Replace("{ProviderName}", _databaseContextCache.Current.ProviderName);
+			return format.Replace("{ScriptName}", scriptName).Replace("{ProviderName}", _databaseContextService.Current.ProviderName);
 		}
 
 		private void AddEmbeddedScript(string scriptName)

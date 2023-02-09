@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using NUnit.Framework;
 
 namespace Shuttle.Core.Data.Tests
@@ -32,14 +33,14 @@ from
 
             using (GetDatabaseContext())
             {
-                var item = mapper.MapObject<BasicMapping>(queryRow);
-                var items = mapper.MapObjects<BasicMapping>(queryRows);
+                var item = mapper.MapObject<BasicMapping>(queryRow).Result;
+                var items = mapper.MapObjects<BasicMapping>(queryRows).Result;
 
                 Assert.IsNotNull(item);
                 Assert.AreEqual(2, items.Count());
 
-                var mappedRow = mapper.MapRow<BasicMapping>(queryRow);
-                var mappedRows = mapper.MapRows<BasicMapping>(queryRows);
+                var mappedRow = mapper.MapRow<BasicMapping>(queryRow).Result;
+                var mappedRows = mapper.MapRows<BasicMapping>(queryRows).Result;
 
                 Assert.IsNotNull(mappedRow);
                 Assert.AreEqual(2, mappedRows.Count());
@@ -71,14 +72,14 @@ from
 
             using (GetDatabaseContext())
             {
-                var item = mapper.MapObject<BasicMapping>(queryRow);
-                var items = mapper.MapObjects<BasicMapping>(queryRows);
+                var item = mapper.MapObject<BasicMapping>(queryRow).Result;
+                var items = mapper.MapObjects<BasicMapping>(queryRows).Result;
 
                 Assert.IsNotNull(item);
                 Assert.AreEqual(2, items.Count());
 
-                var mappedRow = mapper.MapRow<BasicMapping>(queryRow);
-                var mappedRows = mapper.MapRows<BasicMapping>(queryRows);
+                var mappedRow = mapper.MapRow<BasicMapping>(queryRow).Result;
+                var mappedRows = mapper.MapRows<BasicMapping>(queryRows).Result;
 
                 Assert.IsNotNull(mappedRow);
                 Assert.AreEqual(2, mappedRows.Count());
@@ -106,8 +107,8 @@ from
 
             using (GetDatabaseContext())
             {
-                var value = mapper.MapValue<Guid>(queryRow);
-                var values = mapper.MapValues<Guid>(queryRows);
+                var value = mapper.MapValue<Guid>(queryRow).Result;
+                var values = mapper.MapValues<Guid>(queryRows).Result;
 
                 Assert.IsNotNull(value);
                 Assert.AreEqual(2, values.Count());
@@ -140,8 +141,8 @@ from
 
             using (GetDatabaseContext())
             {
-                var item = queryMapper.MapItem(queryRow);
-                var items = queryMapper.MapItems(queryRows);
+                var item = queryMapper.MapItem(queryRow).Result;
+                var items = queryMapper.MapItems(queryRows).Result;
 
                 Assert.IsNotNull(item);
                 Assert.AreEqual(2, items.Count());
