@@ -18,7 +18,7 @@ namespace Shuttle.Core.Data
             _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
         }
 
-        public async Task<DataTable> GetDataTable(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<DataTable> GetDataTable(IQuery query, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(query, nameof(query));
 
@@ -32,14 +32,14 @@ namespace Shuttle.Core.Data
             return results;
         }
 
-        public async Task<IEnumerable<DataRow>> GetRows(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<IEnumerable<DataRow>> GetRows(IQuery query, CancellationToken cancellationToken = default)
         {
             var table = await GetDataTable(query, cancellationToken).ConfigureAwait(false);
 
             return table.Rows.Cast<DataRow>();
         }
 
-        public async Task<DataRow> GetRow(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<DataRow> GetRow(IQuery query, CancellationToken cancellationToken = default)
         {
             var table = await GetDataTable(query, cancellationToken).ConfigureAwait(false);
 
@@ -55,7 +55,7 @@ namespace Shuttle.Core.Data
         {
         };
 
-        public async Task<IDataReader> GetReader(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<IDataReader> GetReader(IQuery query, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(query, nameof(query));
 
@@ -69,7 +69,7 @@ namespace Shuttle.Core.Data
             }
         }
 
-        public async Task<int> Execute(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<int> Execute(IQuery query, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(query, nameof(query));
 
@@ -81,7 +81,7 @@ namespace Shuttle.Core.Data
             }
         }
 
-        public async Task<T> GetScalar<T>(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<T> GetScalar<T>(IQuery query, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(query, nameof(query));
 

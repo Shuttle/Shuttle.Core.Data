@@ -17,35 +17,35 @@ namespace Shuttle.Core.Data
             _dataRowMapper = Guard.AgainstNull(dataRowMapper, nameof(dataRowMapper));
         }
 
-        public async Task<IEnumerable<T>> FetchItems(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<IEnumerable<T>> FetchItems(IQuery query, CancellationToken cancellationToken = default)
         {
             var rows = await _databaseGateway.GetRows(query, cancellationToken);
 
             return await Task.FromResult(rows.MappedRowsUsing(_dataRowMapper).Select(row => row.Result).ToList());
         }
 
-        public async Task<T> FetchItem(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<T> FetchItem(IQuery query, CancellationToken cancellationToken = default)
         {
             var row = await _databaseGateway.GetRow(query, cancellationToken);
 
             return row == null ? default : _dataRowMapper.Map(row).Result;
         }
 
-        public async Task<MappedRow<T>> FetchMappedRow(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<MappedRow<T>> FetchMappedRow(IQuery query, CancellationToken cancellationToken = default)
         {
             var row = await _databaseGateway.GetRow(query, cancellationToken);
 
             return row == null ? null : _dataRowMapper.Map(row);
         }
 
-        public async Task<IEnumerable<MappedRow<T>>> FetchMappedRows(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<IEnumerable<MappedRow<T>>> FetchMappedRows(IQuery query, CancellationToken cancellationToken = default)
         {
             var rows = await _databaseGateway.GetRows(query, cancellationToken);
 
             return rows.MappedRowsUsing(_dataRowMapper);
         }
 
-        public async Task<bool> Contains(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<bool> Contains(IQuery query, CancellationToken cancellationToken = default)
         {
             return await _databaseGateway.GetScalar<int>(query, cancellationToken) == 1;
         }

@@ -25,21 +25,21 @@ namespace Shuttle.Core.Data
             _dataRowMapper = Guard.AgainstNull(dataRowMapper, nameof(dataRowMapper));
         }
 
-        public async Task<MappedRow<T>> MapRow<T>(IQuery query, CancellationToken cancellationToken = new CancellationToken()) where T : new()
+        public async Task<MappedRow<T>> MapRow<T>(IQuery query, CancellationToken cancellationToken = default) where T : new()
         {
             Guard.AgainstNull(query, nameof(query));
 
             return _dataRowMapper.MapRow<T>(await _databaseGateway.GetRow(query, cancellationToken));
         }
 
-        public async Task<IEnumerable<MappedRow<T>>> MapRows<T>(IQuery query, CancellationToken cancellationToken = new CancellationToken()) where T : new()
+        public async Task<IEnumerable<MappedRow<T>>> MapRows<T>(IQuery query, CancellationToken cancellationToken = default) where T : new()
         {
             Guard.AgainstNull(query, nameof(query));
 
             return _dataRowMapper.MapRows<T>(await _databaseGateway.GetRows(query, cancellationToken));
         }
 
-        public async Task<T> MapObject<T>(IQuery query, CancellationToken cancellationToken= new CancellationToken()) where T : new()
+        public async Task<T> MapObject<T>(IQuery query, CancellationToken cancellationToken= default) where T : new()
         {
             Guard.AgainstNull(query, nameof(query));
 
@@ -55,7 +55,7 @@ namespace Shuttle.Core.Data
             return default;
         }
 
-        public async Task<IEnumerable<T>> MapObjects<T>(IQuery query, CancellationToken cancellationToken =  new CancellationToken()) where T : new()
+        public async Task<IEnumerable<T>> MapObjects<T>(IQuery query, CancellationToken cancellationToken =  default) where T : new()
         {
             Guard.AgainstNull(query, nameof(query));
 
@@ -73,7 +73,7 @@ namespace Shuttle.Core.Data
             return result;
         }
 
-        public async Task<T> MapValue<T>(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<T> MapValue<T>(IQuery query, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(query, nameof(query));
 
@@ -87,7 +87,7 @@ namespace Shuttle.Core.Data
             return default;
         }
 
-        public async Task<IEnumerable<T>> MapValues<T>(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<IEnumerable<T>> MapValues<T>(IQuery query, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(query, nameof(query));
 
@@ -120,7 +120,7 @@ namespace Shuttle.Core.Data
             return result;
         }
 
-        public async Task<dynamic> MapItem(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<dynamic> MapItem(IQuery query, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(query, nameof(query));
 
@@ -135,7 +135,7 @@ namespace Shuttle.Core.Data
             return default;
         }
 
-        public async Task<IEnumerable<dynamic>> MapItems(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<IEnumerable<dynamic>> MapItems(IQuery query, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(query, nameof(query));
 
