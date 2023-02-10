@@ -276,7 +276,7 @@ namespace Shuttle.Core.Data
             _underlyingSystemType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
         }
 
-        public T MapFrom(dynamic instance)
+        public T Value(dynamic instance)
         {
             Guard.AgainstNull(instance, nameof(instance));
 
@@ -293,7 +293,7 @@ namespace Shuttle.Core.Data
             return default;
         }
 
-        public T MapFrom(DataRow row)
+        public T Value(DataRow row)
         {
             Guard.AgainstNull(row, nameof(row));
 
@@ -307,7 +307,7 @@ namespace Shuttle.Core.Data
             return default;
         }
 
-        public T MapFrom(IDataRecord record)
+        public T Value(IDataRecord record)
         {
             Guard.AgainstNull(record, nameof(record));
 

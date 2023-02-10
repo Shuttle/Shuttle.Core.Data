@@ -13,7 +13,7 @@ namespace Shuttle.Core.Data.Tests
         {
             var mapper = GetQueryMapper();
 
-            var queryRow = Query.Create(@"
+            var queryRow = RawQuery.Create(@"
 select top 1
     Id,
     Name,
@@ -22,7 +22,7 @@ from
     BasicMapping
 ");
 
-            var queryRows = Query.Create(@"
+            var queryRows = RawQuery.Create(@"
 select
     Id,
     Name,
@@ -52,7 +52,7 @@ from
         {
             var mapper = GetQueryMapper();
 
-            var queryRow = Query.Create(@"
+            var queryRow = RawQuery.Create(@"
 select top 1
     Id,
     Name as NotMapped,
@@ -61,7 +61,7 @@ from
     BasicMapping
 ");
 
-            var queryRows = Query.Create(@"
+            var queryRows = RawQuery.Create(@"
 select
     Id,
     Name,
@@ -91,14 +91,14 @@ from
         {
             var mapper = GetQueryMapper();
 
-            var queryRow = Query.Create(@"
+            var queryRow = RawQuery.Create(@"
 select top 1
     Id
 from
     BasicMapping
 ");
 
-            var queryRows = Query.Create(@"
+            var queryRows = RawQuery.Create(@"
 select
     Id
 from
@@ -121,7 +121,7 @@ from
             var databaseGateway = GetDatabaseGateway();
             var queryMapper = GetQueryMapper();
 
-            var queryRow = Query.Create(@"
+            var queryRow = RawQuery.Create(@"
 select top 1
     Id,
     Name,
@@ -130,7 +130,7 @@ from
     BasicMapping
 ");
 
-            var queryRows = Query.Create(@"
+            var queryRows = RawQuery.Create(@"
 select
     Id,
     Name,

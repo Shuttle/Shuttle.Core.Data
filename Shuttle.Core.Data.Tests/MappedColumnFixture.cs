@@ -107,14 +107,14 @@ namespace Shuttle.Core.Data.Tests
             var mc = new Column<string>("column1", DbType.AnsiString, 65);
             var missing = new Column<string>("missing", DbType.AnsiString, 65);
 
-            Assert.AreEqual(default(string), mc.MapFrom(instanceA));
-            Assert.AreEqual(default(string), missing.MapFrom(instanceA));
+            Assert.AreEqual(default(string), mc.Value(instanceA));
+            Assert.AreEqual(default(string), missing.Value(instanceA));
             Assert.AreEqual(null, mc.RawValue(instanceA));
 
             var instanceB = new { column1 = "value-1" };
 
-            Assert.AreEqual("value-1", mc.MapFrom(instanceB));
-            Assert.AreEqual(default(string), missing.MapFrom(instanceB));
+            Assert.AreEqual("value-1", mc.Value(instanceB));
+            Assert.AreEqual(default(string), missing.Value(instanceB));
             Assert.AreEqual("value-1", mc.RawValue(instanceB));
         }
 
@@ -130,14 +130,14 @@ namespace Shuttle.Core.Data.Tests
             var mc = new Column<string>("column-1", DbType.AnsiString, 65);
             var missing = new Column<string>("missing", DbType.AnsiString, 65);
 
-            Assert.AreEqual(default(string), mc.MapFrom(row));
-            Assert.AreEqual(default(string), missing.MapFrom(row));
+            Assert.AreEqual(default(string), mc.Value(row));
+            Assert.AreEqual(default(string), missing.Value(row));
             Assert.AreEqual(DBNull.Value, mc.RawValue(row));
 
             row["column-1"] = "value-1";
 
-            Assert.AreEqual("value-1", mc.MapFrom(row));
-            Assert.AreEqual(default(string), missing.MapFrom(row));
+            Assert.AreEqual("value-1", mc.Value(row));
+            Assert.AreEqual(default(string), missing.Value(row));
             Assert.AreEqual("value-1", mc.RawValue(row));
         }
 
@@ -151,13 +151,13 @@ namespace Shuttle.Core.Data.Tests
             var column1 = new Column<string>("column-1", DbType.AnsiString, 65);
             var column2 = new Column<string>("column-2", DbType.AnsiString, 65);
 
-            Assert.AreEqual(default(string), column1.MapFrom(record));
-            Assert.AreEqual(default(string), column2.MapFrom(record));
+            Assert.AreEqual(default(string), column1.Value(record));
+            Assert.AreEqual(default(string), column2.Value(record));
 
             record.SetSqlString(0, new SqlString("value-1"));
 
-            Assert.AreEqual("value-1", column1.MapFrom(record));
-            Assert.AreEqual(default(string), column2.MapFrom(record));
+            Assert.AreEqual("value-1", column1.Value(record));
+            Assert.AreEqual(default(string), column2.Value(record));
         }
 
         [Test]

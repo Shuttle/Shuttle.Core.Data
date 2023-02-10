@@ -13,7 +13,7 @@ namespace Shuttle.Core.Data.Tests
             var databaseGateway = GetDatabaseGateway();
             var dataRowMapper = GetDataRowMapper();
 
-            var rowQuery = Query.Create(@"
+            var rowQuery = RawQuery.Create(@"
 select top 1
     Id,
     Name,
@@ -22,7 +22,7 @@ from
     BasicMapping
 ");
 
-            var rowsQuery = Query.Create(@"
+            var rowsQuery = RawQuery.Create(@"
 select
     Id,
     Name,
@@ -53,7 +53,7 @@ from
             var databaseGateway = GetDatabaseGateway();
             var dataRowMapper = GetDataRowMapper();
 
-            var rowQuery = Query.Create(@"
+            var rowQuery = RawQuery.Create(@"
 select top 1
     Id,
     Name as NotMapped,
@@ -62,7 +62,7 @@ from
     BasicMapping
 ");
 
-            var rowsQuery = Query.Create(@"
+            var rowsQuery = RawQuery.Create(@"
 select
     Id,
     Name,
@@ -93,14 +93,14 @@ from
             var databaseGateway = GetDatabaseGateway();
             var dataRowMapper = GetDataRowMapper();
 
-            var rowQuery = Query.Create(@"
+            var rowQuery = RawQuery.Create(@"
 select top 1
     Id
 from
     BasicMapping
 ");
 
-            var rowsQuery = Query.Create(@"
+            var rowsQuery = RawQuery.Create(@"
 select
     Id
 from
@@ -136,8 +136,8 @@ where
     Id = @Id
 ";
             
-            var rowQuery = Query.Create(rowSql).AddParameterValue(Columns.Id, id);
-            var rowsQuery = Query.Create(@"
+            var rowQuery = RawQuery.Create(rowSql).AddParameterValue(Columns.Id, id);
+            var rowsQuery = RawQuery.Create(@"
 select
     Id,
     Name,
@@ -156,7 +156,7 @@ from
                 
                 Assert.AreEqual(2, items.Count());
 
-                item = dataRowMapper.MapItem(databaseGateway.GetRow(Query.Create(rowSql, new { Id = id })).Result);
+                item = dataRowMapper.MapItem(databaseGateway.GetRow(RawQuery.Create(rowSql, new { Id = id })).Result);
 
                 Assert.IsNotNull(item);
                 Assert.That(item.Id, Is.EqualTo(id));
