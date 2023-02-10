@@ -5,5 +5,5 @@ namespace Shuttle.Core.Data.Tests;
 
 public class Columns
 {
-    public static readonly MappedColumn<Guid> Id = new("Id", DbType.Guid);
+    public static readonly Column<Guid> Id = new("Id", DbType.Guid);
 }

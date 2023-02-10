@@ -9,7 +9,7 @@ public class MappingFixture : Fixture
     {
         using (GetDatabaseContext())
         {
-            GetDatabaseGateway().Execute(RawQuery.Create(@"
+            GetDatabaseGateway().Execute(Query.Create(@"
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BasicMapping]') AND type in (N'U'))
 BEGIN
 CREATE TABLE [dbo].[BasicMapping](

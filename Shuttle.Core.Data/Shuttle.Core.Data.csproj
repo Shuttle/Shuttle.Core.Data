@@ -20,6 +20,7 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0" />
         <PackageReference Include="Shuttle.Core.Contract" Version="11.0.0" />
+        <PackageReference Include="Shuttle.Core.Threading" Version="12.0.1" />
     </ItemGroup>
 
     <ItemGroup>

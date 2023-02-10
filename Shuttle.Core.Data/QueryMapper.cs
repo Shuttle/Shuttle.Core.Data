@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Dynamic;
 using System.Linq;
 using System.Reflection;
@@ -42,7 +43,7 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(query, nameof(query));
 
-            await using var reader = await _databaseGateway.GetReader(query, cancellationToken);
+            await using var reader = (DbDataReader)await _databaseGateway.GetReader(query, cancellationToken);
 
             var columns = GetColumns(reader);
 
@@ -60,7 +61,7 @@ namespace Shuttle.Core.Data
 
             var result = new List<T>();
 
-            await using var reader = await _databaseGateway.GetReader(query, cancellationToken);
+            await using var reader = (DbDataReader)await _databaseGateway.GetReader(query, cancellationToken);
 
             var columns = GetColumns(reader);
 
@@ -76,7 +77,7 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(query, nameof(query));
 
-            await using var reader = await _databaseGateway.GetReader(query, cancellationToken);
+            await using var reader = (DbDataReader)await _databaseGateway.GetReader(query, cancellationToken);
 
             while (await reader.ReadAsync(cancellationToken))
             {
@@ -92,7 +93,7 @@ namespace Shuttle.Core.Data
 
             var result = new List<T>();
 
-            await using var reader = await _databaseGateway.GetReader(query, cancellationToken);
+            await using var reader = (DbDataReader)await _databaseGateway.GetReader(query, cancellationToken);
 
             while (await reader.ReadAsync(cancellationToken))
             {
@@ -123,8 +124,7 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(query, nameof(query));
 
-            await using var reader = await _databaseGateway.GetReader(query, cancellationToken
-            );
+            await using var reader = (DbDataReader)await _databaseGateway.GetReader(query, cancellationToken);
             var columns = GetColumns(reader);
 
             if (await reader.ReadAsync(cancellationToken))
@@ -141,7 +141,7 @@ namespace Shuttle.Core.Data
 
             var result = new List<dynamic>();
 
-            await using var reader = await _databaseGateway.GetReader(query, cancellationToken);
+            await using var reader = (DbDataReader)await _databaseGateway.GetReader(query, cancellationToken);
 
             var columns = GetColumns(reader);
 

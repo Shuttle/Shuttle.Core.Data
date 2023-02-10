@@ -1,20 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Dynamic;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
-    public class RawQuery : IQueryParameter
+    public class Query : IQueryParameter
     {
-        private readonly Dictionary<IMappedColumn, object> _parameterValues;
+        private readonly Dictionary<IColumn, object> _parameterValues;
         private readonly string _sql;
 
-        public RawQuery(string sql)
+        public Query(string sql)
         {
             _sql = Guard.AgainstNullOrEmptyString(sql, nameof(sql));
-            _parameterValues = new Dictionary<IMappedColumn, object>();
+            _parameterValues = new Dictionary<IColumn, object>();
         }
 
         public void Prepare(IDbCommand command)
@@ -30,7 +29,7 @@ namespace Shuttle.Core.Data
             }
         }
 
-        public IQueryParameter AddParameterValue(IMappedColumn column, object value)
+        public IQueryParameter AddParameterValue(IColumn column, object value)
         {
             Guard.AgainstNull(column, nameof(column));
 
@@ -41,12 +40,12 @@ namespace Shuttle.Core.Data
 
         public static IQueryParameter Create(string sql, params object[] args)
         {
-            return new RawQuery(args != null && args.Length > 0 ? string.Format(sql, args) : sql);
+            return new Query(args != null && args.Length > 0 ? string.Format(sql, args) : sql);
         }
 
         public static IQueryParameter Create(string sql, dynamic parameters)
         {
-            var result = new RawQuery(sql);
+            var result = new Query(sql);
 
             if (parameters != null)
             {
@@ -54,7 +53,7 @@ namespace Shuttle.Core.Data
                 {
                     try
                     {
-                        result.AddParameterValue(new MappedColumn(pi.Name, pi.PropertyType, MappedColumn.GetDbType(pi.PropertyType)), pi.GetValue(parameters));
+                        result.AddParameterValue(new Column(pi.Name, pi.PropertyType, Column.GetDbType(pi.PropertyType)), pi.GetValue(parameters));
                     }
                     catch
                     {

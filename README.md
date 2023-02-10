@@ -72,7 +72,7 @@ The default JSON settings structure is as follows:
 
 In order to access a database we need a database connection.  A database connection is represented by an `IDatabaseContext` instance that may be obtained by using an instance of an `IDatabaseContextFactory` implementation.
 
-The `DatabaseContextFactory` implementation makes use of an `IDbConnectionFactory` implementation which creates a `System.Data.IDbConnection` by using the provider name and connection string.  An `IDbCommandFactory` creates a `System.Data.IDbCommand` by using an `IDbConnection` instance.  The `DatabaseContextFactory` also requires an instance of an `IDatabaseContextCache` that stores connections and is assigned to the `DatabaseContext` in order to obtain the active connection.
+The `DatabaseContextFactory` implementation makes use of an `IDbConnectionFactory` implementation which creates a `System.Data.IDbConnection` by using the provider name and connection string.  An `IDbCommandFactory` creates a `System.Data.IDbCommand` by using an `IDbConnection` instance.  The `DatabaseContextFactory` also requires an instance of an `IDatabaseContextService` that stores connections and is assigned to the `DatabaseContext` in order to obtain the active connection.
 
 ``` c#
 var databaseContextFactory = provider.GetRequiredService<DatabaseContextFactory>();

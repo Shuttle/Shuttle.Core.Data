@@ -11,7 +11,7 @@ namespace Shuttle.Core.Data
     {
 	    event EventHandler<DbCommandCreatedEventArgs> DbCommandCreated;
 
-	    Task<DbDataReader> GetReader(IQuery query, CancellationToken cancellationToken = new CancellationToken());
+	    Task<IDataReader> GetReader(IQuery query, CancellationToken cancellationToken = new CancellationToken());
 		Task<int> Execute(IQuery query, CancellationToken cancellationToken = new CancellationToken());
         Task<T> GetScalar<T>(IQuery query, CancellationToken cancellationToken = new CancellationToken());
         Task<DataTable> GetDataTable(IQuery query, CancellationToken cancellationToken = new CancellationToken());

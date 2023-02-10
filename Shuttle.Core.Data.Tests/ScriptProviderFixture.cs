@@ -30,7 +30,7 @@ namespace Shuttle.Core.Data.Tests
             {
                 FileNameFormat = "{ScriptName}.sql",
                 ScriptFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @".\.scripts\")
-            }), MockDatabaseContextCache());
+            }), MockDatabaseContextService());
 
             var script = provider.Get("file-script");
 
@@ -38,7 +38,7 @@ namespace Shuttle.Core.Data.Tests
             Assert.AreEqual("select 'file-script'", script);
         }
 
-        private static IDatabaseContextService MockDatabaseContextCache()
+        private static IDatabaseContextService MockDatabaseContextService()
         {
 	        var databaseContextCache = new Mock<IDatabaseContextService>();
 
@@ -54,7 +54,7 @@ namespace Shuttle.Core.Data.Tests
             {
                 ResourceAssembly = GetType().Assembly,
                 ResourceNameFormat = "Shuttle.Core.Data.Tests..scripts.Microsoft.Data.SqlClient.{ScriptName}.sql"
-            }), MockDatabaseContextCache());
+            }), MockDatabaseContextService());
 
             var script = provider.Get("embedded-script");
 
@@ -68,7 +68,7 @@ namespace Shuttle.Core.Data.Tests
             var provider = new ScriptProvider(Options.Create(new ScriptProviderOptions
             {
                 ResourceAssembly = GetType().Assembly
-            }), MockDatabaseContextCache());
+            }), MockDatabaseContextService());
 
             Assert.Throws<InvalidOperationException>(() => provider.Get("Microsoft.Data.SqlClient", "missing-script"));
         }

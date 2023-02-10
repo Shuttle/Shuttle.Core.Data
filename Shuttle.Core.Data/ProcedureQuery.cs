@@ -6,7 +6,7 @@ namespace Shuttle.Core.Data
 {
     public class ProcedureQuery : IQueryParameter
     {
-        private readonly Dictionary<IMappedColumn, object> _parameterValues;
+        private readonly Dictionary<IColumn, object> _parameterValues;
         private readonly string _procedure;
 
         public ProcedureQuery(string procedure)
@@ -14,7 +14,7 @@ namespace Shuttle.Core.Data
             Guard.AgainstNullOrEmptyString(procedure, nameof(procedure));
 
             _procedure = procedure;
-            _parameterValues = new Dictionary<IMappedColumn, object>();
+            _parameterValues = new Dictionary<IColumn, object>();
         }
 
         public void Prepare(IDbCommand command)
@@ -30,7 +30,7 @@ namespace Shuttle.Core.Data
             }
         }
 
-        public IQueryParameter AddParameterValue(IMappedColumn column, object value)
+        public IQueryParameter AddParameterValue(IColumn column, object value)
         {
             Guard.AgainstNull(column, nameof(column));
 

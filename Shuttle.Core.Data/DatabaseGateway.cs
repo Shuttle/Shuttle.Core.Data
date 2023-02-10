@@ -22,26 +22,26 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(query, nameof(query));
 
-            using var reader = GetReader(query, cancellationToken);
-
             var results = new DataTable();
 
-            if (reader != null)
+            using (var reader = await GetReader(query, cancellationToken).ConfigureAwait(false))
             {
-                results.Load(await reader);
+                results.Load(reader);
             }
 
             return results;
         }
 
-        public Task<IEnumerable<DataRow>> GetRows(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<IEnumerable<DataRow>> GetRows(IQuery query, CancellationToken cancellationToken = new CancellationToken())
         {
-            return Task.FromResult(GetDataTable(query, cancellationToken).Result.Rows.Cast<DataRow>());
+            var table = await GetDataTable(query, cancellationToken).ConfigureAwait(false);
+
+            return table.Rows.Cast<DataRow>();
         }
 
         public async Task<DataRow> GetRow(IQuery query, CancellationToken cancellationToken = new CancellationToken())
         {
-            var table = await GetDataTable(query, cancellationToken);
+            var table = await GetDataTable(query, cancellationToken).ConfigureAwait(false);
 
             if (table == null || table.Rows.Count == 0)
             {
@@ -55,26 +55,30 @@ namespace Shuttle.Core.Data
         {
         };
 
-        public async Task<DbDataReader> GetReader(IQuery query, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<IDataReader> GetReader(IQuery query, CancellationToken cancellationToken = new CancellationToken())
         {
             Guard.AgainstNull(query, nameof(query));
 
-            await using var command = (DbCommand)_databaseContextService.Current.CreateCommand(query);
+            var command = (DbCommand)_databaseContextService.Current.CreateCommand(query);
+            
+            await using var _ = command.ConfigureAwait(false);
+            {
+                DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
 
-            DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
-
-            return await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+                return await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+            }
         }
 
         public async Task<int> Execute(IQuery query, CancellationToken cancellationToken = new CancellationToken())
         {
             Guard.AgainstNull(query, nameof(query));
 
-            await using var command = (DbCommand)_databaseContextService.Current.CreateCommand(query);
+            await using (var command = (DbCommand)_databaseContextService.Current.CreateCommand(query))
+            {
+                DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
 
-            DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
-
-            return await command.ExecuteNonQueryAsync(cancellationToken);
+                return await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+            }
         }
 
         public async Task<T> GetScalar<T>(IQuery query, CancellationToken cancellationToken = new CancellationToken())

@@ -15,8 +15,8 @@ namespace Shuttle.Core.Data.Tests
             const string sql = "select @Id";
 
             var guid = Guid.NewGuid();
-            var mc = new MappedColumn<Guid>("Id", DbType.Guid);
-            var query = new RawQuery(sql).AddParameterValue(mc, guid);
+            var mc = new Column<Guid>("Id", DbType.Guid);
+            var query = new Query(sql).AddParameterValue(mc, guid);
             var dataParameterCollection = new Mock<IDataParameterCollection>();
 
             var command = new Mock<IDbCommand>();
@@ -38,9 +38,9 @@ namespace Shuttle.Core.Data.Tests
         {
             const string sql = "select 1";
 
-            var query1 = new RawQuery(sql);
-            var query2 = RawQuery.Create(sql);
-            var query3 = RawQuery.Create("select {0}", 1);
+            var query1 = new Query(sql);
+            var query2 = Query.Create(sql);
+            var query3 = Query.Create("select {0}", 1);
         }
     }
 }

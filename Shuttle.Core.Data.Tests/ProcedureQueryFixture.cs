@@ -24,7 +24,7 @@ namespace Shuttle.Core.Data.Tests
 			const string sql = "uspDoSomething";
 
 			var guid = Guid.NewGuid();
-			var mc = new MappedColumn<Guid>("Id", DbType.Guid);
+			var mc = new Column<Guid>("Id", DbType.Guid);
 			var query = new ProcedureQuery(sql).AddParameterValue(mc, guid);
 			var dataParameterCollection = new Mock<IDataParameterCollection>();
 

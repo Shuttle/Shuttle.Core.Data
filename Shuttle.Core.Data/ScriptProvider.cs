@@ -8,7 +8,7 @@ namespace Shuttle.Core.Data
 {
 	public class ScriptProvider : IScriptProvider
 	{
-		private static readonly object Padlock = new object();
+		private static readonly object Lock = new object();
 		private readonly ScriptProviderOptions _options;
 		private readonly IDatabaseContextService _databaseContextService;
 		private readonly string[] _emptyFiles = Array.Empty<string>();
@@ -34,7 +34,7 @@ namespace Shuttle.Core.Data
 
 			var key = Key(scriptName);
 
-			lock (Padlock)
+			lock (Lock)
 			{
 				if (!_scripts.ContainsKey(key))
 				{
@@ -49,7 +49,7 @@ namespace Shuttle.Core.Data
 
 		private string Key(string scriptName)
 		{
-			lock (Padlock)
+			lock (Lock)
 			{
 				return $"[{_databaseContextService.Current.ProviderName}]-{scriptName}";
 			}
@@ -59,7 +59,7 @@ namespace Shuttle.Core.Data
 		{
 			var key = Key(scriptName);
 
-			lock (Padlock)
+			lock (Lock)
 			{
 				if (_scripts.ContainsKey(key))
 				{

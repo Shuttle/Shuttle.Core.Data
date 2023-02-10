@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
-using System.Resources;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
-    public class MappedColumn : IMappedColumn
+    public class Column : IColumn
     {
         private static readonly Dictionary<Type, DbType> DbTypes = new Dictionary<Type, DbType>
         {
@@ -47,29 +46,15 @@ namespace Shuttle.Core.Data
             [typeof(DateTimeOffset?)] = DbType.DateTimeOffset
         };
 
-        public static DbType GetDbType(Type type)
-        {
-            Guard.AgainstNull(type, nameof(type));
-
-            if (!DbTypes.ContainsKey(type))
-            {
-                throw new ArgumentException(string.Format(Resources.DbTypeMappingException, type.FullName));
-            }
-
-            return DbTypes[type];
-        }
-
-        public Type Type { get; }
-
-        public MappedColumn(string columnName, Type type, DbType dbType)
-            : this(columnName, type, dbType, null)
+        public Column(string name, Type type, DbType dbType)
+            : this(name, type, dbType, null)
         {
             Type = type;
         }
 
-        public MappedColumn(string columnName, Type type, DbType dbType, int? size)
+        public Column(string name, Type type, DbType dbType, int? size)
         {
-            ColumnName = columnName;
+            Name = name;
             Type = type;
             DbType = dbType;
             Size = size;
@@ -77,9 +62,9 @@ namespace Shuttle.Core.Data
             Scale = null;
         }
 
-        public MappedColumn(string columnName, Type type, DbType dbType, byte precision, byte scale)
+        public Column(string name, Type type, DbType dbType, byte precision, byte scale)
         {
-            ColumnName = columnName;
+            Name = name;
             Type = type;
             DbType = dbType;
             Precision = precision;
@@ -87,22 +72,24 @@ namespace Shuttle.Core.Data
             Size = null;
         }
 
-        public string ColumnName { get; protected set; }
+        public Type Type { get; }
+
+        public string Name { get; protected set; }
         public DbType DbType { get; }
         public int? Size { get; protected set; }
         public byte? Precision { get; protected set; }
         public byte? Scale { get; protected set; }
 
-        public string FlattenedColumnName()
+        public string FlattenedName()
         {
-            return ColumnName.Replace(".", "_");
+            return Name.Replace(".", "_");
         }
 
-        public object RetrieveRawValueFrom(dynamic instance)
+        public object RawValue(dynamic instance)
         {
             Guard.AgainstNull(instance, nameof(instance));
 
-            var property = instance.GetType().GetProperty(ColumnName);
+            var property = instance.GetType().GetProperty(Name);
 
             if (property == null)
             {
@@ -112,27 +99,27 @@ namespace Shuttle.Core.Data
             return property.GetValue(instance, null);
         }
 
-        public object RetrieveRawValueFrom(DataRow row)
+        public object RawValue(DataRow row)
         {
-            return Guard.AgainstNull(row, nameof(row))[ColumnName];
+            return Guard.AgainstNull(row, nameof(row))[Name];
         }
 
-        public object RetrieveRawValueFrom(IDataRecord record)
+        public object RawValue(IDataRecord record)
         {
-            return Guard.AgainstNull(record, nameof(record))[ColumnName];
+            return Guard.AgainstNull(record, nameof(record))[Name];
         }
 
-        public bool IsNullFor(dynamic instance)
+        public bool IsNull(dynamic instance)
         {
-            return Guard.AgainstNull(instance, nameof(instance))[ColumnName] == DBNull.Value;
+            return Guard.AgainstNull(instance, nameof(instance))[Name] == DBNull.Value;
         }
 
-        public bool IsNullFor(DataRow row)
+        public bool IsNull(DataRow row)
         {
-            return Guard.AgainstNull(row, nameof(row)).IsNull(ColumnName);
+            return Guard.AgainstNull(row, nameof(row)).IsNull(Name);
         }
 
-        public bool IsNullFor(IDataRecord record)
+        public bool IsNull(IDataRecord record)
         {
             return Guard.AgainstNull(record, nameof(record)).IsDBNull(Ordinal(record));
         }
@@ -141,7 +128,7 @@ namespace Shuttle.Core.Data
         {
             var result = command.CreateParameter();
 
-            result.ParameterName = string.Concat("@", FlattenedColumnName());
+            result.ParameterName = string.Concat("@", FlattenedName());
             result.DbType = DbType;
             result.Value = value ?? DBNull.Value;
 
@@ -160,51 +147,63 @@ namespace Shuttle.Core.Data
             return result;
         }
 
-        protected bool HasProperty(dynamic instance, string name)
+        public static DbType GetDbType(Type type)
         {
-            return instance != null 
-                   && 
-                   (
-                       instance is ExpandoObject 
-                           ? ((IDictionary<string, object>)instance).ContainsKey(name) 
-                           : (bool)(instance.GetType().GetProperty(name) != null)
-                       );
+            Guard.AgainstNull(type, nameof(type));
+
+            if (!DbTypes.ContainsKey(type))
+            {
+                throw new ArgumentException(string.Format(Resources.DbTypeMappingException, type.FullName));
+            }
+
+            return DbTypes[type];
         }
 
-        public T MapFrom<T>(dynamic instance)
+        protected bool HasProperty(dynamic instance, string name)
+        {
+            return instance != null
+                   &&
+                   (
+                       instance is ExpandoObject
+                           ? ((IDictionary<string, object>)instance).ContainsKey(name)
+                           : (bool)(instance.GetType().GetProperty(name) != null)
+                   );
+        }
+
+        public T Value<T>(dynamic instance)
         {
             Guard.AgainstNull(instance, nameof(instance));
 
-            if (HasProperty(instance, ColumnName))
+            if (HasProperty(instance, Name))
             {
                 var type = typeof(T);
-                var value = instance.GetType().GetProperty(ColumnName).GetValue(instance, null);
+                var value = instance.GetType().GetProperty(Name).GetValue(instance, null);
 
                 return value == null || DBNull.Value.Equals(value)
                     ? default
-                    : (T)Convert.ChangeType(RetrieveRawValueFrom(value), Nullable.GetUnderlyingType(type) ?? type);
+                    : (T)Convert.ChangeType(RawValue(value), Nullable.GetUnderlyingType(type) ?? type);
             }
 
             return default;
         }
 
-        public T MapFrom<T>(DataRow row)
+        public T Value<T>(DataRow row)
         {
             Guard.AgainstNull(row, nameof(row));
 
-            if (row.Table.Columns.Contains(ColumnName))
+            if (row.Table.Columns.Contains(Name))
             {
                 var type = typeof(T);
 
-                return row.IsNull(ColumnName)
+                return row.IsNull(Name)
                     ? default
-                    : (T)Convert.ChangeType(RetrieveRawValueFrom(row), Nullable.GetUnderlyingType(type) ?? type);
+                    : (T)Convert.ChangeType(RawValue(row), Nullable.GetUnderlyingType(type) ?? type);
             }
 
             return default;
         }
 
-        public T MapFrom<T>(IDataRecord record)
+        public T Value<T>(IDataRecord record)
         {
             Guard.AgainstNull(record, nameof(record));
 
@@ -216,24 +215,24 @@ namespace Shuttle.Core.Data
 
                 return record.IsDBNull(ordinal)
                     ? default
-                    : (T)Convert.ChangeType(RetrieveRawValueFrom(record), Nullable.GetUnderlyingType(type) ?? type);
+                    : (T)Convert.ChangeType(RawValue(record), Nullable.GetUnderlyingType(type) ?? type);
             }
 
             return default;
         }
 
-        public static implicit operator string(MappedColumn column)
+        public static implicit operator string(Column column)
         {
             Guard.AgainstNull(column, nameof(column));
 
-            return column.ColumnName;
+            return column.Name;
         }
 
         protected int Ordinal(IDataRecord record)
         {
             try
             {
-                return record.GetOrdinal(ColumnName);
+                return record.GetOrdinal(Name);
             }
             catch
             {
@@ -241,33 +240,33 @@ namespace Shuttle.Core.Data
             }
         }
 
-        public MappedColumn Rename(string name)
+        public Column Rename(string name)
         {
             Guard.AgainstNullOrEmptyString(name, nameof(name));
 
             return Size.HasValue
-                ? new MappedColumn(name, Type, DbType, Size.Value)
+                ? new Column(name, Type, DbType, Size.Value)
                 : Precision.HasValue
-                    ? new MappedColumn(name, Type, DbType, Precision.Value, Scale ?? 0)
-                    : new MappedColumn(name, Type, DbType);
+                    ? new Column(name, Type, DbType, Precision.Value, Scale ?? 0)
+                    : new Column(name, Type, DbType);
         }
     }
 
-    public class MappedColumn<T> : MappedColumn
+    public class Column<T> : Column
     {
         private Type _underlyingSystemType;
 
-        public MappedColumn(string columnName, DbType dbType)
-            : this(columnName, dbType, null)
+        public Column(string name, DbType dbType)
+            : this(name, dbType, null)
         {
         }
 
-        public MappedColumn(string columnName, DbType dbType, int? size) : base(columnName, typeof(T), dbType, size)
+        public Column(string name, DbType dbType, int? size) : base(name, typeof(T), dbType, size)
         {
             GetUnderlyingSystemType();
         }
 
-        public MappedColumn(string columnName, DbType dbType, byte precision, byte scale) : base(columnName, typeof(T), dbType, precision, scale)
+        public Column(string name, DbType dbType, byte precision, byte scale) : base(name, typeof(T), dbType, precision, scale)
         {
             GetUnderlyingSystemType();
         }
@@ -281,14 +280,14 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(instance, nameof(instance));
 
-            if (HasProperty(instance, ColumnName))
+            if (HasProperty(instance, Name))
             {
                 var type = typeof(T);
-                var value = instance.GetType().GetProperty(ColumnName).GetValue(instance, null);
+                var value = instance.GetType().GetProperty(Name).GetValue(instance, null);
 
-                return value == null 
+                return value == null
                     ? default
-                    : (T)Convert.ChangeType(RetrieveRawValueFrom(instance), Nullable.GetUnderlyingType(type) ?? type);
+                    : (T)Convert.ChangeType(RawValue(instance), Nullable.GetUnderlyingType(type) ?? type);
             }
 
             return default;
@@ -298,11 +297,11 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(row, nameof(row));
 
-            if (row.Table.Columns.Contains(ColumnName))
+            if (row.Table.Columns.Contains(Name))
             {
-                return row.IsNull(ColumnName)
+                return row.IsNull(Name)
                     ? default
-                    : (T)Convert.ChangeType(RetrieveRawValueFrom(row), _underlyingSystemType);
+                    : (T)Convert.ChangeType(RawValue(row), _underlyingSystemType);
             }
 
             return default;
@@ -318,28 +317,28 @@ namespace Shuttle.Core.Data
             {
                 return record.IsDBNull(ordinal)
                     ? default
-                    : (T)Convert.ChangeType(RetrieveRawValueFrom(record), _underlyingSystemType);
+                    : (T)Convert.ChangeType(RawValue(record), _underlyingSystemType);
             }
 
             return default;
         }
 
-        public static implicit operator string(MappedColumn<T> column)
+        public static implicit operator string(Column<T> column)
         {
             Guard.AgainstNull(column, nameof(column));
 
-            return column.ColumnName;
+            return column.Name;
         }
 
-        public new MappedColumn<T> Rename(string name)
+        public new Column<T> Rename(string name)
         {
             Guard.AgainstNullOrEmptyString(name, nameof(name));
 
             return Size.HasValue
-                ? new MappedColumn<T>(name, DbType, Size.Value)
+                ? new Column<T>(name, DbType, Size.Value)
                 : Precision.HasValue
-                    ? new MappedColumn<T>(name, DbType, Precision.Value, Scale ?? 0)
-                    : new MappedColumn<T>(name, DbType);
+                    ? new Column<T>(name, DbType, Precision.Value, Scale ?? 0)
+                    : new Column<T>(name, DbType);
         }
     }
 }

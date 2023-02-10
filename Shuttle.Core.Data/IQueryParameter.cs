@@ -2,6 +2,6 @@
 {
     public interface IQueryParameter : IQuery
     {
-        IQueryParameter AddParameterValue(IMappedColumn column, object value);
+        IQueryParameter AddParameterValue(IColumn column, object value);
     }
 }

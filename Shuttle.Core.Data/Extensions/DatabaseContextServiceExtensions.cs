@@ -4,7 +4,7 @@ using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
-    public static class DatabaseContextCacheExtensions
+    public static class DatabaseContextServiceExtensions
     {
         public static bool Contains(this IDatabaseContextService databaseContextService, IDatabaseContext context)
         {
