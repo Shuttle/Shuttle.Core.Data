@@ -2,6 +2,8 @@
 using System.Data;
 using System.Data.Common;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
@@ -21,12 +23,12 @@ namespace Shuttle.Core.Data.Tests
 		}
 
         [Test]
-		public void Should_be_able_to_get_an_existing_database_context()
-        {
+		public async Task Should_be_able_to_get_an_existing_database_context()
+		{
             var factory = GetDatabaseContextFactory();
 
-            using (var context = factory.Create(DefaultConnectionStringName))
-			using (var existingContext = factory.Create(DefaultConnectionStringName))
+            using (var context = await factory.Create(DefaultConnectionStringName))
+			using (var existingContext = await factory.Create(DefaultConnectionStringName))
 			{
 				Assert.IsNotNull(context);
 				Assert.IsNotNull(existingContext);

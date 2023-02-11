@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Data.Common;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 
@@ -8,7 +9,7 @@ namespace Shuttle.Core.Data.Tests
     public class DatabaseContextServiceFixture : Fixture
     {
         [Test]
-        public void Should_be_able_to_use_different_contexts()
+        public async Task Should_be_able_to_use_different_contexts()
         {
             var service = new DatabaseContextService();
 
@@ -23,6 +24,8 @@ namespace Shuttle.Core.Data.Tests
             using (service.Use("mock-1"))
             {
                 Assert.That(service.Current.Key, Is.EqualTo(context1.Key));
+
+                await AssertContextFlow(service, "mock-1");
             }
 
             Assert.That(service.Current.Key, Is.EqualTo(context2.Key));
@@ -33,6 +36,18 @@ namespace Shuttle.Core.Data.Tests
             }
 
             Assert.That(service.Current.Key, Is.EqualTo(context2.Key));
+        }
+
+        private async Task AssertContextFlow(IDatabaseContextService service, string name)
+        {
+            Assert.That(service.Current, Is.Not.Null);
+            Assert.That(service.Current.Name, Is.EqualTo(name));
+
+            await Task.Run(() =>
+            {
+                Assert.That(service.Current, Is.Not.Null);
+                Assert.That(service.Current.Name, Is.EqualTo(name));
+            });
         }
     }
 }

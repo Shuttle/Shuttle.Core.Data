@@ -438,13 +438,13 @@ public class OrderAssembler : IAssembler<Order>
 
 		foreach (var orderRow in data.MappedRows<Order>())
 		{
-			var order = orderRow.Result;
+			var order = orderRow;
 
 			foreach (var orderLineRow in data.MappedRows<OrderLine>())
 			{
 				if (orderLineRow.Row["OrderId"].Equals(order.OrderId))
 				{
-					order.AddLine(orderLineRow.Result);
+					order.AddLine(orderLineRow);
 				}
 			}
 

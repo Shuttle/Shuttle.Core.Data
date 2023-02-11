@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace Shuttle.Core.Data.Tests
@@ -9,7 +10,7 @@ namespace Shuttle.Core.Data.Tests
     public class QueryMapperFixture : MappingFixture
     {
         [Test]
-        public void Should_be_able_to_perform_basic_mapping()
+        public async Task Should_be_able_to_perform_basic_mapping()
         {
             var mapper = GetQueryMapper();
 
@@ -31,16 +32,16 @@ from
     BasicMapping
 ");
 
-            using (GetDatabaseContext())
+            using (await GetDatabaseContext())
             {
-                var item = mapper.MapObject<BasicMapping>(queryRow).Result;
-                var items = mapper.MapObjects<BasicMapping>(queryRows).Result;
+                var item = await mapper.MapObject<BasicMapping>(queryRow);
+                var items = await mapper.MapObjects<BasicMapping>(queryRows);
 
                 Assert.IsNotNull(item);
                 Assert.AreEqual(2, items.Count());
 
-                var mappedRow = mapper.MapRow<BasicMapping>(queryRow).Result;
-                var mappedRows = mapper.MapRows<BasicMapping>(queryRows).Result;
+                var mappedRow = await mapper.MapRow<BasicMapping>(queryRow);
+                var mappedRows = await mapper.MapRows<BasicMapping>(queryRows);
 
                 Assert.IsNotNull(mappedRow);
                 Assert.AreEqual(2, mappedRows.Count());
@@ -48,7 +49,7 @@ from
         }
 
         [Test]
-        public void Should_be_able_to_perform_basic_mapping_even_though_columns_are_missing()
+        public async Task Should_be_able_to_perform_basic_mapping_even_though_columns_are_missing()
         {
             var mapper = GetQueryMapper();
 
@@ -72,14 +73,14 @@ from
 
             using (GetDatabaseContext())
             {
-                var item = mapper.MapObject<BasicMapping>(queryRow).Result;
-                var items = mapper.MapObjects<BasicMapping>(queryRows).Result;
+                var item = await mapper.MapObject<BasicMapping>(queryRow);
+                var items = await mapper.MapObjects<BasicMapping>(queryRows);
 
                 Assert.IsNotNull(item);
                 Assert.AreEqual(2, items.Count());
 
                 var mappedRow = mapper.MapRow<BasicMapping>(queryRow).Result;
-                var mappedRows = mapper.MapRows<BasicMapping>(queryRows).Result;
+                var mappedRows = await mapper.MapRows<BasicMapping>(queryRows);
 
                 Assert.IsNotNull(mappedRow);
                 Assert.AreEqual(2, mappedRows.Count());

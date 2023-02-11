@@ -21,14 +21,14 @@ namespace Shuttle.Core.Data
         {
             var rows = await _databaseGateway.GetRows(query, cancellationToken);
 
-            return await Task.FromResult(rows.MappedRowsUsing(_dataRowMapper).Select(row => row.Result).ToList());
+            return (IEnumerable<T>)await Task.FromResult(rows.MappedRowsUsing(_dataRowMapper).Select(row => row.Result)).ConfigureAwait(false);
         }
 
         public async Task<T> FetchItem(IQuery query, CancellationToken cancellationToken = default)
         {
             var row = await _databaseGateway.GetRow(query, cancellationToken);
 
-            return row == null ? default : _dataRowMapper.Map(row).Result;
+            return await Task.FromResult(row == null ? default : _dataRowMapper.Map(row).Result);
         }
 
         public async Task<MappedRow<T>> FetchMappedRow(IQuery query, CancellationToken cancellationToken = default)

@@ -37,9 +37,4 @@
             <LastGenOutput>Resources.Designer.cs</LastGenOutput>
         </EmbeddedResource>
     </ItemGroup>
-
-    <ItemGroup>
-        <Compile Remove="DefaultProviderFactories.cs" Condition="'$(TargetFramework)' != 'netstandard2.0'" />
-        <Compile Remove="IDbProviderFactories.cs" Condition="'$(TargetFramework)' != 'netstandard2.0'" />
-    </ItemGroup>
 </Project>

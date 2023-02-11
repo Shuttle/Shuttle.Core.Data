@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data.Common;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,9 +43,9 @@ namespace Shuttle.Core.Data.Tests
 	        return Provider.GetRequiredService<IDatabaseContextFactory>();
         }
 
-        protected IDatabaseContext GetDatabaseContext()
+        protected async Task<IDatabaseContext> GetDatabaseContext()
 		{
-			return GetDatabaseContextFactory().Create(DefaultConnectionStringName);
+			return await GetDatabaseContextFactory().Create(DefaultConnectionStringName).ConfigureAwait(false);
 		}
 
         protected IDatabaseGateway GetDatabaseGateway()

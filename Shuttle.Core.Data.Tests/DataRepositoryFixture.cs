@@ -12,7 +12,7 @@ namespace Shuttle.Core.Data.Tests
 	public class DataRepositoryFixture : Fixture
 	{
 		[Test]
-		public void Should_be_able_to_fetch_all_items()
+		public async Task Should_be_able_to_fetch_all_items()
 		{
 			var gateway = new Mock<IDatabaseGateway>();
 			var mapper = new Mock<IDataRowMapper<object>>();
@@ -25,7 +25,7 @@ namespace Shuttle.Core.Data.Tests
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = repository.FetchItems(query.Object).Result.ToList();
+            var result = (await repository.FetchItems(query.Object)).ToList();
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);
@@ -33,7 +33,7 @@ namespace Shuttle.Core.Data.Tests
 		}
 
 		[Test]
-		public void Should_be_able_to_fetch_a_single_item()
+		public async Task Should_be_able_to_fetch_a_single_item()
 		{
 			var gateway = new Mock<IDatabaseGateway>();
 			var mapper = new Mock<IDataRowMapper<object>>();
@@ -46,14 +46,14 @@ namespace Shuttle.Core.Data.Tests
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = repository.FetchItem(query.Object).Result;
+			var result = await repository.FetchItem(query.Object);
 
 			Assert.IsNotNull(result);
 			Assert.AreSame(anObject, result);
 		}
 
 		[Test]
-		public void Should_be_able_to_get_default_when_fetching_a_single_item_that_is_not_found()
+		public async Task Should_be_able_to_get_default_when_fetching_a_single_item_that_is_not_found()
 		{
 			var gateway = new Mock<IDatabaseGateway>();
 			var query = new Mock<IQuery>();
@@ -62,13 +62,13 @@ namespace Shuttle.Core.Data.Tests
 
 			var repository = new DataRepository<object>(gateway.Object, new Mock<IDataRowMapper<object>>().Object);
 
-			var result = repository.FetchItem(query.Object).Result;
+			var result = await repository.FetchItem(query.Object);
 
 			Assert.IsNull(result);
 		}
 
 		[Test]
-		public void Should_be_able_to_call_contains()
+		public async Task Should_be_able_to_call_contains()
 		{
 			var gateway = new Mock<IDatabaseGateway>();
 			var query = new Mock<IQuery>();
@@ -77,11 +77,11 @@ namespace Shuttle.Core.Data.Tests
 
 			var repository = new DataRepository<object>(gateway.Object, new Mock<IDataRowMapper<object>>().Object);
 
-			Assert.IsTrue(repository.Contains(query.Object).Result);
+			Assert.That(await repository.Contains(query.Object), Is.True);
 		}
 
 		[Test]
-		public void Should_be_able_to_fetch_mapped_rows()
+		public async Task Should_be_able_to_fetch_mapped_rows()
 		{
 			var gateway = new Mock<IDatabaseGateway>();
 			var mapper = new Mock<IDataRowMapper<object>>();
@@ -95,7 +95,7 @@ namespace Shuttle.Core.Data.Tests
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = repository.FetchMappedRows(query.Object).Result.ToList();
+			var result = (await repository.FetchMappedRows(query.Object)).ToList();
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);
@@ -104,7 +104,7 @@ namespace Shuttle.Core.Data.Tests
 		}
 
 		[Test]
-		public void Should_be_able_to_fetch_a_single_row()
+		public async Task Should_be_able_to_fetch_a_single_row()
 		{
 			var gateway = new Mock<IDatabaseGateway>();
 			var mapper = new Mock<IDataRowMapper<object>>();
@@ -118,7 +118,7 @@ namespace Shuttle.Core.Data.Tests
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = repository.FetchMappedRow(query.Object).Result;
+			var result = await repository.FetchMappedRow(query.Object);
 
 			Assert.IsNotNull(result);
 			Assert.AreSame(dataRow, result.Row);

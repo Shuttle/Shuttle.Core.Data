@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace Shuttle.Core.Data.Tests
@@ -8,7 +9,7 @@ namespace Shuttle.Core.Data.Tests
     public class DataRowMapperFixture : MappingFixture
     {
         [Test]
-        public void Should_be_able_to_perform_basic_mapping()
+        public async Task Should_be_able_to_perform_basic_mapping()
         {
             var databaseGateway = GetDatabaseGateway();
             var dataRowMapper = GetDataRowMapper();
@@ -31,16 +32,16 @@ from
     BasicMapping
 ");
 
-            using (GetDatabaseContext())
+            using (await GetDatabaseContext())
             {
-                var item = dataRowMapper.MapObject<BasicMapping>(databaseGateway.GetRow(rowQuery).Result);
-                var items = dataRowMapper.MapObjects<BasicMapping>(databaseGateway.GetRows(rowsQuery).Result);
+                var item = dataRowMapper.MapObject<BasicMapping>(await databaseGateway.GetRow(rowQuery));
+                var items = dataRowMapper.MapObjects<BasicMapping>(await databaseGateway.GetRows(rowsQuery));
 
                 Assert.IsNotNull(item);
                 Assert.AreEqual(2, items.Count());
 
-                var mappedRow = dataRowMapper.MapRow<BasicMapping>(databaseGateway.GetRow(rowQuery).Result);
-                var mappedRows = dataRowMapper.MapRows<BasicMapping>(databaseGateway.GetRows(rowsQuery).Result);
+                var mappedRow = dataRowMapper.MapRow<BasicMapping>(await databaseGateway.GetRow(rowQuery));
+                var mappedRows = dataRowMapper.MapRows<BasicMapping>(await databaseGateway.GetRows(rowsQuery));
 
                 Assert.IsNotNull(mappedRow);
                 Assert.AreEqual(2, mappedRows.Count());
@@ -48,7 +49,7 @@ from
         }
 
         [Test]
-        public void Should_be_able_to_perform_basic_mapping_even_though_columns_are_missing()
+        public async Task Should_be_able_to_perform_basic_mapping_even_though_columns_are_missing()
         {
             var databaseGateway = GetDatabaseGateway();
             var dataRowMapper = GetDataRowMapper();
@@ -71,16 +72,16 @@ from
     BasicMapping
 ");
 
-            using (GetDatabaseContext())
+            using (await GetDatabaseContext())
             {
-                var item = dataRowMapper.MapObject<BasicMapping>(databaseGateway.GetRow(rowQuery).Result);
-                var items = dataRowMapper.MapObjects<BasicMapping>(databaseGateway.GetRows(rowsQuery).Result);
+                var item = dataRowMapper.MapObject<BasicMapping>(await databaseGateway.GetRow(rowQuery));
+                var items = dataRowMapper.MapObjects<BasicMapping>(await databaseGateway.GetRows(rowsQuery));
 
                 Assert.IsNotNull(item);
                 Assert.AreEqual(2, items.Count());
 
-                var mappedRow = dataRowMapper.MapRow<BasicMapping>(databaseGateway.GetRow(rowQuery).Result);
-                var mappedRows = dataRowMapper.MapRows<BasicMapping>(databaseGateway.GetRows(rowsQuery).Result);
+                var mappedRow = dataRowMapper.MapRow<BasicMapping>(await databaseGateway.GetRow(rowQuery));
+                var mappedRows = dataRowMapper.MapRows<BasicMapping>(await databaseGateway.GetRows(rowsQuery));
 
                 Assert.IsNotNull(mappedRow);
                 Assert.AreEqual(2, mappedRows.Count());
@@ -88,7 +89,7 @@ from
         }
 
         [Test]
-        public void Should_be_able_to_perform_value_mapping()
+        public async Task Should_be_able_to_perform_value_mapping()
         {
             var databaseGateway = GetDatabaseGateway();
             var dataRowMapper = GetDataRowMapper();
@@ -109,8 +110,8 @@ from
 
             using (GetDatabaseContext())
             {
-                var value = dataRowMapper.MapValue<Guid>(databaseGateway.GetRow(rowQuery).Result);
-                var values = dataRowMapper.MapValues<Guid>(databaseGateway.GetRows(rowsQuery).Result);
+                var value = dataRowMapper.MapValue<Guid>(await databaseGateway.GetRow(rowQuery));
+                var values = dataRowMapper.MapValues<Guid>(await databaseGateway.GetRows(rowsQuery));
 
                 Assert.IsNotNull(value);
                 Assert.AreEqual(2, values.Count());
@@ -118,7 +119,7 @@ from
         }
 
         [Test]
-        public void Should_be_able_to_perform_dynamic_mapping()
+        public async Task Should_be_able_to_perform_dynamic_mapping()
         {
             var id = new Guid("B5E0088E-4873-4244-9B91-1059E0383C3E");
 
@@ -148,15 +149,15 @@ from
 
             using (GetDatabaseContext())
             {
-                var item = dataRowMapper.MapItem(databaseGateway.GetRow(rowQuery).Result);
+                var item = dataRowMapper.MapItem(await databaseGateway.GetRow(rowQuery));
 
                 Assert.IsNotNull(item);
 
-                var items = dataRowMapper.MapItems(databaseGateway.GetRows(rowsQuery).Result);
+                var items = dataRowMapper.MapItems(await databaseGateway.GetRows(rowsQuery));
                 
                 Assert.AreEqual(2, items.Count());
 
-                item = dataRowMapper.MapItem(databaseGateway.GetRow(RawQuery.Create(rowSql, new { Id = id })).Result);
+                item = dataRowMapper.MapItem(await databaseGateway.GetRow(RawQuery.Create(rowSql, new { Id = id })));
 
                 Assert.IsNotNull(item);
                 Assert.That(item.Id, Is.EqualTo(id));
