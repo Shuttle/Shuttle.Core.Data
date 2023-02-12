@@ -1,23 +1,18 @@
 using System;
 using System.Data;
-using System.Data.Common;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
     public class DatabaseContext : IDatabaseContext
     {
-        private readonly IDatabaseContextService _databaseContextService;
         private readonly IDbCommandFactory _dbCommandFactory;
         private bool _dispose;
         private bool _disposed;
-        private readonly IDatabaseContext _activeContext;
 
-        public DatabaseContext(string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory,
-            IDatabaseContextService databaseContextService)
+        public DatabaseContext(string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory)
         {
             _dbCommandFactory = Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
-            _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             _dispose = true;
 
             Key = Guid.NewGuid();
@@ -29,10 +24,6 @@ namespace Shuttle.Core.Data
             {
                 Connection.Open();
             }
-
-            _activeContext = databaseContextService.HasCurrent ? databaseContextService.Current : null;
-
-            _databaseContextService.Add(this);
         }
 
         public Guid Key { get; }
@@ -50,7 +41,7 @@ namespace Shuttle.Core.Data
 
         public IDatabaseContext Suppressed()
         {
-            return new DatabaseContext(ProviderName, Connection, _dbCommandFactory, _databaseContextService)
+            return new DatabaseContext(ProviderName, Connection, _dbCommandFactory)
             {
                 Transaction = Transaction,
                 _dispose = false
@@ -101,13 +92,6 @@ namespace Shuttle.Core.Data
 
         public void Dispose()
         {
-            _databaseContextService.Remove(this);
-
-            if (_activeContext != null && _databaseContextService.Contains(_activeContext))
-            {
-                _databaseContextService.Use(_activeContext);
-            }
-
             Dispose(true);
 
             GC.SuppressFinalize(this);

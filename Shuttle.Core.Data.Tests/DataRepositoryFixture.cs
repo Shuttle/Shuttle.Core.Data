@@ -14,18 +14,19 @@ namespace Shuttle.Core.Data.Tests
 		[Test]
 		public async Task Should_be_able_to_fetch_all_items()
 		{
+			var context = new Mock<IDatabaseContext>();
 			var gateway = new Mock<IDatabaseGateway>();
 			var mapper = new Mock<IDataRowMapper<object>>();
 			var query = new Mock<IQuery>();
 			var dataRow = new DataTable().NewRow();
 			var anObject = new object();
 
-			gateway.Setup(m => m.GetRows(query.Object, CancellationToken.None)).ReturnsAsync(new List<DataRow> {dataRow});
+			gateway.Setup(m => m.GetRows(context.Object, query.Object, CancellationToken.None)).ReturnsAsync(new List<DataRow> {dataRow});
 			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(new MappedRow<object>(dataRow, anObject));
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-            var result = (await repository.FetchItems(query.Object)).ToList();
+            var result = (await repository.FetchItems(context.Object, query.Object)).ToList();
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);
@@ -35,18 +36,19 @@ namespace Shuttle.Core.Data.Tests
 		[Test]
 		public async Task Should_be_able_to_fetch_a_single_item()
 		{
-			var gateway = new Mock<IDatabaseGateway>();
+			var context = new Mock<IDatabaseContext>();
+            var gateway = new Mock<IDatabaseGateway>();
 			var mapper = new Mock<IDataRowMapper<object>>();
 			var query = new Mock<IQuery>();
 			var dataRow = new DataTable().NewRow();
 			var anObject = new object();
 
-			gateway.Setup(m => m.GetRow(query.Object, CancellationToken.None)).ReturnsAsync(dataRow);
+			gateway.Setup(m => m.GetRow(context.Object, query.Object, CancellationToken.None)).ReturnsAsync(dataRow);
 			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(new MappedRow<object>(dataRow, anObject));
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = await repository.FetchItem(query.Object);
+			var result = await repository.FetchItem(context.Object, query.Object);
 
 			Assert.IsNotNull(result);
 			Assert.AreSame(anObject, result);
@@ -55,14 +57,15 @@ namespace Shuttle.Core.Data.Tests
 		[Test]
 		public async Task Should_be_able_to_get_default_when_fetching_a_single_item_that_is_not_found()
 		{
-			var gateway = new Mock<IDatabaseGateway>();
+			var context = new Mock<IDatabaseContext>();
+            var gateway = new Mock<IDatabaseGateway>();
 			var query = new Mock<IQuery>();
 
-			gateway.Setup(m => m.GetRow(query.Object, CancellationToken.None)).ReturnsAsync((DataRow) null);
+			gateway.Setup(m => m.GetRow(context.Object, query.Object, CancellationToken.None)).ReturnsAsync((DataRow) null);
 
 			var repository = new DataRepository<object>(gateway.Object, new Mock<IDataRowMapper<object>>().Object);
 
-			var result = await repository.FetchItem(query.Object);
+			var result = await repository.FetchItem(context.Object, query.Object);
 
 			Assert.IsNull(result);
 		}
@@ -70,32 +73,34 @@ namespace Shuttle.Core.Data.Tests
 		[Test]
 		public async Task Should_be_able_to_call_contains()
 		{
-			var gateway = new Mock<IDatabaseGateway>();
+			var context = new Mock<IDatabaseContext>();
+            var gateway = new Mock<IDatabaseGateway>();
 			var query = new Mock<IQuery>();
 
-			gateway.Setup(m => m.GetScalar<int>(query.Object, CancellationToken.None)).ReturnsAsync(1);
+			gateway.Setup(m => m.GetScalar<int>(context.Object, query.Object, CancellationToken.None)).ReturnsAsync(1);
 
 			var repository = new DataRepository<object>(gateway.Object, new Mock<IDataRowMapper<object>>().Object);
 
-			Assert.That(await repository.Contains(query.Object), Is.True);
+			Assert.That(await repository.Contains(context.Object, query.Object), Is.True);
 		}
 
 		[Test]
 		public async Task Should_be_able_to_fetch_mapped_rows()
 		{
-			var gateway = new Mock<IDatabaseGateway>();
+			var context = new Mock<IDatabaseContext>();
+            var gateway = new Mock<IDatabaseGateway>();
 			var mapper = new Mock<IDataRowMapper<object>>();
 			var query = new Mock<IQuery>();
 			var dataRow = new DataTable().NewRow();
 			var anObject = new object();
 			var mappedRow = new MappedRow<object>(dataRow, anObject);
 
-			gateway.Setup(m => m.GetRows(query.Object, CancellationToken.None)).ReturnsAsync(new List<DataRow> {dataRow});
+			gateway.Setup(m => m.GetRows(context.Object, query.Object, CancellationToken.None)).ReturnsAsync(new List<DataRow> {dataRow});
 			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(mappedRow);
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = (await repository.FetchMappedRows(query.Object)).ToList();
+			var result = (await repository.FetchMappedRows(context.Object, query.Object)).ToList();
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);
@@ -106,19 +111,20 @@ namespace Shuttle.Core.Data.Tests
 		[Test]
 		public async Task Should_be_able_to_fetch_a_single_row()
 		{
-			var gateway = new Mock<IDatabaseGateway>();
+			var context = new Mock<IDatabaseContext>();
+            var gateway = new Mock<IDatabaseGateway>();
 			var mapper = new Mock<IDataRowMapper<object>>();
 			var query = new Mock<IQuery>();
 			var dataRow = new DataTable().NewRow();
 			var anObject = new object();
 			var mappedRow = new MappedRow<object>(dataRow, anObject);
 
-			gateway.Setup(m => m.GetRow(query.Object, CancellationToken.None)).ReturnsAsync(dataRow);
+			gateway.Setup(m => m.GetRow(context.Object, query.Object, CancellationToken.None)).ReturnsAsync(dataRow);
 			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(mappedRow);
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = await repository.FetchMappedRow(query.Object);
+			var result = await repository.FetchMappedRow(context.Object, query.Object);
 
 			Assert.IsNotNull(result);
 			Assert.AreSame(dataRow, result.Row);

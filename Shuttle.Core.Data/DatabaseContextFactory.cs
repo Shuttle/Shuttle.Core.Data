@@ -12,8 +12,7 @@ namespace Shuttle.Core.Data
         private readonly DataAccessOptions _dataAccessOptions;
 
         public DatabaseContextFactory(IOptionsMonitor<ConnectionStringOptions> connectionStringOptions, IOptions<DataAccessOptions> dataAccessOptions,
-            IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory,
-            IDatabaseContextService databaseContextService)
+            IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory)
         {
             Guard.AgainstNull(dataAccessOptions, nameof(dataAccessOptions));
             
@@ -22,7 +21,6 @@ namespace Shuttle.Core.Data
 
             DbConnectionFactory = Guard.AgainstNull(dbConnectionFactory, nameof(dbConnectionFactory));
             DbCommandFactory = Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
-            DatabaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
         }
 
         public async Task<IDatabaseContext> Create(string name)
@@ -41,24 +39,19 @@ namespace Shuttle.Core.Data
 
         public async Task<IDatabaseContext> Create(string providerName, string connectionString)
         {
-            return await Task.FromResult(DatabaseContextService.ContainsConnectionString(connectionString)
-                ? DatabaseContextService.GetConnectionString(connectionString).Suppressed()
-                : new DatabaseContext(providerName, (DbConnection)DbConnectionFactory.Create(providerName, connectionString),
-                    DbCommandFactory, DatabaseContextService)).ConfigureAwait(false);
+            return await Task.FromResult(new DatabaseContext(providerName, (DbConnection)DbConnectionFactory.Create(providerName, connectionString),
+                    DbCommandFactory)).ConfigureAwait(false);
         }
 
         public async Task<IDatabaseContext> Create(string providerName, DbConnection dbConnection)
         {
             Guard.AgainstNull(dbConnection, nameof(dbConnection));
 
-            return await Task.FromResult(DatabaseContextService.ContainsConnectionString(dbConnection.ConnectionString)
-                ? DatabaseContextService.GetConnectionString(dbConnection.ConnectionString).Suppressed()
-                : new DatabaseContext(providerName, dbConnection, DbCommandFactory, DatabaseContextService)).ConfigureAwait(false);
+            return await Task.FromResult(new DatabaseContext(providerName, dbConnection, DbCommandFactory)).ConfigureAwait(false);
         }
 
         public IDbConnectionFactory DbConnectionFactory { get; }
         public IDbCommandFactory DbCommandFactory { get; }
-        public IDatabaseContextService DatabaseContextService { get; }
 
         public async Task<IDatabaseContext> Create()
         {

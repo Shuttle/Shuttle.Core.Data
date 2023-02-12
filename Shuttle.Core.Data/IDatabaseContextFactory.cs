@@ -12,6 +12,5 @@ namespace Shuttle.Core.Data
 
         IDbConnectionFactory DbConnectionFactory { get; }
         IDbCommandFactory DbCommandFactory { get; }
-        IDatabaseContextService DatabaseContextService { get; }
     }
 }

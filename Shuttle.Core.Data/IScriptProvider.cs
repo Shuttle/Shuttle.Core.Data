@@ -2,7 +2,7 @@
 {
     public interface IScriptProvider
     {
-        string Get(string scriptName);
-        string Get(string scriptName, params object[] parameters);
+        string Get(string providerName, string scriptName);
+        string Get(string providerName, string scriptName, params object[] parameters);
     }
 }

@@ -32,16 +32,16 @@ from
     BasicMapping
 ");
 
-            using (await GetDatabaseContext())
+            using (var databaseContext = await GetDatabaseContext())
             {
-                var item = await mapper.MapObject<BasicMapping>(queryRow);
-                var items = await mapper.MapObjects<BasicMapping>(queryRows);
+                var item = await mapper.MapObject<BasicMapping>(databaseContext, queryRow);
+                var items = await mapper.MapObjects<BasicMapping>(databaseContext, queryRows);
 
                 Assert.IsNotNull(item);
                 Assert.AreEqual(2, items.Count());
 
-                var mappedRow = await mapper.MapRow<BasicMapping>(queryRow);
-                var mappedRows = await mapper.MapRows<BasicMapping>(queryRows);
+                var mappedRow = await mapper.MapRow<BasicMapping>(databaseContext, queryRow);
+                var mappedRows = await mapper.MapRows<BasicMapping>(databaseContext, queryRows);
 
                 Assert.IsNotNull(mappedRow);
                 Assert.AreEqual(2, mappedRows.Count());
@@ -71,16 +71,16 @@ from
     BasicMapping
 ");
 
-            using (GetDatabaseContext())
+            using (var databaseContext = await GetDatabaseContext())
             {
-                var item = await mapper.MapObject<BasicMapping>(queryRow);
-                var items = await mapper.MapObjects<BasicMapping>(queryRows);
+                var item = await mapper.MapObject<BasicMapping>(databaseContext, queryRow);
+                var items = await mapper.MapObjects<BasicMapping>(databaseContext, queryRows);
 
                 Assert.IsNotNull(item);
                 Assert.AreEqual(2, items.Count());
 
-                var mappedRow = mapper.MapRow<BasicMapping>(queryRow).Result;
-                var mappedRows = await mapper.MapRows<BasicMapping>(queryRows);
+                var mappedRow = mapper.MapRow<BasicMapping>(databaseContext, queryRow).Result;
+                var mappedRows = await mapper.MapRows<BasicMapping>(databaseContext, queryRows);
 
                 Assert.IsNotNull(mappedRow);
                 Assert.AreEqual(2, mappedRows.Count());
@@ -88,7 +88,7 @@ from
         }
 
         [Test]
-        public void Should_be_able_to_perform_value_mapping()
+        public async Task Should_be_able_to_perform_value_mapping()
         {
             var mapper = GetQueryMapper();
 
@@ -106,10 +106,10 @@ from
     BasicMapping
 ");
 
-            using (GetDatabaseContext())
+            using (var databaseContext = await GetDatabaseContext())
             {
-                var value = mapper.MapValue<Guid>(queryRow).Result;
-                var values = mapper.MapValues<Guid>(queryRows).Result;
+                var value = mapper.MapValue<Guid>(databaseContext, queryRow).Result;
+                var values = mapper.MapValues<Guid>(databaseContext, queryRows).Result;
 
                 Assert.IsNotNull(value);
                 Assert.AreEqual(2, values.Count());
@@ -117,9 +117,8 @@ from
         }
 
         [Test]
-        public void Should_be_able_to_perform_dynamic_mapping()
+        public async Task Should_be_able_to_perform_dynamic_mapping()
         {
-            var databaseGateway = GetDatabaseGateway();
             var queryMapper = GetQueryMapper();
 
             var queryRow = RawQuery.Create(@"
@@ -140,10 +139,10 @@ from
     BasicMapping
 ");
 
-            using (GetDatabaseContext())
+            using (var databaseContext = await GetDatabaseContext())
             {
-                var item = queryMapper.MapItem(queryRow).Result;
-                var items = queryMapper.MapItems(queryRows).Result;
+                var item = queryMapper.MapItem(databaseContext, queryRow).Result;
+                var items = queryMapper.MapItems(databaseContext, queryRows).Result;
 
                 Assert.IsNotNull(item);
                 Assert.AreEqual(2, items.Count());

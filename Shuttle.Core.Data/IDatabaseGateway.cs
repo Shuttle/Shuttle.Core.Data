@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,11 +10,11 @@ namespace Shuttle.Core.Data
     {
 	    event EventHandler<DbCommandCreatedEventArgs> DbCommandCreated;
 
-	    Task<IDataReader> GetReader(IQuery query, CancellationToken cancellationToken = default);
-		Task<int> Execute(IQuery query, CancellationToken cancellationToken = default);
-        Task<T> GetScalar<T>(IQuery query, CancellationToken cancellationToken = default);
-        Task<DataTable> GetDataTable(IQuery query, CancellationToken cancellationToken = default);
-		Task<IEnumerable<DataRow>> GetRows(IQuery query, CancellationToken cancellationToken = default);
-        Task<DataRow> GetRow(IQuery query, CancellationToken cancellationToken = default);
+	    Task<IDataReader> GetReader(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+		Task<int> Execute(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+        Task<T> GetScalar<T>(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+        Task<DataTable> GetDataTable(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+		Task<IEnumerable<DataRow>> GetRows(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+        Task<DataRow> GetRow(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
     }
 }

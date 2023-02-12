@@ -10,35 +10,34 @@ namespace Shuttle.Core.Data
 	{
 		private static readonly object Lock = new object();
 		private readonly ScriptProviderOptions _options;
-		private readonly IDatabaseContextService _databaseContextService;
 		private readonly string[] _emptyFiles = Array.Empty<string>();
 
 		private readonly Dictionary<string, string> _scripts = new Dictionary<string, string>();
 
-		public ScriptProvider(IOptions<ScriptProviderOptions> options, IDatabaseContextService databaseContextService)
+		public ScriptProvider(IOptions<ScriptProviderOptions> options)
 		{
 			Guard.AgainstNull(options, nameof(options));
 
 			_options = Guard.AgainstNull(options.Value, nameof(options.Value));
-            _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
         }
 
-		public string Get(string scriptName)
+		public string Get(string providerName, string scriptName)
 		{
-			return Get(scriptName, null);
+			return Get(providerName, scriptName, null);
 		}
 
-		public string Get(string scriptName, params object[] parameters)
+		public string Get(string providerName, string scriptName, params object[] parameters)
 		{
+			Guard.AgainstNullOrEmptyString(providerName, nameof(providerName));
 			Guard.AgainstNullOrEmptyString(scriptName, nameof(scriptName));
 
-			var key = Key(scriptName);
+			var key = Key(providerName, scriptName);
 
 			lock (Lock)
 			{
 				if (!_scripts.ContainsKey(key))
 				{
-					AddScript(scriptName);
+					AddScript(providerName, scriptName);
 				}
 
 				return parameters != null
@@ -47,17 +46,17 @@ namespace Shuttle.Core.Data
 			}
 		}
 
-		private string Key(string scriptName)
+		private string Key(string providerName, string scriptName)
 		{
 			lock (Lock)
 			{
-				return $"[{_databaseContextService.Current.ProviderName}]-{scriptName}";
+				return $"[{providerName}]-{scriptName}";
 			}
 		}
 
-		private void AddScript(string scriptName)
+		private void AddScript(string providerName, string scriptName)
 		{
-			var key = Key(scriptName);
+			var key = Key(providerName, scriptName);
 
 			lock (Lock)
 			{
@@ -70,12 +69,12 @@ namespace Shuttle.Core.Data
 
 				if (!string.IsNullOrEmpty(_options.ScriptFolder) && Directory.Exists(_options.ScriptFolder))
 				{
-					files = Directory.GetFiles(_options.ScriptFolder, FormattedFileName(scriptName), SearchOption.AllDirectories);
+					files = Directory.GetFiles(_options.ScriptFolder, FormattedFileName(providerName, scriptName), SearchOption.AllDirectories);
 				}
 
 				if (files.Length == 0)
 				{
-					AddEmbeddedScript(scriptName);
+					AddEmbeddedScript(providerName, scriptName);
 
 					return;
 				}
@@ -90,29 +89,29 @@ namespace Shuttle.Core.Data
 			}
 		}
 
-		private string FormattedFileName(string scriptName)
+		private string FormattedFileName(string providerName, string scriptName)
 		{
-			return FormattedScriptPath(_options.FileNameFormat, scriptName);
+			return FormattedScriptPath(_options.FileNameFormat, providerName, scriptName);
 		}
 
-		private string FormattedResourceName(string scriptName)
+		private string FormattedResourceName(string providerName, string scriptName)
 		{
-			return FormattedScriptPath(_options.ResourceNameFormat, scriptName);
+			return FormattedScriptPath(_options.ResourceNameFormat, providerName, scriptName);
 		}
 
-		private string FormattedScriptPath(string format, string scriptName)
+		private string FormattedScriptPath(string format, string providerName, string scriptName)
 		{
-			return format.Replace("{ScriptName}", scriptName).Replace("{ProviderName}", _databaseContextService.Current.ProviderName);
+			return format.Replace("{ScriptName}", scriptName).Replace("{ProviderName}", providerName);
 		}
 
-		private void AddEmbeddedScript(string scriptName)
+		private void AddEmbeddedScript(string providerName, string scriptName)
 		{
 			if (_options.ResourceAssembly == null)
 			{
 				throw new InvalidOperationException(Resources.ResourceAssemblyMissingException);
 			}
 
-			var path = _options.ResourceNameFormat != null ? FormattedResourceName(scriptName) : scriptName;
+			var path = _options.ResourceNameFormat != null ? FormattedResourceName(providerName, scriptName) : scriptName;
 
 			using (var stream = _options.ResourceAssembly.GetManifestResourceStream(path))
 			{
@@ -123,7 +122,7 @@ namespace Shuttle.Core.Data
 
 				using (var reader = new StreamReader(stream))
 				{
-					_scripts.Add(Key(scriptName), reader.ReadToEnd());
+					_scripts.Add(Key(providerName, scriptName), reader.ReadToEnd());
 				}
 			}
 		}
