@@ -11,7 +11,7 @@ namespace Shuttle.Core.Data
 		{
 		};
 
-		public DbConnection Create(string providerName, string connectionString)
+		public IDbConnection Create(string providerName, string connectionString)
 		{
 			Guard.AgainstNullOrEmptyString(providerName, nameof(providerName));
 			Guard.AgainstNullOrEmptyString(connectionString, nameof(connectionString));

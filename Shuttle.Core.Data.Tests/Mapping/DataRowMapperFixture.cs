@@ -32,7 +32,7 @@ from
     BasicMapping
 ");
 
-            using (await GetDatabaseContext())
+            using (GetDatabaseContext())
             {
                 var item = dataRowMapper.MapObject<BasicMapping>(await databaseGateway.GetRow(rowQuery));
                 var items = dataRowMapper.MapObjects<BasicMapping>(await databaseGateway.GetRows(rowsQuery));
@@ -72,7 +72,7 @@ from
     BasicMapping
 ");
 
-            using (await GetDatabaseContext())
+            using (GetDatabaseContext())
             {
                 var item = dataRowMapper.MapObject<BasicMapping>(await databaseGateway.GetRow(rowQuery));
                 var items = dataRowMapper.MapObjects<BasicMapping>(await databaseGateway.GetRows(rowsQuery));

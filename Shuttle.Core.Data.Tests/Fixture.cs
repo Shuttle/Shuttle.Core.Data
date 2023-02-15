@@ -43,9 +43,9 @@ namespace Shuttle.Core.Data.Tests
 	        return Provider.GetRequiredService<IDatabaseContextFactory>();
         }
 
-        protected async Task<IDatabaseContext> GetDatabaseContext()
+        protected IDatabaseContext GetDatabaseContext()
 		{
-			return await GetDatabaseContextFactory().Create(DefaultConnectionStringName).ConfigureAwait(false);
+			return GetDatabaseContextFactory().Create(DefaultConnectionStringName);
 		}
 
         protected IDatabaseGateway GetDatabaseGateway()

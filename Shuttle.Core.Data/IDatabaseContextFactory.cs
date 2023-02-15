@@ -5,10 +5,10 @@ namespace Shuttle.Core.Data
 {
 	public interface IDatabaseContextFactory
 	{
-		Task<IDatabaseContext> Create(string name);
-		Task<IDatabaseContext> Create(string providerName, string connectionString);
-		Task<IDatabaseContext> Create(string providerName, DbConnection dbConnection);
-        Task<IDatabaseContext> Create();
+		IDatabaseContext Create(string name);
+		IDatabaseContext Create(string providerName, string connectionString);
+		IDatabaseContext Create(string providerName, DbConnection dbConnection);
+        IDatabaseContext Create();
 
         IDbConnectionFactory DbConnectionFactory { get; }
         IDbCommandFactory DbCommandFactory { get; }

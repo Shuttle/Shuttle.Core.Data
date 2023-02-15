@@ -25,7 +25,7 @@ namespace Shuttle.Core.Data
             DatabaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
         }
 
-        public async Task<IDatabaseContext> Create(string name)
+        public IDatabaseContext Create(string name)
         {
             var connectionStringOptions = _connectionStringOptions.Get(name);
 
@@ -34,42 +34,42 @@ namespace Shuttle.Core.Data
                 throw new InvalidOperationException(string.Format(Resources.ConnectionStringMissingException, name));
             }
 
-            var databaseContext = await Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString).ConfigureAwait(false);
+            var databaseContext = Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString);
 
             return databaseContext.WithName(name);
         }
 
-        public async Task<IDatabaseContext> Create(string providerName, string connectionString)
+        public IDatabaseContext Create(string providerName, string connectionString)
         {
-            return await Task.FromResult(DatabaseContextService.ContainsConnectionString(connectionString)
+            return DatabaseContextService.ContainsConnectionString(connectionString)
                 ? DatabaseContextService.GetConnectionString(connectionString).Suppressed()
                 : new DatabaseContext(providerName, (DbConnection)DbConnectionFactory.Create(providerName, connectionString),
-                    DbCommandFactory, DatabaseContextService)).ConfigureAwait(false);
+                    DbCommandFactory, DatabaseContextService);
         }
 
-        public async Task<IDatabaseContext> Create(string providerName, DbConnection dbConnection)
+        public IDatabaseContext Create(string providerName, DbConnection dbConnection)
         {
             Guard.AgainstNull(dbConnection, nameof(dbConnection));
 
-            return await Task.FromResult(DatabaseContextService.ContainsConnectionString(dbConnection.ConnectionString)
+            return DatabaseContextService.ContainsConnectionString(dbConnection.ConnectionString)
                 ? DatabaseContextService.GetConnectionString(dbConnection.ConnectionString).Suppressed()
-                : new DatabaseContext(providerName, dbConnection, DbCommandFactory, DatabaseContextService)).ConfigureAwait(false);
+                : new DatabaseContext(providerName, dbConnection, DbCommandFactory, DatabaseContextService);
         }
 
         public IDbConnectionFactory DbConnectionFactory { get; }
         public IDbCommandFactory DbCommandFactory { get; }
         public IDatabaseContextService DatabaseContextService { get; }
 
-        public async Task<IDatabaseContext> Create()
+        public IDatabaseContext Create()
         {
             if (!string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionStringName))
             {
-                return await Create(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionStringName).ConfigureAwait(false);
+                return Create(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionStringName);
             }
 
             if (!string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.DefaultProviderName) && !string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionString))
             {
-                return await Create(_dataAccessOptions.DatabaseContextFactory.DefaultProviderName, _dataAccessOptions.DatabaseContextFactory.DefaultConnectionString).ConfigureAwait(false);
+                return Create(_dataAccessOptions.DatabaseContextFactory.DefaultProviderName, _dataAccessOptions.DatabaseContextFactory.DefaultConnectionString);
             }
 
             throw new InvalidOperationException(Resources.DatabaseContextFactoryOptionsException);

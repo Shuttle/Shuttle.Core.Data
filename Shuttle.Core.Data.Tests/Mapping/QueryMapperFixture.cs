@@ -32,7 +32,7 @@ from
     BasicMapping
 ");
 
-            using (await GetDatabaseContext())
+            using (GetDatabaseContext())
             {
                 var item = await mapper.MapObject<BasicMapping>(queryRow);
                 var items = await mapper.MapObjects<BasicMapping>(queryRows);

@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace Shuttle.Core.Data
 {
@@ -11,14 +12,13 @@ namespace Shuttle.Core.Data
 
         IDbTransaction Transaction { get; }
         IDbConnection Connection { get; }
-        IDbCommand CreateCommand(IQuery query);
+        Task<IDbCommand> CreateCommand(IQuery query);
 
         bool HasTransaction { get; }
         string ProviderName { get; }
 
-        IDatabaseContext BeginTransaction();
-        IDatabaseContext BeginTransaction(IsolationLevel isolationLevel);
-        void CommitTransaction();
+        Task<IDatabaseContext> BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Unspecified);
+        Task CommitTransaction();
 	    IDatabaseContext WithName(string name);
 	    IDatabaseContext Suppressed();
 	    IDatabaseContext SuppressDispose();

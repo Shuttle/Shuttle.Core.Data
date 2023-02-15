@@ -59,7 +59,7 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(query, nameof(query));
 
-            var command = (DbCommand)_databaseContextService.Current.CreateCommand(query);
+            var command = (DbCommand)await (_databaseContextService.Current.CreateCommand(query).ConfigureAwait(false));
             
             await using var _ = command.ConfigureAwait(false);
             {
@@ -73,7 +73,7 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(query, nameof(query));
 
-            await using (var command = (DbCommand)_databaseContextService.Current.CreateCommand(query))
+            await using (var command = (DbCommand)await (_databaseContextService.Current.CreateCommand(query).ConfigureAwait(false)))
             {
                 DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
 
@@ -85,7 +85,7 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(query, nameof(query));
 
-            var command = (DbCommand)_databaseContextService.Current.CreateCommand(query);
+            var command = (DbCommand)await _databaseContextService.Current.CreateCommand(query).ConfigureAwait(false);
 
             await using (command.ConfigureAwait(false))
             {

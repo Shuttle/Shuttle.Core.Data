@@ -1,26 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
 using Shuttle.Core.Contract;
+using Shuttle.Core.Threading;
 
 namespace Shuttle.Core.Data
 {
     public class DatabaseContextService : IDatabaseContextService
     {
-        private readonly List<IDatabaseContext> _databaseContexts = new List<IDatabaseContext>();
-        private IDatabaseContext _current = null;
+        private const string AmbientDataKey = "__DatabaseContextService-AmbientData__";
 
-        public bool HasCurrent => _current != null;
+        public class AmbientData
+        {
+            public readonly List<IDatabaseContext> DatabaseContexts = new List<IDatabaseContext>();
+            public IDatabaseContext Current = null;
+        }
+
+        public bool HasCurrent => GetAmbientData().Current != null;
+
+        private AmbientData GetAmbientData()
+        {
+            var result = AmbientContext.GetData(AmbientDataKey) as AmbientData;
+
+            if (result == null)
+            {
+                result = new AmbientData();
+
+                AmbientContext.SetData(AmbientDataKey, result);
+            }
+
+            return result;
+        }
 
         public IDatabaseContext Current
         {
             get
             {
-                if (_current == null)
+                if (GetAmbientData().Current == null)
                 {
                     throw new InvalidOperationException(Resources.DatabaseContextMissing);
                 }
 
-                return _current;
+                return GetAmbientData().Current;
             }
         }
 
@@ -28,11 +48,11 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(context, nameof(context));
 
-            var current = _current;
+            var current = GetAmbientData().Current;
 
-            _current = _databaseContexts.Find(candidate => candidate.Key.Equals(context.Key));
+            GetAmbientData().Current = GetAmbientData().DatabaseContexts.Find(candidate => candidate.Key.Equals(context.Key));
 
-            if (_current == null)
+            if (GetAmbientData().Current == null)
             {
                 throw new Exception(string.Format(Resources.DatabaseContextKeyNotFoundException, context.Key));
             }
@@ -44,7 +64,7 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(match, nameof(match));
 
-            return _databaseContexts.Find(match);
+            return GetAmbientData().DatabaseContexts.Find(match);
         }
 
         public void Add(IDatabaseContext context)
@@ -56,7 +76,7 @@ namespace Shuttle.Core.Data
                 throw new Exception(string.Format(Resources.DuplicateDatabaseContextKeyException, context.Key));
             }
             
-            _databaseContexts.Add(context);
+            GetAmbientData().DatabaseContexts.Add(context);
 
             Use(context);
         }
@@ -72,12 +92,12 @@ namespace Shuttle.Core.Data
                 return;
             }
 
-            if (_current != null && candidate.Key.Equals(_current.Key))
+            if (GetAmbientData().Current != null && candidate.Key.Equals(GetAmbientData().Current.Key))
             {
-                _current = null;
+                GetAmbientData().Current = null;
             }
 
-            _databaseContexts.Remove(candidate);
+            GetAmbientData().DatabaseContexts.Remove(candidate);
         }
 
         private IDatabaseContext Find(IDatabaseContext context)
@@ -89,12 +109,12 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNullOrEmptyString(name, nameof(name));
 
-            var current = _current;
+            var current = GetAmbientData().Current;
 
-            _current = _databaseContexts.Find(candidate =>
+            GetAmbientData().Current = GetAmbientData().DatabaseContexts.Find(candidate =>
                 candidate.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
-            if (_current == null)
+            if (GetAmbientData().Current == null)
             {
                 throw new Exception(string.Format(Resources.DatabaseContextNameNotFoundException, name));
             }
