@@ -15,7 +15,7 @@ namespace Shuttle.Core.Data.Tests
 		{
 		    Assert.Throws<ArgumentException>(() =>
 		    {
-		        using (new DatabaseContext("Microsoft	.Data.SqlClient", new SqlConnection("```"), new Mock<IDbCommandFactory>().Object))
+		        using (new DatabaseContext("Microsoft	.Data.SqlClient", new SqlConnection("```"), new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
 		        {
 		        }
 		    });
@@ -28,7 +28,7 @@ namespace Shuttle.Core.Data.Tests
 		    {
 		        using (
 		            new DatabaseContext("Microsoft.Data.SqlClient", new SqlConnection("data source=.;initial catalog=idontexist;integrated security=sspi"),
-		                new Mock<IDbCommandFactory>().Object))
+		                new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
 		        {
 		        }
 		    });
@@ -39,7 +39,7 @@ namespace Shuttle.Core.Data.Tests
 		{
 			using (
 				new DatabaseContext("Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
-					new Mock<IDbCommandFactory>().Object))
+					new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
 			{
 			}
 		}
@@ -50,7 +50,7 @@ namespace Shuttle.Core.Data.Tests
 			using (
 				var connection =
 					new DatabaseContext("Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
-						new Mock<IDbCommandFactory>().Object))
+						new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
 			{
 				connection.BeginTransaction();
 				connection.CommitTransaction();
@@ -63,7 +63,7 @@ namespace Shuttle.Core.Data.Tests
 			using (
 				var connection =
 					new DatabaseContext("Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
-						new Mock<IDbCommandFactory>().Object))
+						new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
 			{
 				connection.BeginTransaction();
 			}
@@ -75,7 +75,7 @@ namespace Shuttle.Core.Data.Tests
 			using (
 				var connection =
 					new DatabaseContext("Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
-						new Mock<IDbCommandFactory>().Object))
+						new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
 			{
 				connection.CommitTransaction();
 			}
@@ -87,7 +87,7 @@ namespace Shuttle.Core.Data.Tests
 			using (
 				var connection =
 					new DatabaseContext("Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
-						new Mock<IDbCommandFactory>().Object))
+						new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
 			{
 				connection.Dispose();
 				connection.Dispose();
@@ -105,7 +105,7 @@ namespace Shuttle.Core.Data.Tests
 			dbCommandFactory.Setup(m => m.Create(dbConnection, query.Object)).Returns(dbCommand.Object);
 
 			using (
-				var connection = new DatabaseContext("Microsoft.Data.SqlClient", dbConnection, dbCommandFactory.Object))
+				var connection = new DatabaseContext("Microsoft.Data.SqlClient", dbConnection, dbCommandFactory.Object, new DatabaseContextService()))
 			{
 				connection.CreateCommand(query.Object);
 			}

@@ -11,11 +11,20 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseGateway : IDatabaseGateway
     {
-        public async Task<DataTable> GetDataTable(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default)
+        private readonly IDatabaseContextService _databaseContextService;
+
+        public DatabaseGateway(IDatabaseContextService databaseContextService)
         {
+            _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
+        }
+
+        public async Task<DataTable> GetDataTable(IQuery query, CancellationToken cancellationToken = default)
+        {
+            Guard.AgainstNull(query, nameof(query));
+
             var results = new DataTable();
 
-            using (var reader = await GetReader(Guard.AgainstNull(databaseContext, nameof(databaseContext)), Guard.AgainstNull(query, nameof(query)), cancellationToken).ConfigureAwait(false))
+            using (var reader = await GetReader(query, cancellationToken).ConfigureAwait(false))
             {
                 results.Load(reader);
             }
@@ -23,16 +32,16 @@ namespace Shuttle.Core.Data
             return results;
         }
 
-        public async Task<IEnumerable<DataRow>> GetRows(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<DataRow>> GetRows(IQuery query, CancellationToken cancellationToken = default)
         {
-            var table = await GetDataTable(Guard.AgainstNull(databaseContext, nameof(databaseContext)), Guard.AgainstNull(query, nameof(query)), cancellationToken).ConfigureAwait(false);
+            var table = await GetDataTable(query, cancellationToken).ConfigureAwait(false);
 
             return table.Rows.Cast<DataRow>();
         }
 
-        public async Task<DataRow> GetRow(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default)
+        public async Task<DataRow> GetRow(IQuery query, CancellationToken cancellationToken = default)
         {
-            var table = await GetDataTable(Guard.AgainstNull(databaseContext, nameof(databaseContext)), Guard.AgainstNull(query, nameof(query)), cancellationToken).ConfigureAwait(false);
+            var table = await GetDataTable(query, cancellationToken).ConfigureAwait(false);
 
             if (table == null || table.Rows.Count == 0)
             {
@@ -46,9 +55,13 @@ namespace Shuttle.Core.Data
         {
         };
 
-        public async Task<IDataReader> GetReader(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default)
+        public async Task<IDataReader> GetReader(IQuery query, CancellationToken cancellationToken = default)
         {
-            await using (var command = (DbCommand)Guard.AgainstNull(databaseContext, nameof(databaseContext)).CreateCommand(Guard.AgainstNull(query, nameof(query))))
+            Guard.AgainstNull(query, nameof(query));
+
+            var command = (DbCommand)_databaseContextService.Current.CreateCommand(query);
+            
+            await using var _ = command.ConfigureAwait(false);
             {
                 DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
 
@@ -56,9 +69,11 @@ namespace Shuttle.Core.Data
             }
         }
 
-        public async Task<int> Execute(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default)
+        public async Task<int> Execute(IQuery query, CancellationToken cancellationToken = default)
         {
-            await using (var command = (DbCommand)Guard.AgainstNull(databaseContext, nameof(databaseContext)).CreateCommand(Guard.AgainstNull(query, nameof(query))))
+            Guard.AgainstNull(query, nameof(query));
+
+            await using (var command = (DbCommand)_databaseContextService.Current.CreateCommand(query))
             {
                 DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
 
@@ -66,9 +81,13 @@ namespace Shuttle.Core.Data
             }
         }
 
-        public async Task<T> GetScalar<T>(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default)
+        public async Task<T> GetScalar<T>(IQuery query, CancellationToken cancellationToken = default)
         {
-            await using (var command = (DbCommand)Guard.AgainstNull(databaseContext, nameof(databaseContext)).CreateCommand(Guard.AgainstNull(query, nameof(query))))
+            Guard.AgainstNull(query, nameof(query));
+
+            var command = (DbCommand)_databaseContextService.Current.CreateCommand(query);
+
+            await using (command.ConfigureAwait(false))
             {
                 DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
 

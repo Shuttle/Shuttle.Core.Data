@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace Shuttle.Core.Data.Tests;
@@ -9,9 +8,9 @@ public class MappingFixture : Fixture
     [SetUp]
     public async Task SetUp()
     {
-        using (var databaseContext = await GetDatabaseContext())
+        using (await GetDatabaseContext())
         {
-            await GetDatabaseGateway().Execute(databaseContext, RawQuery.Create(@"
+            await GetDatabaseGateway().Execute(RawQuery.Create(@"
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BasicMapping]') AND type in (N'U'))
 BEGIN
 CREATE TABLE [dbo].[BasicMapping](

@@ -23,7 +23,7 @@ namespace Shuttle.Core.Data.Tests
 		}
 
         [Test]
-		public async Task Should_be_able_to_get_an_independent_database_context()
+		public async Task Should_be_able_to_get_an_existing_database_context()
 		{
             var factory = GetDatabaseContextFactory();
 
@@ -33,7 +33,7 @@ namespace Shuttle.Core.Data.Tests
 				Assert.IsNotNull(context);
 				Assert.IsNotNull(existingContext);
 
-				Assert.That(existingContext.Connection, Is.Not.SameAs(context.Connection));
+				Assert.AreSame(existingContext.Connection, context.Connection);
 			}
 		}
 

@@ -6,13 +6,13 @@ namespace Shuttle.Core.Data
 {
     public interface IQueryMapper
     {
-        Task<MappedRow<T>> MapRow<T>(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default) where T : new();
-        Task<IEnumerable<MappedRow<T>>> MapRows<T>(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default) where T : new();
-        Task<T> MapObject<T>(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default) where T : new();
-        Task<IEnumerable<T>> MapObjects<T>(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default) where T : new();
-        Task<T> MapValue<T>(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
-        Task<IEnumerable<T>> MapValues<T>(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
-        Task<dynamic> MapItem(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
-        Task<IEnumerable<dynamic>> MapItems(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+        Task<MappedRow<T>> MapRow<T>(IQuery query, CancellationToken cancellationToken = default) where T : new();
+        Task<IEnumerable<MappedRow<T>>> MapRows<T>(IQuery query, CancellationToken cancellationToken = default) where T : new();
+        Task<T> MapObject<T>(IQuery query, CancellationToken cancellationToken = default) where T : new();
+        Task<IEnumerable<T>> MapObjects<T>(IQuery query, CancellationToken cancellationToken = default) where T : new();
+        Task<T> MapValue<T>(IQuery query, CancellationToken cancellationToken = default);
+        Task<IEnumerable<T>> MapValues<T>(IQuery query, CancellationToken cancellationToken = default);
+        Task<dynamic> MapItem(IQuery query, CancellationToken cancellationToken = default);
+        Task<IEnumerable<dynamic>> MapItems(IQuery query, CancellationToken cancellationToken = default);
     }
 }
