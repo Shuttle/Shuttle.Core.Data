@@ -9,7 +9,7 @@ namespace Shuttle.Core.Data
     {
         private const string AmbientDataKey = "__DatabaseContextService-AmbientData__";
 
-        public class AmbientData
+        private class AmbientData
         {
             public readonly List<IDatabaseContext> DatabaseContexts = new List<IDatabaseContext>();
             public IDatabaseContext Current = null;

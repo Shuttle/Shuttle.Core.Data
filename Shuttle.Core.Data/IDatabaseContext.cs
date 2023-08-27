@@ -12,13 +12,16 @@ namespace Shuttle.Core.Data
 
         IDbTransaction Transaction { get; }
         IDbConnection Connection { get; }
-        Task<IDbCommand> CreateCommand(IQuery query);
+        IDbCommand CreateCommand(IQuery query);
+        Task<IDbCommand> CreateCommandAsync(IQuery query);
 
         bool HasTransaction { get; }
         string ProviderName { get; }
 
-        Task<IDatabaseContext> BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Unspecified);
-        Task CommitTransaction();
+        IDatabaseContext BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Unspecified);
+        Task<IDatabaseContext> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified);
+        void CommitTransaction();
+        Task CommitTransactionAsync();
 	    IDatabaseContext WithName(string name);
 	    IDatabaseContext Suppressed();
 	    IDatabaseContext SuppressDispose();

@@ -1,7 +1,5 @@
 ﻿using System.Threading.Tasks;
 using NUnit.Framework;
-using Shuttle.Core.Threading;
-using static Shuttle.Core.Data.DatabaseContextService;
 
 namespace Shuttle.Core.Data.Tests;
 
@@ -10,11 +8,9 @@ public class MappingFixture : Fixture
     [SetUp]
     public async Task SetUp()
     {
-        AmbientContext.SetData("__DatabaseContextService-AmbientData__", new AmbientData());
-
         using (GetDatabaseContext())
         {
-            await GetDatabaseGateway().Execute(RawQuery.Create(@"
+            await GetDatabaseGateway().ExecuteAsync(RawQuery.Create(@"
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BasicMapping]') AND type in (N'U'))
 BEGIN
 CREATE TABLE [dbo].[BasicMapping](

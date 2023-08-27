@@ -34,14 +34,14 @@ from
 
             using (GetDatabaseContext())
             {
-                var item = dataRowMapper.MapObject<BasicMapping>(await databaseGateway.GetRow(rowQuery));
-                var items = dataRowMapper.MapObjects<BasicMapping>(await databaseGateway.GetRows(rowsQuery));
+                var item = dataRowMapper.MapObject<BasicMapping>(await databaseGateway.GetRowAsync(rowQuery));
+                var items = dataRowMapper.MapObjects<BasicMapping>(await databaseGateway.GetRowsAsync(rowsQuery));
 
                 Assert.IsNotNull(item);
                 Assert.AreEqual(2, items.Count());
 
-                var mappedRow = dataRowMapper.MapRow<BasicMapping>(await databaseGateway.GetRow(rowQuery));
-                var mappedRows = dataRowMapper.MapRows<BasicMapping>(await databaseGateway.GetRows(rowsQuery));
+                var mappedRow = dataRowMapper.MapRow<BasicMapping>(await databaseGateway.GetRowAsync(rowQuery));
+                var mappedRows = dataRowMapper.MapRows<BasicMapping>(await databaseGateway.GetRowsAsync(rowsQuery));
 
                 Assert.IsNotNull(mappedRow);
                 Assert.AreEqual(2, mappedRows.Count());
@@ -74,14 +74,14 @@ from
 
             using (GetDatabaseContext())
             {
-                var item = dataRowMapper.MapObject<BasicMapping>(await databaseGateway.GetRow(rowQuery));
-                var items = dataRowMapper.MapObjects<BasicMapping>(await databaseGateway.GetRows(rowsQuery));
+                var item = dataRowMapper.MapObject<BasicMapping>(await databaseGateway.GetRowAsync(rowQuery));
+                var items = dataRowMapper.MapObjects<BasicMapping>(await databaseGateway.GetRowsAsync(rowsQuery));
 
                 Assert.IsNotNull(item);
                 Assert.AreEqual(2, items.Count());
 
-                var mappedRow = dataRowMapper.MapRow<BasicMapping>(await databaseGateway.GetRow(rowQuery));
-                var mappedRows = dataRowMapper.MapRows<BasicMapping>(await databaseGateway.GetRows(rowsQuery));
+                var mappedRow = dataRowMapper.MapRow<BasicMapping>(await databaseGateway.GetRowAsync(rowQuery));
+                var mappedRows = dataRowMapper.MapRows<BasicMapping>(await databaseGateway.GetRowsAsync(rowsQuery));
 
                 Assert.IsNotNull(mappedRow);
                 Assert.AreEqual(2, mappedRows.Count());
@@ -110,8 +110,8 @@ from
 
             using (GetDatabaseContext())
             {
-                var value = dataRowMapper.MapValue<Guid>(await databaseGateway.GetRow(rowQuery));
-                var values = dataRowMapper.MapValues<Guid>(await databaseGateway.GetRows(rowsQuery));
+                var value = dataRowMapper.MapValue<Guid>(await databaseGateway.GetRowAsync(rowQuery));
+                var values = dataRowMapper.MapValues<Guid>(await databaseGateway.GetRowsAsync(rowsQuery));
 
                 Assert.IsNotNull(value);
                 Assert.AreEqual(2, values.Count());
@@ -149,15 +149,15 @@ from
 
             using (GetDatabaseContext())
             {
-                var item = dataRowMapper.MapItem(await databaseGateway.GetRow(rowQuery));
+                var item = dataRowMapper.MapItem(await databaseGateway.GetRowAsync(rowQuery));
 
                 Assert.IsNotNull(item);
 
-                var items = dataRowMapper.MapItems(await databaseGateway.GetRows(rowsQuery));
+                var items = dataRowMapper.MapItems(await databaseGateway.GetRowsAsync(rowsQuery));
                 
                 Assert.AreEqual(2, items.Count());
 
-                item = dataRowMapper.MapItem(await databaseGateway.GetRow(RawQuery.Create(rowSql, new { Id = id })));
+                item = dataRowMapper.MapItem(await databaseGateway.GetRowAsync(RawQuery.Create(rowSql, new { Id = id })));
 
                 Assert.IsNotNull(item);
                 Assert.That(item.Id, Is.EqualTo(id));

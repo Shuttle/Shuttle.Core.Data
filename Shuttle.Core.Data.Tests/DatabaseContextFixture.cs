@@ -45,40 +45,77 @@ namespace Shuttle.Core.Data.Tests
 			}
 		}
 
+		[Test]
+		public void Should_be_able_to_begin_and_commit_a_transaction()
+		{
+			using (
+				var connection =
+				new DatabaseContext("System.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
+					new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
+			{
+				connection.BeginTransaction();
+				connection.CommitTransaction();
+			}
+		}
+
         [Test]
-		public async Task Should_be_able_to_begin_and_commit_a_transaction()
+		public async Task Should_be_able_to_begin_and_commit_a_transaction_async()
 		{
 			using (
 				var connection =
 					new DatabaseContext("Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
 						new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
 			{
-				await connection.BeginTransaction();
-				await connection.CommitTransaction();
+				await connection.BeginTransactionAsync();
+				await connection.CommitTransactionAsync();
 			}
 		}
 
 		[Test]
-		public async Task Should_be_able_to_begin_and_rollback_a_transaction()
+		public void Should_be_able_to_begin_and_rollback_a_transaction()
 		{
 			using (
 				var connection =
-					new DatabaseContext("Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
-						new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
+				new DatabaseContext("System.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
+					new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
 			{
-				await connection.BeginTransaction();
+				connection.BeginTransaction();
 			}
 		}
 
 		[Test]
-		public async Task Should_be_able_to_call_commit_without_a_transaction()
+		public async Task Should_be_able_to_begin_and_rollback_a_transaction_async()
 		{
 			using (
 				var connection =
 					new DatabaseContext("Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
 						new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
 			{
-				await connection.CommitTransaction();
+				await connection.BeginTransactionAsync();
+			}
+		}
+
+		[Test]
+		public void Should_be_able_to_call_commit_without_a_transaction()
+		{
+			using (
+				var connection =
+				new DatabaseContext("System.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
+					new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
+			{
+				connection.CommitTransaction();
+			}
+		}
+
+		[Test]
+		public async Task Should_be_able_to_call_commit_without_a_transaction_async()
+		{
+			using (
+				var connection =
+					new DatabaseContext("Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
+						new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
+			{
+				await connection.CommitTransactionAsync();
 			}
 		}
 
@@ -96,7 +133,26 @@ namespace Shuttle.Core.Data.Tests
 		}
 
 		[Test]
-		public async Task Should_be_able_to_create_a_command()
+		public void Should_be_able_to_create_a_command()
+		{
+			var dbCommandFactory = new Mock<IDbCommandFactory>();
+			var dbConnection = GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString);
+			var query = new Mock<IQuery>();
+			var dbCommand = new Mock<IDbCommand>();
+
+			dbCommandFactory.Setup(m => m.Create(dbConnection, query.Object)).Returns(dbCommand.Object);
+
+			using (
+				var connection = new DatabaseContext("System.Data.SqlClient", dbConnection, dbCommandFactory.Object, new DatabaseContextService()))
+			{
+				connection.CreateCommand(query.Object);
+			}
+
+			dbCommandFactory.VerifyAll();
+		}
+		
+		[Test]
+		public async Task Should_be_able_to_create_a_command_async()
 		{
 			var dbCommandFactory = new Mock<IDbCommandFactory>();
 			var dbConnection = GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString);
@@ -108,7 +164,7 @@ namespace Shuttle.Core.Data.Tests
 			using (
 				var connection = new DatabaseContext("Microsoft.Data.SqlClient", dbConnection, dbCommandFactory.Object, new DatabaseContextService()))
 			{
-				await connection.CreateCommand(query.Object);
+				await connection.CreateCommandAsync(query.Object);
 			}
 
 			dbCommandFactory.VerifyAll();

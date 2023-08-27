@@ -34,14 +34,14 @@ from
 
             using (GetDatabaseContext())
             {
-                var item = await mapper.MapObject<BasicMapping>(queryRow);
-                var items = await mapper.MapObjects<BasicMapping>(queryRows);
+                var item = await mapper.MapObjectAsync<BasicMapping>(queryRow);
+                var items = await mapper.MapObjectsAsync<BasicMapping>(queryRows);
 
                 Assert.IsNotNull(item);
                 Assert.AreEqual(2, items.Count());
 
-                var mappedRow = await mapper.MapRow<BasicMapping>(queryRow);
-                var mappedRows = await mapper.MapRows<BasicMapping>(queryRows);
+                var mappedRow = await mapper.MapRowAsync<BasicMapping>(queryRow);
+                var mappedRows = await mapper.MapRowsAsync<BasicMapping>(queryRows);
 
                 Assert.IsNotNull(mappedRow);
                 Assert.AreEqual(2, mappedRows.Count());
@@ -73,14 +73,14 @@ from
 
             using (GetDatabaseContext())
             {
-                var item = await mapper.MapObject<BasicMapping>(queryRow);
-                var items = await mapper.MapObjects<BasicMapping>(queryRows);
+                var item = await mapper.MapObjectAsync<BasicMapping>(queryRow);
+                var items = await mapper.MapObjectsAsync<BasicMapping>(queryRows);
 
                 Assert.IsNotNull(item);
                 Assert.AreEqual(2, items.Count());
 
-                var mappedRow = mapper.MapRow<BasicMapping>(queryRow).Result;
-                var mappedRows = await mapper.MapRows<BasicMapping>(queryRows);
+                var mappedRow = mapper.MapRowAsync<BasicMapping>(queryRow).Result;
+                var mappedRows = await mapper.MapRowsAsync<BasicMapping>(queryRows);
 
                 Assert.IsNotNull(mappedRow);
                 Assert.AreEqual(2, mappedRows.Count());
@@ -108,8 +108,8 @@ from
 
             using (GetDatabaseContext())
             {
-                var value = mapper.MapValue<Guid>(queryRow).Result;
-                var values = mapper.MapValues<Guid>(queryRows).Result;
+                var value = mapper.MapValueAsync<Guid>(queryRow).Result;
+                var values = mapper.MapValuesAsync<Guid>(queryRows).Result;
 
                 Assert.IsNotNull(value);
                 Assert.AreEqual(2, values.Count());
@@ -142,8 +142,8 @@ from
 
             using (GetDatabaseContext())
             {
-                var item = queryMapper.MapItem(queryRow).Result;
-                var items = queryMapper.MapItems(queryRows).Result;
+                var item = queryMapper.MapItemAsync(queryRow).Result;
+                var items = queryMapper.MapItemsAsync(queryRows).Result;
 
                 Assert.IsNotNull(item);
                 Assert.AreEqual(2, items.Count());

@@ -20,12 +20,12 @@ namespace Shuttle.Core.Data.Tests
 			var dataRow = new DataTable().NewRow();
 			var anObject = new object();
 
-			gateway.Setup(m => m.GetRows(query.Object, CancellationToken.None)).ReturnsAsync(new List<DataRow> {dataRow});
+			gateway.Setup(m => m.GetRowsAsync(query.Object, CancellationToken.None)).ReturnsAsync(new List<DataRow> {dataRow});
 			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(new MappedRow<object>(dataRow, anObject));
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-            var result = (await repository.FetchItems(query.Object)).ToList();
+            var result = (await repository.FetchItemsAsync(query.Object)).ToList();
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);
@@ -41,12 +41,12 @@ namespace Shuttle.Core.Data.Tests
 			var dataRow = new DataTable().NewRow();
 			var anObject = new object();
 
-			gateway.Setup(m => m.GetRow(query.Object, CancellationToken.None)).ReturnsAsync(dataRow);
+			gateway.Setup(m => m.GetRowAsync(query.Object, CancellationToken.None)).ReturnsAsync(dataRow);
 			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(new MappedRow<object>(dataRow, anObject));
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = await repository.FetchItem(query.Object);
+			var result = await repository.FetchItemAsync(query.Object);
 
 			Assert.IsNotNull(result);
 			Assert.AreSame(anObject, result);
@@ -58,11 +58,11 @@ namespace Shuttle.Core.Data.Tests
 			var gateway = new Mock<IDatabaseGateway>();
 			var query = new Mock<IQuery>();
 
-			gateway.Setup(m => m.GetRow(query.Object, CancellationToken.None)).ReturnsAsync((DataRow) null);
+			gateway.Setup(m => m.GetRowAsync(query.Object, CancellationToken.None)).ReturnsAsync((DataRow) null);
 
 			var repository = new DataRepository<object>(gateway.Object, new Mock<IDataRowMapper<object>>().Object);
 
-			var result = await repository.FetchItem(query.Object);
+			var result = await repository.FetchItemAsync(query.Object);
 
 			Assert.IsNull(result);
 		}
@@ -73,11 +73,11 @@ namespace Shuttle.Core.Data.Tests
 			var gateway = new Mock<IDatabaseGateway>();
 			var query = new Mock<IQuery>();
 
-			gateway.Setup(m => m.GetScalar<int>(query.Object, CancellationToken.None)).ReturnsAsync(1);
+			gateway.Setup(m => m.GetScalarAsync<int>(query.Object, CancellationToken.None)).ReturnsAsync(1);
 
 			var repository = new DataRepository<object>(gateway.Object, new Mock<IDataRowMapper<object>>().Object);
 
-			Assert.That(await repository.Contains(query.Object), Is.True);
+			Assert.That(await repository.ContainsAsync(query.Object), Is.True);
 		}
 
 		[Test]
@@ -90,12 +90,12 @@ namespace Shuttle.Core.Data.Tests
 			var anObject = new object();
 			var mappedRow = new MappedRow<object>(dataRow, anObject);
 
-			gateway.Setup(m => m.GetRows(query.Object, CancellationToken.None)).ReturnsAsync(new List<DataRow> {dataRow});
+			gateway.Setup(m => m.GetRowsAsync(query.Object, CancellationToken.None)).ReturnsAsync(new List<DataRow> {dataRow});
 			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(mappedRow);
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = (await repository.FetchMappedRows(query.Object)).ToList();
+			var result = (await repository.FetchMappedRowsAsync(query.Object)).ToList();
 
 			Assert.IsNotNull(result);
 			Assert.AreEqual(1, result.Count);
@@ -113,12 +113,12 @@ namespace Shuttle.Core.Data.Tests
 			var anObject = new object();
 			var mappedRow = new MappedRow<object>(dataRow, anObject);
 
-			gateway.Setup(m => m.GetRow(query.Object, CancellationToken.None)).ReturnsAsync(dataRow);
+			gateway.Setup(m => m.GetRowAsync(query.Object, CancellationToken.None)).ReturnsAsync(dataRow);
 			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(mappedRow);
 
 			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var result = await repository.FetchMappedRow(query.Object);
+			var result = await repository.FetchMappedRowAsync(query.Object);
 
 			Assert.IsNotNull(result);
 			Assert.AreSame(dataRow, result.Row);

@@ -14,8 +14,7 @@ namespace Shuttle.Core.Data
         private bool _disposed;
         private readonly IDatabaseContext _activeContext;
 
-        public DatabaseContext(string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory,
-            IDatabaseContextService databaseContextService)
+        public DatabaseContext(string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory, IDatabaseContextService databaseContextService)
         {
             _dbCommandFactory = Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
             _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
@@ -60,14 +59,31 @@ namespace Shuttle.Core.Data
             return this;
         }
 
-        public async Task<IDbCommand> CreateCommand(IQuery query)
+        public IDbCommand CreateCommand(IQuery query)
         {
-            var command = _dbCommandFactory.Create(await GetOpenConnection().ConfigureAwait(false), Guard.AgainstNull(query, nameof(query)));
+            var command = _dbCommandFactory.Create(GetOpenConnection(), Guard.AgainstNull(query, nameof(query)));
             command.Transaction = Transaction;
             return command;
         }
 
-        private async Task<DbConnection> GetOpenConnection()
+        public async Task<IDbCommand> CreateCommandAsync(IQuery query)
+        {
+            var command = _dbCommandFactory.Create(await GetOpenConnectionAsync().ConfigureAwait(false), Guard.AgainstNull(query, nameof(query)));
+            command.Transaction = Transaction;
+            return command;
+        }
+
+        private DbConnection GetOpenConnection()
+        {
+            if (Connection.State == ConnectionState.Closed)
+            {
+                ((DbConnection)Connection).Open();
+            }
+
+            return (DbConnection)Connection;
+        }
+
+        private async Task<DbConnection> GetOpenConnectionAsync()
         {
             if (Connection.State == ConnectionState.Closed)
             {
@@ -79,17 +95,38 @@ namespace Shuttle.Core.Data
 
         public bool HasTransaction => Transaction != null;
 
-        public async Task<IDatabaseContext> BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Unspecified)
+        public IDatabaseContext BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Unspecified)
         {
             if (!HasTransaction && System.Transactions.Transaction.Current == null)
             {
-                Transaction = await (await GetOpenConnection().ConfigureAwait(false)).BeginTransactionAsync(isolationLevel);
+                Transaction = GetOpenConnection().BeginTransaction(isolationLevel);
             }
 
             return this;
         }
 
-        public async Task CommitTransaction()
+        public async Task<IDatabaseContext> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified)
+        {
+            if (!HasTransaction && System.Transactions.Transaction.Current == null)
+            {
+                Transaction = await (await GetOpenConnectionAsync().ConfigureAwait(false)).BeginTransactionAsync(isolationLevel);
+            }
+
+            return this;
+        }
+
+        public void CommitTransaction()
+        {
+            if (!HasTransaction)
+            {
+                return;
+            }
+
+            Transaction.Commit();
+            Transaction = null;
+        }
+
+        public async Task CommitTransactionAsync()
         {
             if (!HasTransaction)
             {
