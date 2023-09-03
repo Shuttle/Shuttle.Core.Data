@@ -85,9 +85,7 @@ namespace Shuttle.Core.Data
             return table.Rows[0];
         }
 
-        public event EventHandler<DbCommandCreatedEventArgs> DbCommandCreated = delegate
-        {
-        };
+        public event EventHandler<DbCommandCreatedEventArgs> DbCommandCreated;
 
         public IDataReader GetReader(IQuery query)
         {
@@ -95,7 +93,7 @@ namespace Shuttle.Core.Data
 
             using (var command = _databaseContextService.Current.CreateCommand(query))
             {
-                DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
+                DbCommandCreated?.Invoke(this, new DbCommandCreatedEventArgs(command));
 
                 return command.ExecuteReader();
             }
@@ -109,7 +107,7 @@ namespace Shuttle.Core.Data
             
             await using var _ = command.ConfigureAwait(false);
             {
-                DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
+                DbCommandCreated?.Invoke(this, new DbCommandCreatedEventArgs(command));
 
                 return await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
             }
@@ -121,7 +119,7 @@ namespace Shuttle.Core.Data
 
             using (var command = _databaseContextService.Current.CreateCommand(query))
             {
-                DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
+                DbCommandCreated?.Invoke(this, new DbCommandCreatedEventArgs(command));
 
                 return command.ExecuteNonQuery();
             }
@@ -133,7 +131,7 @@ namespace Shuttle.Core.Data
 
             await using (var command = (DbCommand)await (_databaseContextService.Current.CreateCommandAsync(query).ConfigureAwait(false)))
             {
-                DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
+                DbCommandCreated?.Invoke(this, new DbCommandCreatedEventArgs(command));
 
                 return await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
             }
@@ -145,7 +143,7 @@ namespace Shuttle.Core.Data
 
             using (var command = _databaseContextService.Current.CreateCommand(query))
             {
-                DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
+                DbCommandCreated?.Invoke(this, new DbCommandCreatedEventArgs(command));
 
                 var scalar = command.ExecuteScalar();
 
@@ -161,7 +159,7 @@ namespace Shuttle.Core.Data
 
             await using (command.ConfigureAwait(false))
             {
-                DbCommandCreated.Invoke(this, new DbCommandCreatedEventArgs(command));
+                DbCommandCreated?.Invoke(this, new DbCommandCreatedEventArgs(command));
 
                 var scalar = await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
 

@@ -7,9 +7,7 @@ namespace Shuttle.Core.Data
 {
 	public class DbConnectionFactory : IDbConnectionFactory
 	{
-		public event EventHandler<DbConnectionCreatedEventArgs> DbConnectionCreated = delegate
-		{
-		};
+		public event EventHandler<DbConnectionCreatedEventArgs> DbConnectionCreated;
 
 		public IDbConnection Create(string providerName, string connectionString)
 		{
@@ -26,7 +24,7 @@ namespace Shuttle.Core.Data
 
 			connection.ConnectionString = connectionString;
 
-			DbConnectionCreated.Invoke(this, new DbConnectionCreatedEventArgs(connection));
+			DbConnectionCreated?.Invoke(this, new DbConnectionCreatedEventArgs(connection));
 
 			return connection;
 		}
