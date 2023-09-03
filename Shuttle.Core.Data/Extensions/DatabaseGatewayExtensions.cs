@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Data;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Shuttle.Core.Contract;
@@ -9,172 +8,172 @@ namespace Shuttle.Core.Data
 {
     public static class DatabaseGatewayExtensions
     {
-        public static async Task<int> Execute(this IDatabaseGateway databaseGateway, string sql)
+        public static int Execute(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.ExecuteAsync(RawQuery.Create(sql), CancellationToken.None);
+            return databaseGateway.Execute(RawQuery.Create(sql), cancellationToken);
         }
 
-        public static async Task<int> Execute(this IDatabaseGateway databaseGateway, string sql, dynamic parameters)
+        public static async Task<int> ExecuteAsync(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.ExecuteAsync(RawQuery.Create(sql, parameters), CancellationToken.None);
+            return await databaseGateway.ExecuteAsync(RawQuery.Create(sql), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<int> Execute(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken)
+        public static int Execute(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.ExecuteAsync(RawQuery.Create(sql), cancellationToken);
+            return databaseGateway.Execute(RawQuery.Create(sql, parameters), cancellationToken);
         }
 
-        public static async Task<int> Execute(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken)
+        public static async Task<int> ExecuteAsync(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.ExecuteAsync(RawQuery.Create(sql, parameters), cancellationToken);
+            return await databaseGateway.ExecuteAsync(RawQuery.Create(sql, parameters), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<DataTable> GetDataTable(this IDatabaseGateway databaseGateway, string sql)
+        public static DataTable GetDataTable(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetDataTableAsync(RawQuery.Create(sql), CancellationToken.None);
+            return databaseGateway.GetDataTable(RawQuery.Create(sql), cancellationToken);
         }
 
-        public static async Task<DataTable> GetDataTable(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken)
+        public static async Task<DataTable> GetDataTableAsync(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetDataTableAsync(RawQuery.Create(sql), cancellationToken);
+            return await databaseGateway.GetDataTableAsync(RawQuery.Create(sql), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<DataTable> GetDataTable(this IDatabaseGateway databaseGateway, string sql, dynamic parameters)
+        public static DataTable GetDataTable(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetDataTableAsync(RawQuery.Create(sql, parameters), CancellationToken.None);
+            return databaseGateway.GetDataTable(RawQuery.Create(sql, parameters), cancellationToken);
         }
 
-        public static async Task<DataTable> GetDataTable(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken)
+        public static async Task<DataTable> GetDataTableAsync(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetDataTableAsync(RawQuery.Create(sql, parameters), cancellationToken);
-        }
-        
-        public static async Task<IDataReader> GetReader(this IDatabaseGateway databaseGateway, string sql)
-        {
-            Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
-
-            return await databaseGateway.GetReaderAsync(RawQuery.Create(sql), CancellationToken.None);
+            return await databaseGateway.GetDataTableAsync(RawQuery.Create(sql, parameters), cancellationToken).ConfigureAwait(false);
         }
         
-        public static async Task<IDataReader> GetReader(this IDatabaseGateway databaseGateway, string sql, dynamic parameters)
+        public static IDataReader GetReader(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetReaderAsync(RawQuery.Create(sql, parameters), CancellationToken.None);
+            return databaseGateway.GetReader(RawQuery.Create(sql), cancellationToken);
         }
         
-        public static async Task<IDataReader> GetReader(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken)
+        public static async Task<IDataReader> GetReaderAsync(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetReaderAsync(RawQuery.Create(sql), cancellationToken);
+            return await databaseGateway.GetReaderAsync(RawQuery.Create(sql), cancellationToken).ConfigureAwait(false);
         }
         
-        public static async Task<IDataReader> GetReader(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken)
+        public static async Task<IDataReader> GetReader(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
             return await databaseGateway.GetReaderAsync(RawQuery.Create(sql, parameters), cancellationToken);
         }
-
-        public static async Task<DataRow> GetRow(this IDatabaseGateway databaseGateway, string sql)
+        
+        public static async Task<IDataReader> GetReaderAsync(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetRowAsync(RawQuery.Create(sql), CancellationToken.None);
+            return await databaseGateway.GetReaderAsync(RawQuery.Create(sql, parameters), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<DataRow> GetRow(this IDatabaseGateway databaseGateway, string sql, dynamic parameters)
+        public static DataRow GetRow(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetRowAsync(RawQuery.Create(sql, parameters), CancellationToken.None);
+            return databaseGateway.GetRow(RawQuery.Create(sql), cancellationToken);
         }
 
-        public static async Task<DataRow> GetRow(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken)
+        public static async Task<DataRow> GetRowAsync(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetRowAsync(RawQuery.Create(sql), cancellationToken);
+            return await databaseGateway.GetRowAsync(RawQuery.Create(sql), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<DataRow> GetRow(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken)
+        public static DataRow GetRow(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetRowAsync(RawQuery.Create(sql, parameters), cancellationToken);
+            return databaseGateway.GetRow(RawQuery.Create(sql, parameters), cancellationToken);
         }
 
-        public static async Task<IEnumerable<DataRow>> GetRows(this IDatabaseGateway databaseGateway, string sql)
+        public static async Task<DataRow> GetRowAsync(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetRowsAsync(RawQuery.Create(sql), CancellationToken.None);
+            return await databaseGateway.GetRowAsync(RawQuery.Create(sql, parameters), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<IEnumerable<DataRow>> GetRows(this IDatabaseGateway databaseGateway, string sql, dynamic parameters)
+        public static IEnumerable<DataRow> GetRows(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetRowsAsync(RawQuery.Create(sql, parameters), CancellationToken.None);
+            return databaseGateway.GetRows(RawQuery.Create(sql), cancellationToken);
         }
 
-        public static async Task<IEnumerable<DataRow>> GetRows(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken)
+        public static async Task<IEnumerable<DataRow>> GetRowsAsync(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetRowsAsync(RawQuery.Create(sql), cancellationToken);
+            return await databaseGateway.GetRowsAsync(RawQuery.Create(sql), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<IEnumerable<DataRow>> GetRows(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken)
+        public static IEnumerable<DataRow> GetRows(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetRowsAsync(RawQuery.Create(sql, parameters), cancellationToken);
+            return databaseGateway.GetRowsAsync(RawQuery.Create(sql, parameters), cancellationToken);
         }
 
-        public static async Task<T> GetScalar<T>(this IDatabaseGateway databaseGateway, string sql)
+        public static async Task<IEnumerable<DataRow>> GetRowsAsync(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetScalarAsync<T>(RawQuery.Create(sql), CancellationToken.None);
+            return await databaseGateway.GetRowsAsync(RawQuery.Create(sql, parameters), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<T> GetScalar<T>(this IDatabaseGateway databaseGateway, string sql, dynamic parameters)
+        public static T GetScalar<T>(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetScalarAsync<T>(RawQuery.Create(sql, parameters), CancellationToken.None);
+            return databaseGateway.GetScalar<T>(RawQuery.Create(sql), cancellationToken);
         }
 
-        public static async Task<T> GetScalar<T>(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken)
+        public static async Task<T> GetScalarAsync<T>(this IDatabaseGateway databaseGateway, string sql, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetScalarAsync<T>(RawQuery.Create(sql), cancellationToken);
+            return await databaseGateway.GetScalarAsync<T>(RawQuery.Create(sql), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<T> GetScalar<T>(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken)
+        public static T GetScalar<T>(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
 
-            return await databaseGateway.GetScalarAsync<T>(RawQuery.Create(sql, parameters), cancellationToken);
+            return databaseGateway.GetScalar<T>(RawQuery.Create(sql, parameters), cancellationToken);
+        }
+
+        public static async Task<T> GetScalarAsync<T>(this IDatabaseGateway databaseGateway, string sql, dynamic parameters, CancellationToken cancellationToken = default)
+        {
+            Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
+
+            return await databaseGateway.GetScalarAsync<T>(RawQuery.Create(sql, parameters), cancellationToken).ConfigureAwait(false);
         }
     }
 }

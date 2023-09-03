@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Shuttle.Core.Data.Tests.Fakes
 {
@@ -24,6 +25,11 @@ namespace Shuttle.Core.Data.Tests.Fakes
 			}
 
 			return result;
+		}
+
+		public Task<IEnumerable<Order>> AssembleAsync(MappedData data)
+		{
+			return Task.FromResult(Assemble(data));
 		}
 	}
 }

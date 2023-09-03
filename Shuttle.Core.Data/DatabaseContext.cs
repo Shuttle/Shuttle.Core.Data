@@ -61,33 +61,33 @@ namespace Shuttle.Core.Data
 
         public IDbCommand CreateCommand(IQuery query)
         {
-            var command = _dbCommandFactory.Create(GetOpenConnection(), Guard.AgainstNull(query, nameof(query)));
-            command.Transaction = Transaction;
-            return command;
+            return CreateCommandAsync(query, true).GetAwaiter().GetResult();
         }
 
         public async Task<IDbCommand> CreateCommandAsync(IQuery query)
         {
-            var command = _dbCommandFactory.Create(await GetOpenConnectionAsync().ConfigureAwait(false), Guard.AgainstNull(query, nameof(query)));
+            return await CreateCommandAsync(query, false).ConfigureAwait(false);
+        }
+
+        private async Task<IDbCommand> CreateCommandAsync(IQuery query, bool sync)
+        {
+            var command = _dbCommandFactory.Create(sync ? GetOpenConnectionAsync(true).GetAwaiter().GetResult() : await GetOpenConnectionAsync(false).ConfigureAwait(false), Guard.AgainstNull(query, nameof(query)));
             command.Transaction = Transaction;
             return command;
         }
 
-        private DbConnection GetOpenConnection()
+        private async Task<DbConnection> GetOpenConnectionAsync(bool sync)
         {
             if (Connection.State == ConnectionState.Closed)
             {
-                ((DbConnection)Connection).Open();
-            }
-
-            return (DbConnection)Connection;
-        }
-
-        private async Task<DbConnection> GetOpenConnectionAsync()
-        {
-            if (Connection.State == ConnectionState.Closed)
-            {
-                await ((DbConnection)Connection).OpenAsync().ConfigureAwait(false);
+                if (sync)
+                {
+                    ((DbConnection)Connection).Open();
+                }
+                else
+                {
+                    await ((DbConnection)Connection).OpenAsync().ConfigureAwait(false);
+                }
             }
 
             return (DbConnection)Connection;
@@ -97,19 +97,28 @@ namespace Shuttle.Core.Data
 
         public IDatabaseContext BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Unspecified)
         {
-            if (!HasTransaction && System.Transactions.Transaction.Current == null)
-            {
-                Transaction = GetOpenConnection().BeginTransaction(isolationLevel);
-            }
-
-            return this;
+            return BeginTransactionAsync(isolationLevel, true).GetAwaiter().GetResult();
         }
 
         public async Task<IDatabaseContext> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified)
         {
-            if (!HasTransaction && System.Transactions.Transaction.Current == null)
+            return await BeginTransactionAsync(isolationLevel, false).ConfigureAwait(false);
+        }
+
+        private async Task<IDatabaseContext> BeginTransactionAsync(IsolationLevel isolationLevel, bool sync)
+        {
+            if (HasTransaction || System.Transactions.Transaction.Current != null)
             {
-                Transaction = await (await GetOpenConnectionAsync().ConfigureAwait(false)).BeginTransactionAsync(isolationLevel);
+                return this;
+            }
+
+            if (sync)
+            {
+                Transaction = GetOpenConnectionAsync(true).GetAwaiter().GetResult().BeginTransaction(isolationLevel);
+            }
+            else
+            {
+                Transaction = await (await GetOpenConnectionAsync(false).ConfigureAwait(false)).BeginTransactionAsync(isolationLevel);
             }
 
             return this;
@@ -117,23 +126,29 @@ namespace Shuttle.Core.Data
 
         public void CommitTransaction()
         {
-            if (!HasTransaction)
-            {
-                return;
-            }
-
-            Transaction.Commit();
-            Transaction = null;
+            CommitTransactionAsync(true).GetAwaiter().GetResult();
         }
 
         public async Task CommitTransactionAsync()
+        {
+            await CommitTransactionAsync(false).ConfigureAwait(false);
+        }
+
+        private async Task CommitTransactionAsync(bool sync)
         {
             if (!HasTransaction)
             {
                 return;
             }
 
-            await ((DbTransaction)Transaction).CommitAsync();
+            if (sync)
+            {
+                Transaction.Commit();
+            }
+            else
+            {
+                await ((DbTransaction)Transaction).CommitAsync();
+            }
 
             Transaction = null;
         }

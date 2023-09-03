@@ -7,144 +7,144 @@ namespace Shuttle.Core.Data
 {
     public static class DataRepositoryExtensions
     {
-        public static async Task<bool> Contains<T>(this IDataRepository<T> dataRepository, string sql) where T : class
+        public static bool Contains<T>(this IDataRepository<T> dataRepository, string sql, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.ContainsAsync(RawQuery.Create(sql), CancellationToken.None);
+            return dataRepository.Contains(RawQuery.Create(sql), cancellationToken);
         }
 
-        public static async Task<bool> Contains<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters) where T : class
+        public static async Task<bool> ContainsAsync<T>(this IDataRepository<T> dataRepository, string sql, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.ContainsAsync(RawQuery.Create(sql, parameters), CancellationToken.None);
+            return await dataRepository.ContainsAsync(RawQuery.Create(sql), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<bool> Contains<T>(this IDataRepository<T> dataRepository, string sql, CancellationToken cancellationToken) where T : class
+        public static bool Contains<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.ContainsAsync(RawQuery.Create(sql), cancellationToken);
+            return dataRepository.Contains(RawQuery.Create(sql, parameters), cancellationToken);
         }
 
-        public static async Task<bool> Contains<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters, CancellationToken cancellationToken) where T : class
+        public static async Task<bool> ContainsAsync<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
             return await dataRepository.ContainsAsync(RawQuery.Create(sql, parameters), cancellationToken);
         }
 
-        public static async Task<T> FetchItem<T>(this IDataRepository<T> dataRepository, string sql) where T : class
+        public static T FetchItem<T>(this IDataRepository<T> dataRepository, string sql, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchItemAsync(RawQuery.Create(sql), CancellationToken.None);
+            return dataRepository.FetchItem(RawQuery.Create(sql), cancellationToken);
         }
 
-        public static async Task<T> FetchItem<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters) where T : class
+        public static async Task<T> FetchItemAsync<T>(this IDataRepository<T> dataRepository, string sql, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchItemAsync(RawQuery.Create(sql, parameters), CancellationToken.None);
+            return await dataRepository.FetchItemAsync(RawQuery.Create(sql), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<T> FetchItem<T>(this IDataRepository<T> dataRepository, string sql, CancellationToken cancellationToken) where T : class
+        public static T FetchItem<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchItemAsync(RawQuery.Create(sql), cancellationToken);
+            return dataRepository.Contains(RawQuery.Create(sql, parameters), cancellationToken);
         }
 
-        public static async Task<T> FetchItem<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters, CancellationToken cancellationToken) where T : class
+        public static async Task<T> FetchItemAsync<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchItemAsync(RawQuery.Create(sql, parameters), cancellationToken);
+            return await dataRepository.FetchItemAsync(RawQuery.Create(sql, parameters), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<IEnumerable<T>> FetchItems<T>(this IDataRepository<T> dataRepository, string sql) where T : class
+        public static IEnumerable<T> FetchItems<T>(this IDataRepository<T> dataRepository, string sql, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchItemsAsync(RawQuery.Create(sql), CancellationToken.None);
+            return dataRepository.FetchItems(RawQuery.Create(sql), cancellationToken);
         }
 
-        public static async Task<IEnumerable<T>> FetchItems<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters) where T : class
+        public static async Task<IEnumerable<T>> FetchItemsAsync<T>(this IDataRepository<T> dataRepository, string sql, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchItemsAsync(RawQuery.Create(sql, parameters), CancellationToken.None);
+            return await dataRepository.FetchItemsAsync(RawQuery.Create(sql), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<IEnumerable<T>> FetchItems<T>(this IDataRepository<T> dataRepository, string sql, CancellationToken cancellationToken) where T : class
+        public static IEnumerable<T> FetchItems<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchItemsAsync(RawQuery.Create(sql), cancellationToken);
+            return dataRepository.FetchItems(RawQuery.Create(sql, parameters), cancellationToken);
         }
 
-        public static async Task<IEnumerable<T>> FetchItems<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters, CancellationToken cancellationToken) where T : class
+        public static async Task<IEnumerable<T>> FetchItemsAsync<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchItemsAsync(RawQuery.Create(sql, parameters), cancellationToken);
+            return await dataRepository.FetchItemsAsync(RawQuery.Create(sql, parameters), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<MappedRow<T>> FetchMappedRow<T>(this IDataRepository<T> dataRepository, string sql) where T : class
+        public static MappedRow<T> FetchMappedRow<T>(this IDataRepository<T> dataRepository, string sql, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchMappedRowAsync(RawQuery.Create(sql), CancellationToken.None);
+            return dataRepository.FetchMappedRow(RawQuery.Create(sql), cancellationToken);
         }
 
-        public static async Task<MappedRow<T>> FetchMappedRow<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters) where T : class
+        public static async Task<MappedRow<T>> FetchMappedRowAsync<T>(this IDataRepository<T> dataRepository, string sql, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchMappedRowAsync(RawQuery.Create(sql, parameters), CancellationToken.None);
+            return await dataRepository.FetchMappedRowAsync(RawQuery.Create(sql), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<MappedRow<T>> FetchMappedRow<T>(this IDataRepository<T> dataRepository, string sql, CancellationToken cancellationToken) where T : class
+        public static MappedRow<T> FetchMappedRow<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchMappedRowAsync(RawQuery.Create(sql), cancellationToken);
+            return dataRepository.FetchMappedRow(RawQuery.Create(sql, parameters), cancellationToken);
         }
 
-        public static async Task<MappedRow<T>> FetchMappedRow<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters, CancellationToken cancellationToken) where T : class
+        public static async Task<MappedRow<T>> FetchMappedRowAsync<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchMappedRowAsync(RawQuery.Create(sql, parameters), cancellationToken);
+            return await dataRepository.FetchMappedRowAsync(RawQuery.Create(sql, parameters), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<IEnumerable<MappedRow<T>>> FetchMappedRows<T>(this IDataRepository<T> dataRepository, string sql) where T : class
+        public static IEnumerable<MappedRow<T>> FetchMappedRows<T>(this IDataRepository<T> dataRepository, string sql, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchMappedRowsAsync(RawQuery.Create(sql), CancellationToken.None);
+            return dataRepository.FetchMappedRows(RawQuery.Create(sql), cancellationToken);
         }
 
-        public static async Task<IEnumerable<MappedRow<T>>> FetchMappedRows<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters) where T : class
+        public static async Task<IEnumerable<MappedRow<T>>> FetchMappedRowsAsync<T>(this IDataRepository<T> dataRepository, string sql, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchMappedRowsAsync(RawQuery.Create(sql, parameters), CancellationToken.None);
+            return await dataRepository.FetchMappedRowsAsync(RawQuery.Create(sql), cancellationToken).ConfigureAwait(false);
         }
 
-        public static async Task<IEnumerable<MappedRow<T>>> FetchMappedRows<T>(this IDataRepository<T> dataRepository, string sql, CancellationToken cancellationToken) where T : class
+        public static IEnumerable<MappedRow<T>> FetchMappedRows<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchMappedRowsAsync(RawQuery.Create(sql), cancellationToken);
+            return dataRepository.FetchMappedRows(RawQuery.Create(sql, parameters), cancellationToken);
         }
 
-        public static async Task<IEnumerable<MappedRow<T>>> FetchMappedRows<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters, CancellationToken cancellationToken) where T : class
+        public static async Task<IEnumerable<MappedRow<T>>> FetchMappedRowsAsync<T>(this IDataRepository<T> dataRepository, string sql, dynamic parameters, CancellationToken cancellationToken = default) where T : class
         {
             Guard.AgainstNull(dataRepository, nameof(dataRepository));
 
-            return await dataRepository.FetchMappedRowsAsync(RawQuery.Create(sql, parameters), cancellationToken);
+            return await dataRepository.FetchMappedRowsAsync(RawQuery.Create(sql, parameters), cancellationToken).ConfigureAwait(false);
         }
     }
 }

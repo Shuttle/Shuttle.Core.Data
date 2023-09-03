@@ -10,12 +10,12 @@ namespace Shuttle.Core.Data
     {
 	    event EventHandler<DbCommandCreatedEventArgs> DbCommandCreated;
 
-	    IDataReader GetReader(IQuery query);
-	    int Execute(IQuery query);
-	    T GetScalar<T>(IQuery query);
-	    DataTable GetDataTable(IQuery query);
-	    IEnumerable<DataRow> GetRows(IQuery query);
-	    DataRow GetRow(IQuery query);
+	    IDataReader GetReader(IQuery query, CancellationToken cancellationToken = default);
+	    int Execute(IQuery query, CancellationToken cancellationToken = default);
+	    T GetScalar<T>(IQuery query, CancellationToken cancellationToken = default);
+	    DataTable GetDataTable(IQuery query, CancellationToken cancellationToken = default);
+	    IEnumerable<DataRow> GetRows(IQuery query, CancellationToken cancellationToken = default);
+	    DataRow GetRow(IQuery query, CancellationToken cancellationToken = default);
 	    
 	    Task<IDataReader> GetReaderAsync(IQuery query, CancellationToken cancellationToken = default);
 		Task<int> ExecuteAsync(IQuery query, CancellationToken cancellationToken = default);

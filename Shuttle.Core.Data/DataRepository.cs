@@ -17,9 +17,9 @@ namespace Shuttle.Core.Data
             _dataRowMapper = Guard.AgainstNull(dataRowMapper, nameof(dataRowMapper));
         }
 
-        public IEnumerable<T> FetchItems(IQuery query)
+        public IEnumerable<T> FetchItems(IQuery query, CancellationToken cancellationToken = default)
         {
-            return _databaseGateway.GetRows(query).MappedRowsUsing(_dataRowMapper).Select(row => row.Result).ToList();
+            return _databaseGateway.GetRows(query, cancellationToken).MappedRowsUsing(_dataRowMapper).Select(row => row.Result).ToList();
         }
 
         public async Task<IEnumerable<T>> FetchItemsAsync(IQuery query, CancellationToken cancellationToken = default)
@@ -29,9 +29,9 @@ namespace Shuttle.Core.Data
             return (IEnumerable<T>)await Task.FromResult(rows.MappedRowsUsing(_dataRowMapper).Select(row => row.Result)).ConfigureAwait(false);
         }
 
-        public T FetchItem(IQuery query)
+        public T FetchItem(IQuery query, CancellationToken cancellationToken = default)
         {
-            var row = _databaseGateway.GetRow(query);
+            var row = _databaseGateway.GetRow(query, cancellationToken);
 
             return row == null ? default : _dataRowMapper.Map(row).Result;
         }
@@ -43,16 +43,16 @@ namespace Shuttle.Core.Data
             return await Task.FromResult(row == null ? default : _dataRowMapper.Map(row).Result);
         }
 
-        public MappedRow<T> FetchMappedRow(IQuery query)
+        public MappedRow<T> FetchMappedRow(IQuery query, CancellationToken cancellationToken = default)
         {
-            var row = _databaseGateway.GetRow(query);
+            var row = _databaseGateway.GetRow(query, cancellationToken);
 
             return row == null ? null : _dataRowMapper.Map(row);
         }
 
-        public IEnumerable<MappedRow<T>> FetchMappedRows(IQuery query)
+        public IEnumerable<MappedRow<T>> FetchMappedRows(IQuery query, CancellationToken cancellationToken = default)
         {
-            return _databaseGateway.GetRows(query).MappedRowsUsing(_dataRowMapper);
+            return _databaseGateway.GetRows(query, cancellationToken).MappedRowsUsing(_dataRowMapper);
         }
 
         public async Task<MappedRow<T>> FetchMappedRowAsync(IQuery query, CancellationToken cancellationToken = default)
@@ -69,9 +69,9 @@ namespace Shuttle.Core.Data
             return rows.MappedRowsUsing(_dataRowMapper);
         }
 
-        public bool Contains(IQuery query)
+        public bool Contains(IQuery query, CancellationToken cancellationToken = default)
         {
-            return _databaseGateway.GetScalar<int>(query) == 1;
+            return _databaseGateway.GetScalar<int>(query, cancellationToken) == 1;
         }
 
         public async Task<bool> ContainsAsync(IQuery query, CancellationToken cancellationToken = default)
