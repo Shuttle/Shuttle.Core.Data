@@ -39,8 +39,8 @@ namespace Shuttle.Core.Data.Tests
             const string sql = "select 1";
 
             var query1 = new RawQuery(sql);
-            var query2 = RawQuery.Create(sql);
-            var query3 = RawQuery.Create("select {0}", 1);
+            var query2 = new RawQuery(sql);
+            var query3 = new RawQuery("select {0}", 1);
         }
     }
 }
