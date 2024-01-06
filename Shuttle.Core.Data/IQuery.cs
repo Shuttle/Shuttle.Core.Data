@@ -5,6 +5,6 @@ namespace Shuttle.Core.Data
 	public interface IQuery
 	{
 		void Prepare(IDbCommand command);
-		IQuery AddParameterValue(IColumn column, object value);
+		IQuery AddParameter(IColumn column, object value);
     }
 }

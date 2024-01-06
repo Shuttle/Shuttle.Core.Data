@@ -15,7 +15,7 @@ namespace Shuttle.Core.Data
                 {
                     try
                     {
-                        query.AddParameterValue(new Column(pi.Name, pi.PropertyType, Column.GetDbType(pi.PropertyType)), pi.GetValue(parameters));
+                        query.AddParameter(new Column(pi.Name, pi.PropertyType, Column.GetDbType(pi.PropertyType)), pi.GetValue(parameters));
                     }
                     catch
                     {

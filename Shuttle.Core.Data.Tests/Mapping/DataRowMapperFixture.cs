@@ -14,7 +14,7 @@ namespace Shuttle.Core.Data.Tests
             var databaseGateway = GetDatabaseGateway();
             var dataRowMapper = GetDataRowMapper();
 
-            var rowQuery = new RawQuery(@"
+            var rowQuery = new Query(@"
 select top 1
     Id,
     Name,
@@ -23,7 +23,7 @@ from
     BasicMapping
 ");
 
-            var rowsQuery = new RawQuery(@"
+            var rowsQuery = new Query(@"
 select
     Id,
     Name,
@@ -54,7 +54,7 @@ from
             var databaseGateway = GetDatabaseGateway();
             var dataRowMapper = GetDataRowMapper();
 
-            var rowQuery = new RawQuery(@"
+            var rowQuery = new Query(@"
 select top 1
     Id,
     Name as NotMapped,
@@ -63,7 +63,7 @@ from
     BasicMapping
 ");
 
-            var rowsQuery = new RawQuery(@"
+            var rowsQuery = new Query(@"
 select
     Id,
     Name,
@@ -94,14 +94,14 @@ from
             var databaseGateway = GetDatabaseGateway();
             var dataRowMapper = GetDataRowMapper();
 
-            var rowQuery = new RawQuery(@"
+            var rowQuery = new Query(@"
 select top 1
     Id
 from
     BasicMapping
 ");
 
-            var rowsQuery = new RawQuery(@"
+            var rowsQuery = new Query(@"
 select
     Id
 from
@@ -137,8 +137,8 @@ where
     Id = @Id
 ";
             
-            var rowQuery = new RawQuery(rowSql).AddParameterValue(Columns.Id, id);
-            var rowsQuery = new RawQuery(@"
+            var rowQuery = new Query(rowSql).AddParameter(Columns.Id, id);
+            var rowsQuery = new Query(@"
 select
     Id,
     Name,
@@ -157,7 +157,7 @@ from
                 
                 Assert.AreEqual(2, items.Count());
 
-                item = dataRowMapper.MapItem(await databaseGateway.GetRowAsync(new RawQuery(rowSql), (object)(new { Id = id })));
+                item = dataRowMapper.MapItem(await databaseGateway.GetRowAsync(new Query(rowSql).AddParameters(new { Id = id })));
 
                 Assert.IsNotNull(item);
                 Assert.That(item.Id, Is.EqualTo(id));

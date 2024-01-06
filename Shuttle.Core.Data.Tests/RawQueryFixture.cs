@@ -16,7 +16,7 @@ namespace Shuttle.Core.Data.Tests
 
             var guid = Guid.NewGuid();
             var mc = new Column<Guid>("Id", DbType.Guid);
-            var query = new RawQuery(sql).AddParameterValue(mc, guid);
+            var query = new Query(sql).AddParameter(mc, guid);
             var dataParameterCollection = new Mock<IDataParameterCollection>();
 
             var command = new Mock<IDbCommand>();
@@ -36,11 +36,7 @@ namespace Shuttle.Core.Data.Tests
         [Test]
         public void Should_be_able_to_create_a_query()
         {
-            const string sql = "select 1";
-
-            var query1 = new RawQuery(sql);
-            var query2 = new RawQuery(sql);
-            var query3 = new RawQuery("select {0}", 1);
+            Assert.That(() => new Query("select 1"), Throws.Nothing);
         }
     }
 }

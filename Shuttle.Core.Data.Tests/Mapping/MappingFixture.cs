@@ -10,7 +10,7 @@ public class MappingFixture : Fixture
     {
         using (GetDatabaseContext())
         {
-            await GetDatabaseGateway().ExecuteAsync(new RawQuery(@"
+            await GetDatabaseGateway().ExecuteAsync(new Query(@"
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BasicMapping]') AND type in (N'U'))
 BEGIN
 CREATE TABLE [dbo].[BasicMapping](

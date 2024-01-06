@@ -1,18 +1,19 @@
-using System;
 using System.Collections.Generic;
 using System.Data;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
-    public class RawQuery : IQuery
+    public class Query : IQuery
     {
+        private readonly CommandType _commandType;
+        private readonly string _commandText;
         private readonly Dictionary<IColumn, object> _parameterValues;
-        private readonly string _sql;
 
-        public RawQuery(string sql)
+        public Query(string commandText, CommandType commandType = CommandType.Text)
         {
-            _sql = Guard.AgainstNullOrEmptyString(sql, nameof(sql));
+            _commandText = Guard.AgainstNullOrEmptyString(commandText, nameof(commandText));
+            _commandType = commandType;
             _parameterValues = new Dictionary<IColumn, object>();
         }
 
@@ -20,8 +21,8 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(command, nameof(command));
 
-            command.CommandText = _sql;
-            command.CommandType = CommandType.Text;
+            command.CommandText = _commandText;
+            command.CommandType = _commandType;
 
             foreach (var pair in _parameterValues)
             {
@@ -29,7 +30,7 @@ namespace Shuttle.Core.Data
             }
         }
 
-        public IQuery AddParameterValue(IColumn column, object value)
+        public IQuery AddParameter(IColumn column, object value)
         {
             Guard.AgainstNull(column, nameof(column));
 
