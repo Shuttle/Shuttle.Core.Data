@@ -2,7 +2,6 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
-using System.Transactions;
 using Shuttle.Core.Contract;
 using IsolationLevel = System.Data.IsolationLevel;
 
@@ -33,7 +32,6 @@ namespace Shuttle.Core.Data
             _databaseContextService.Add(this);
         }
 
-        public event EventHandler<OperationEventArgs> Operation;
         public event EventHandler<TransactionEventArgs> TransactionStarted;
         public event EventHandler<TransactionEventArgs> TransactionCommitted;
         public event EventHandler<TransactionEventArgs> TransactionRolledBack;

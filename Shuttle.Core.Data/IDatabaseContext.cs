@@ -1,15 +1,12 @@
 using System;
 using System.Data;
 using System.Threading.Tasks;
-using System.Transactions;
-using Shuttle.Core.Contract;
 using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Shuttle.Core.Data
 {
     public interface IDatabaseContext : IDisposable
     {
-	    event EventHandler<OperationEventArgs> Operation;
 	    event EventHandler<TransactionEventArgs> TransactionStarted;
 	    event EventHandler<TransactionEventArgs> TransactionCommitted;
 
