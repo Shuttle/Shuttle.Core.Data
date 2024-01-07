@@ -34,6 +34,7 @@ namespace Shuttle.Core.Data
 
         public event EventHandler<TransactionEventArgs> TransactionStarted;
         public event EventHandler<TransactionEventArgs> TransactionCommitted;
+        public event EventHandler<EventArgs> Disposed;
         public event EventHandler<TransactionEventArgs> TransactionRolledBack;
 
         public Guid Key { get; }
@@ -176,12 +177,12 @@ namespace Shuttle.Core.Data
 
         protected virtual void Dispose(bool disposing)
         {
-            if (_disposed || !_dispose)
+            if (_disposed)
             {
                 return;
             }
 
-            if (disposing)
+            if (_dispose && disposing)
             {
                 if (HasTransaction)
                 {
@@ -196,6 +197,8 @@ namespace Shuttle.Core.Data
             Connection = null;
             Transaction = null;
             _disposed = true;
+
+            Disposed?.Invoke(this, EventArgs.Empty);
         }
     }
 }

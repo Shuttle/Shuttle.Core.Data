@@ -11,6 +11,7 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseGateway : IDatabaseGateway
     {
+        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
         private readonly IDatabaseContextService _databaseContextService;
 
         public DatabaseGateway(IDatabaseContextService databaseContextService)
@@ -89,9 +90,18 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(query, nameof(query));
 
-            using (var command = (DbCommand)(sync ? _databaseContextService.Current.CreateCommand(query) : await _databaseContextService.Current.CreateCommandAsync(query).ConfigureAwait(false)))
+            await _lock.WaitAsync(CancellationToken.None).ConfigureAwait(false);
+
+            try
             {
-                return sync ? command.ExecuteReader() : await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+                using (var command = (DbCommand)(sync ? _databaseContextService.Current.CreateCommand(query) : await _databaseContextService.Current.CreateCommandAsync(query).ConfigureAwait(false)))
+                {
+                    return sync ? command.ExecuteReader() : await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
+                }
+            }
+            finally
+            {
+                _lock.Release();
             }
         }
 

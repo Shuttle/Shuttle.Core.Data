@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Threading.Tasks;
+using Shuttle.Core.Contract;
 using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Shuttle.Core.Data
@@ -9,6 +10,7 @@ namespace Shuttle.Core.Data
     {
 	    event EventHandler<TransactionEventArgs> TransactionStarted;
 	    event EventHandler<TransactionEventArgs> TransactionCommitted;
+	    event EventHandler<EventArgs> Disposed;
 
 	    Guid Key { get; }
 		string Name { get; }
