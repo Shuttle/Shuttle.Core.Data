@@ -3,7 +3,7 @@ using System.Data;
 
 namespace Shuttle.Core.Data
 {
-    public interface IDbConnectionFactory 
+    public interface IDbConnectionFactory
     {
         event EventHandler<DbConnectionCreatedEventArgs> DbConnectionCreated;
 

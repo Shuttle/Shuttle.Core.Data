@@ -12,11 +12,11 @@ public class DatabaseContextServiceFixture : Fixture
     {
         var service = new DatabaseContextService();
 
-        var context1 = new DatabaseContext("mock-1", new Mock<DbConnection>().Object, new Mock<IDbCommandFactory>().Object, service).WithName("mock-1");
+        var context1 = new DatabaseContext("mock-1", "provider-name", new Mock<DbConnection>().Object, new Mock<IDbCommandFactory>().Object, service);
 
         Assert.That(service.Current.Key, Is.EqualTo(context1.Key));
 
-        var context2 = new DatabaseContext("mock-2", new Mock<DbConnection>().Object, new Mock<IDbCommandFactory>().Object, service).WithName("mock-2");
+        var context2 = new DatabaseContext("mock-2", "provider-name", new Mock<DbConnection>().Object, new Mock<IDbCommandFactory>().Object, service);
 
         Assert.That(service.Current.Key, Is.EqualTo(context2.Key));
 

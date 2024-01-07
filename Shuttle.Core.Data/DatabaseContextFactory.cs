@@ -10,9 +10,7 @@ namespace Shuttle.Core.Data
         private readonly IOptionsMonitor<ConnectionStringOptions> _connectionStringOptions;
         private readonly DataAccessOptions _dataAccessOptions;
 
-        public DatabaseContextFactory(IOptionsMonitor<ConnectionStringOptions> connectionStringOptions, IOptions<DataAccessOptions> dataAccessOptions,
-            IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory,
-            IDatabaseContextService databaseContextService)
+        public DatabaseContextFactory(IOptionsMonitor<ConnectionStringOptions> connectionStringOptions, IOptions<DataAccessOptions> dataAccessOptions, IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory, IDatabaseContextService databaseContextService)
         {
             Guard.AgainstNull(dataAccessOptions, nameof(dataAccessOptions));
             
@@ -24,8 +22,13 @@ namespace Shuttle.Core.Data
             DatabaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
         }
 
+        public event EventHandler<DatabaseContextEventArgs> DatabaseContextCreated;
+        public event EventHandler<DatabaseContextEventArgs> DatabaseContextSuppressed;
+
         public IDatabaseContext Create(string name)
         {
+            Guard.AgainstNullOrEmptyString(name, nameof(name));
+
             var connectionStringOptions = _connectionStringOptions.Get(name);
 
             if (connectionStringOptions == null || string.IsNullOrEmpty(connectionStringOptions.Name))
@@ -33,26 +36,22 @@ namespace Shuttle.Core.Data
                 throw new InvalidOperationException(string.Format(Resources.ConnectionStringMissingException, name));
             }
 
-            var databaseContext = Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString);
+            if (DatabaseContextService.Contains(name))
+            {
+                var databaseContext = DatabaseContextService.Get(name).Suppressed();
 
-            return databaseContext.WithName(name);
-        }
+                DatabaseContextSuppressed?.Invoke(this, new DatabaseContextEventArgs(databaseContext));
 
-        public IDatabaseContext Create(string providerName, string connectionString)
-        {
-            return DatabaseContextService.ContainsConnectionString(connectionString)
-                ? DatabaseContextService.GetConnectionString(connectionString).Suppressed()
-                : new DatabaseContext(providerName, (DbConnection)DbConnectionFactory.Create(providerName, connectionString),
-                    DbCommandFactory, DatabaseContextService);
-        }
+                return databaseContext;
+            }
+            else
+            {
+                var databaseContext = new DatabaseContext(name, connectionStringOptions.ProviderName, (DbConnection)DbConnectionFactory.Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString), DbCommandFactory, DatabaseContextService);
 
-        public IDatabaseContext Create(string providerName, DbConnection dbConnection)
-        {
-            Guard.AgainstNull(dbConnection, nameof(dbConnection));
+                DatabaseContextCreated?.Invoke(this, new DatabaseContextEventArgs(databaseContext));
 
-            return DatabaseContextService.ContainsConnectionString(dbConnection.ConnectionString)
-                ? DatabaseContextService.GetConnectionString(dbConnection.ConnectionString).Suppressed()
-                : new DatabaseContext(providerName, dbConnection, DbCommandFactory, DatabaseContextService);
+                return databaseContext;
+            }
         }
 
         public IDbConnectionFactory DbConnectionFactory { get; }
@@ -61,17 +60,12 @@ namespace Shuttle.Core.Data
 
         public IDatabaseContext Create()
         {
-            if (!string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionStringName))
+            if (string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionStringName))
             {
-                return Create(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionStringName);
+                throw new InvalidOperationException(Resources.DatabaseContextFactoryOptionsException);
             }
 
-            if (!string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.DefaultProviderName) && !string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionString))
-            {
-                return Create(_dataAccessOptions.DatabaseContextFactory.DefaultProviderName, _dataAccessOptions.DatabaseContextFactory.DefaultConnectionString);
-            }
-
-            throw new InvalidOperationException(Resources.DatabaseContextFactoryOptionsException);
+            return Create(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionStringName);
         }
     }
 }

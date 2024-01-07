@@ -15,7 +15,7 @@ public class DatabaseContextFixture : Fixture
     {
         Assert.Throws<ArgumentException>(() =>
         {
-            using (new DatabaseContext("Microsoft	.Data.SqlClient", new SqlConnection("```"), new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
+            using (new DatabaseContext("context", "Microsoft.Data.SqlClient", new SqlConnection("```"), new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
             {
             }
         });
@@ -26,22 +26,12 @@ public class DatabaseContextFixture : Fixture
     {
         Assert.Throws<SqlException>(() =>
         {
-            using (var databaseContext = new DatabaseContext("Microsoft.Data.SqlClient", new SqlConnection("data source=.;initial catalog=idontexist;integrated security=sspi"),
+            using (var databaseContext = new DatabaseContext("context", "Microsoft.Data.SqlClient", new SqlConnection("data source=.;initial catalog=idontexist;integrated security=sspi"),
                        new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
             {
                 databaseContext.Connection.Open();
             }
         });
-    }
-
-    [Test]
-    public void Should_be_able_to_create_a_valid_connection()
-    {
-        using (
-            new DatabaseContext("Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
-                new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
-        {
-        }
     }
 
     [Test]
@@ -60,7 +50,7 @@ public class DatabaseContextFixture : Fixture
     {
         using (
             var connection =
-            new DatabaseContext("Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
+            new DatabaseContext("context", "Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
                 new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
         {
             if (sync)
@@ -92,7 +82,7 @@ public class DatabaseContextFixture : Fixture
     {
         using (
             var connection =
-            new DatabaseContext("Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
+            new DatabaseContext("context", "Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
                 new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
         {
             if (sync)
@@ -122,7 +112,7 @@ public class DatabaseContextFixture : Fixture
     {
         using (
             var connection =
-            new DatabaseContext("Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
+            new DatabaseContext("context", "Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
                 new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
         {
             if (sync)
@@ -141,7 +131,7 @@ public class DatabaseContextFixture : Fixture
     {
         using (
             var connection =
-            new DatabaseContext("Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
+            new DatabaseContext("context", "Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
                 new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
         {
             connection.Dispose();
@@ -170,7 +160,7 @@ public class DatabaseContextFixture : Fixture
 
         dbCommandFactory.Setup(m => m.Create(dbConnection, query.Object)).Returns(dbCommand.Object);
 
-        using (var connection = new DatabaseContext("Microsoft.Data.SqlClient", dbConnection, dbCommandFactory.Object, new DatabaseContextService()))
+        using (var connection = new DatabaseContext("context", "Microsoft.Data.SqlClient", dbConnection, dbCommandFactory.Object, new DatabaseContextService()))
         {
             if (sync)
             {

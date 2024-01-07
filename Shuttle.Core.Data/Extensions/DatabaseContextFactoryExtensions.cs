@@ -21,40 +21,13 @@ namespace Shuttle.Core.Data
             }, cancellationToken, retries, secondsBetweenRetries);
         }
 
-        public static bool IsAvailable(this IDatabaseContextFactory databaseContextFactory, string name,
-            CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
+        public static bool IsAvailable(this IDatabaseContextFactory databaseContextFactory, string name, CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
         {
             Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
 
             return IsAvailable(() =>
             {
                 using (databaseContextFactory.Create(name))
-                {
-                }
-            }, cancellationToken, retries, secondsBetweenRetries);
-        }
-
-        public static bool IsAvailable(this IDatabaseContextFactory databaseContextFactory, string providerName, IDbConnection dbConnection,
-            CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
-        {
-            Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
-
-            return IsAvailable(() =>
-            {
-                using (databaseContextFactory.Create(providerName, (DbConnection)dbConnection))
-                {
-                }
-            }, cancellationToken, retries, secondsBetweenRetries);
-        }
-
-        public static bool IsAvailable(this IDatabaseContextFactory databaseContextFactory, string providerName, string connectionString,
-            CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
-        {
-            Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
-
-            return IsAvailable(() =>
-            {
-                using (databaseContextFactory.Create(providerName, connectionString))
                 {
                 }
             }, cancellationToken, retries, secondsBetweenRetries);

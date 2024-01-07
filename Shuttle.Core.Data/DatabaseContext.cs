@@ -2,7 +2,9 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
+using System.Transactions;
 using Shuttle.Core.Contract;
+using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Shuttle.Core.Data
 {
@@ -14,8 +16,9 @@ namespace Shuttle.Core.Data
         private bool _disposed;
         private readonly IDatabaseContext _activeContext;
 
-        public DatabaseContext(string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory, IDatabaseContextService databaseContextService)
+        public DatabaseContext(string name, string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory, IDatabaseContextService databaseContextService)
         {
+            Name = Guard.AgainstNullOrEmptyString(name, nameof(name));
             _dbCommandFactory = Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
             _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             _dispose = true;
@@ -30,24 +33,24 @@ namespace Shuttle.Core.Data
             _databaseContextService.Add(this);
         }
 
+        public event EventHandler<OperationEventArgs> Operation;
+        public event EventHandler<TransactionEventArgs> TransactionStarted;
+        public event EventHandler<TransactionEventArgs> TransactionCommitted;
+        public event EventHandler<TransactionEventArgs> TransactionRolledBack;
+
         public Guid Key { get; }
-        public string Name { get; private set; } = string.Empty;
+        public string Name { get; }
+        public int Depth { get; private set; }
         public IDbTransaction Transaction { get; private set; }
         public string ProviderName { get; }
         public IDbConnection Connection { get; private set; }
 
-        public IDatabaseContext WithName(string name)
-        {
-            Name = name;
-
-            return this;
-        }
-
         public IDatabaseContext Suppressed()
         {
-            return new DatabaseContext(ProviderName, Connection, _dbCommandFactory, _databaseContextService)
+            return new DatabaseContext(Name, ProviderName, Connection, _dbCommandFactory, _databaseContextService)
             {
                 Transaction = Transaction,
+                Depth = Depth + 1,
                 _dispose = false
             };
         }
@@ -72,7 +75,9 @@ namespace Shuttle.Core.Data
         private async Task<IDbCommand> CreateCommandAsync(IQuery query, bool sync)
         {
             var command = _dbCommandFactory.Create(sync ? GetOpenConnectionAsync(true).GetAwaiter().GetResult() : await GetOpenConnectionAsync(false).ConfigureAwait(false), Guard.AgainstNull(query, nameof(query)));
+            
             command.Transaction = Transaction;
+
             return command;
         }
 
@@ -121,6 +126,8 @@ namespace Shuttle.Core.Data
                 Transaction = await (await GetOpenConnectionAsync(false).ConfigureAwait(false)).BeginTransactionAsync(isolationLevel);
             }
 
+            TransactionStarted?.Invoke(this, new TransactionEventArgs(Transaction));
+
             return this;
         }
 
@@ -149,6 +156,8 @@ namespace Shuttle.Core.Data
             {
                 await ((DbTransaction)Transaction).CommitAsync();
             }
+
+            TransactionCommitted?.Invoke(this, new TransactionEventArgs(Transaction));
 
             Transaction = null;
         }
@@ -179,12 +188,15 @@ namespace Shuttle.Core.Data
                 if (HasTransaction)
                 {
                     Transaction.Rollback();
+
+                    TransactionRolledBack?.Invoke(this, new TransactionEventArgs(Transaction));
                 }
 
                 Connection.Dispose();
             }
 
             Connection = null;
+            Transaction = null;
             _disposed = true;
         }
     }

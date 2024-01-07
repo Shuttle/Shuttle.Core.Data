@@ -60,13 +60,6 @@ namespace Shuttle.Core.Data
             return new ActiveDatabaseContext(this, current);
         }
 
-        public IDatabaseContext Find(Predicate<IDatabaseContext> match)
-        {
-            Guard.AgainstNull(match, nameof(match));
-
-            return GetAmbientData().DatabaseContexts.Find(match);
-        }
-
         public void Add(IDatabaseContext context)
         {
             Guard.AgainstNull(context, nameof(context));
@@ -100,26 +93,16 @@ namespace Shuttle.Core.Data
             GetAmbientData().DatabaseContexts.Remove(candidate);
         }
 
+        public IDatabaseContext Find(Predicate<IDatabaseContext> match)
+        {
+            Guard.AgainstNull(match, nameof(match));
+
+            return GetAmbientData().DatabaseContexts.Find(match);
+        }
+
         private IDatabaseContext Find(IDatabaseContext context)
         {
             return Find(candidate => candidate.Key.Equals(context.Key));
-        }
-
-        public ActiveDatabaseContext Use(string name)
-        {
-            Guard.AgainstNullOrEmptyString(name, nameof(name));
-
-            var current = GetAmbientData().Current;
-
-            GetAmbientData().Current = GetAmbientData().DatabaseContexts.Find(candidate =>
-                candidate.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-
-            if (GetAmbientData().Current == null)
-            {
-                throw new Exception(string.Format(Resources.DatabaseContextNameNotFoundException, name));
-            }
-
-            return new ActiveDatabaseContext(this, current);
         }
     }
 }

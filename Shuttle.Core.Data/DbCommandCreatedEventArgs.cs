@@ -6,11 +6,11 @@ namespace Shuttle.Core.Data
 {
     public class DbCommandCreatedEventArgs : EventArgs
     {
-        public IDbCommand Command { get; }
+        public IDbCommand DbCommand { get; }
 
-        public DbCommandCreatedEventArgs(IDbCommand command)
+        public DbCommandCreatedEventArgs(IDbCommand dbCommand)
         {
-            Command = Guard.AgainstNull(command, nameof(command));
+            DbCommand = Guard.AgainstNull(dbCommand, nameof(dbCommand));
         }
     }
 }

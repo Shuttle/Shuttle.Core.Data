@@ -78,7 +78,7 @@ public class DataRepositoryFixture : Fixture
     }
 
     [Test]
-    public async Task Should_be_able_to_get_default_when_fetching_a_single_item_that_is_not_found()
+    public void Should_be_able_to_get_default_when_fetching_a_single_item_that_is_not_found()
     {
         Should_be_able_to_get_default_when_fetching_a_single_item_that_is_not_found_async(true).GetAwaiter().GetResult();
     }
@@ -167,7 +167,7 @@ public class DataRepositoryFixture : Fixture
     }
 
     [Test]
-    public async Task Should_be_able_to_fetch_a_single_row()
+    public void Should_be_able_to_fetch_a_single_row()
     {
         Should_be_able_to_fetch_a_single_row_async(true).GetAwaiter().GetResult();
     }

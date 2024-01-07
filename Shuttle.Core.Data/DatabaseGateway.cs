@@ -75,8 +75,6 @@ namespace Shuttle.Core.Data
             return table.Rows[0];
         }
 
-        public event EventHandler<DbCommandCreatedEventArgs> DbCommandCreated;
-
         public IDataReader GetReader(IQuery query, CancellationToken cancellationToken = default)
         {
             return GetReaderAsync(query, cancellationToken, true).GetAwaiter().GetResult();
@@ -93,8 +91,6 @@ namespace Shuttle.Core.Data
 
             using (var command = (DbCommand)(sync ? _databaseContextService.Current.CreateCommand(query) : await _databaseContextService.Current.CreateCommandAsync(query).ConfigureAwait(false)))
             {
-                DbCommandCreated?.Invoke(this, new DbCommandCreatedEventArgs(command));
-
                 return sync ? command.ExecuteReader() : await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
             }
         }
@@ -115,8 +111,6 @@ namespace Shuttle.Core.Data
 
             using (var command = (DbCommand)(sync ? _databaseContextService.Current.CreateCommand(query) : await _databaseContextService.Current.CreateCommandAsync(query).ConfigureAwait(false)))
             {
-                DbCommandCreated?.Invoke(this, new DbCommandCreatedEventArgs(command));
-
                 return sync ? command.ExecuteNonQuery() : await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
             }
         }
@@ -137,8 +131,6 @@ namespace Shuttle.Core.Data
 
             using (var command = (DbCommand)(sync ? _databaseContextService.Current.CreateCommand(query) : await _databaseContextService.Current.CreateCommandAsync(query).ConfigureAwait(false)))
             {
-                DbCommandCreated?.Invoke(this, new DbCommandCreatedEventArgs(command));
-
                 var scalar = sync ? command.ExecuteScalar() : await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
 
                 return scalar != null && scalar != DBNull.Value ? (T)scalar : default;

@@ -199,8 +199,13 @@ from
 
         using (GetDatabaseContext())
         {
-            var item = queryMapper.MapItemAsync(queryRow).Result;
-            var items = queryMapper.MapItemsAsync(queryRows).Result;
+            var item = sync
+                ? queryMapper.MapItem(queryRow)
+                : await queryMapper.MapItemAsync(queryRow);
+
+            var items = sync
+                ? queryMapper.MapItems(queryRows)
+                : await queryMapper.MapItemsAsync(queryRows);
 
             Assert.IsNotNull(item);
             Assert.AreEqual(2, items.Count());

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
@@ -8,8 +7,6 @@ namespace Shuttle.Core.Data
 {
     public interface IDatabaseGateway
     {
-	    event EventHandler<DbCommandCreatedEventArgs> DbCommandCreated;
-
 	    IDataReader GetReader(IQuery query, CancellationToken cancellationToken = default);
 	    int Execute(IQuery query, CancellationToken cancellationToken = default);
 	    T GetScalar<T>(IQuery query, CancellationToken cancellationToken = default);
