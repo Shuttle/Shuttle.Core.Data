@@ -26,7 +26,7 @@ namespace Shuttle.Core.Data
         {
             var rows = await _databaseGateway.GetRowsAsync(query, cancellationToken);
 
-            return (IEnumerable<T>)await Task.FromResult(rows.MappedRowsUsing(_dataRowMapper).Select(row => row.Result)).ConfigureAwait(false);
+            return await Task.FromResult(rows.MappedRowsUsing(_dataRowMapper).Select(row => row.Result)).ConfigureAwait(false);
         }
 
         public T FetchItem(IQuery query, CancellationToken cancellationToken = default)

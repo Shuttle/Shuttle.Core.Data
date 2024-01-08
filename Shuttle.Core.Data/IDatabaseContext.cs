@@ -1,7 +1,6 @@
 using System;
 using System.Data;
 using System.Threading.Tasks;
-using Shuttle.Core.Contract;
 using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Shuttle.Core.Data
@@ -11,10 +10,11 @@ namespace Shuttle.Core.Data
 	    event EventHandler<TransactionEventArgs> TransactionStarted;
 	    event EventHandler<TransactionEventArgs> TransactionCommitted;
 	    event EventHandler<EventArgs> Disposed;
+	    event EventHandler<EventArgs> DisposeIgnored;
 
 	    Guid Key { get; }
 		string Name { get; }
-        int Depth { get; }
+        int ReferenceCount { get; }
 
         IDbTransaction Transaction { get; }
         IDbConnection Connection { get; }
@@ -28,7 +28,6 @@ namespace Shuttle.Core.Data
         Task<IDatabaseContext> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified);
         void CommitTransaction();
         Task CommitTransactionAsync();
-	    IDatabaseContext Suppressed();
-	    IDatabaseContext SuppressDispose();
+	    IDatabaseContext Referenced();
     }
 }

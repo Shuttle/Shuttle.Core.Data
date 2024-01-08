@@ -23,7 +23,7 @@ namespace Shuttle.Core.Data
         }
 
         public event EventHandler<DatabaseContextEventArgs> DatabaseContextCreated;
-        public event EventHandler<DatabaseContextEventArgs> DatabaseContextSuppressed;
+        public event EventHandler<DatabaseContextEventArgs> DatabaseContextReferenced;
 
         public IDatabaseContext Create(string name)
         {
@@ -38,9 +38,9 @@ namespace Shuttle.Core.Data
 
             if (DatabaseContextService.Contains(name))
             {
-                var databaseContext = DatabaseContextService.Get(name).Suppressed();
+                var databaseContext = DatabaseContextService.Get(name).Referenced();
 
-                DatabaseContextSuppressed?.Invoke(this, new DatabaseContextEventArgs(databaseContext));
+                DatabaseContextReferenced?.Invoke(this, new DatabaseContextEventArgs(databaseContext));
 
                 return databaseContext;
             }

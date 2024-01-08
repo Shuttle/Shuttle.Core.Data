@@ -6,17 +6,19 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Shuttle.Core.Contract;
+using Shuttle.Core.Threading;
 
 namespace Shuttle.Core.Data
 {
     public class DatabaseGateway : IDatabaseGateway
     {
-        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+        private readonly ISynchronizationService _synchronizationService;
         private readonly IDatabaseContextService _databaseContextService;
 
-        public DatabaseGateway(IDatabaseContextService databaseContextService)
+        public DatabaseGateway(IDatabaseContextService databaseContextService, ISynchronizationService synchronizationService)
         {
             _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
+            _synchronizationService = synchronizationService;
         }
 
         public DataTable GetDataTable(IQuery query, CancellationToken cancellationToken = default)
@@ -33,14 +35,23 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(query, nameof(query));
 
-            var results = new DataTable();
+            await _synchronizationService.WaitAsync("GetReader", cancellationToken).ConfigureAwait(false);
 
-            using (var reader = sync ? GetReader(query, cancellationToken) : await GetReaderAsync(query, cancellationToken).ConfigureAwait(false))
+            try
             {
-                results.Load(reader);
-            }
+                var results = new DataTable();
 
-            return results;
+                using (var reader = sync ? GetReader(query, cancellationToken) : await GetReaderAsync(query, cancellationToken).ConfigureAwait(false))
+                {
+                    results.Load(reader);
+                }
+
+                return results;
+            }
+            finally
+            {
+                _synchronizationService.Release("GetReader");
+            }
         }
 
         public IEnumerable<DataRow> GetRows(IQuery query, CancellationToken cancellationToken = default)
@@ -90,18 +101,9 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(query, nameof(query));
 
-            await _lock.WaitAsync(CancellationToken.None).ConfigureAwait(false);
-
-            try
+            using (var command = (DbCommand)(sync ? _databaseContextService.Current.CreateCommand(query) : await _databaseContextService.Current.CreateCommandAsync(query).ConfigureAwait(false)))
             {
-                using (var command = (DbCommand)(sync ? _databaseContextService.Current.CreateCommand(query) : await _databaseContextService.Current.CreateCommandAsync(query).ConfigureAwait(false)))
-                {
-                    return sync ? command.ExecuteReader() : await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
-                }
-            }
-            finally
-            {
-                _lock.Release();
+                return sync ? command.ExecuteReader() : await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
             }
         }
 

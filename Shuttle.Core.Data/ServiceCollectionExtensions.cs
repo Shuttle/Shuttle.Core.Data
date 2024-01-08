@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
+using Shuttle.Core.Threading;
 
 namespace Shuttle.Core.Data
 {
@@ -26,6 +27,7 @@ namespace Shuttle.Core.Data
             });
 
             services.TryAddScoped<IDatabaseContextService, DatabaseContextService>();
+            services.TryAddSingleton<ISynchronizationService, SynchronizationService>();
             services.TryAddSingleton<IDatabaseContextFactory, DatabaseContextFactory>();
             services.TryAddSingleton<IDbConnectionFactory, DbConnectionFactory>();
             services.TryAddSingleton<IDbCommandFactory, DbCommandFactory>();

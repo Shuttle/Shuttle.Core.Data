@@ -11,7 +11,6 @@ namespace Shuttle.Core.Data
     {
         private readonly IDatabaseContextService _databaseContextService;
         private readonly IDbCommandFactory _dbCommandFactory;
-        private bool _dispose;
         private bool _disposed;
         private readonly IDatabaseContext _activeContext;
 
@@ -20,7 +19,6 @@ namespace Shuttle.Core.Data
             Name = Guard.AgainstNullOrEmptyString(name, nameof(name));
             _dbCommandFactory = Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
             _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
-            _dispose = true;
 
             Key = Guid.NewGuid();
 
@@ -35,31 +33,15 @@ namespace Shuttle.Core.Data
         public event EventHandler<TransactionEventArgs> TransactionStarted;
         public event EventHandler<TransactionEventArgs> TransactionCommitted;
         public event EventHandler<EventArgs> Disposed;
+        public event EventHandler<EventArgs> DisposeIgnored;
         public event EventHandler<TransactionEventArgs> TransactionRolledBack;
 
         public Guid Key { get; }
         public string Name { get; }
-        public int Depth { get; private set; }
+        public int ReferenceCount { get; private set; } = 1;
         public IDbTransaction Transaction { get; private set; }
         public string ProviderName { get; }
         public IDbConnection Connection { get; private set; }
-
-        public IDatabaseContext Suppressed()
-        {
-            return new DatabaseContext(Name, ProviderName, Connection, _dbCommandFactory, _databaseContextService)
-            {
-                Transaction = Transaction,
-                Depth = Depth + 1,
-                _dispose = false
-            };
-        }
-
-        public IDatabaseContext SuppressDispose()
-        {
-            _dispose = false;
-
-            return this;
-        }
 
         public IDbCommand CreateCommand(IQuery query)
         {
@@ -140,6 +122,13 @@ namespace Shuttle.Core.Data
             await CommitTransactionAsync(false).ConfigureAwait(false);
         }
 
+        public IDatabaseContext Referenced()
+        {
+            ReferenceCount++;
+
+            return this;
+        }
+
         private async Task CommitTransactionAsync(bool sync)
         {
             if (!HasTransaction)
@@ -163,6 +152,20 @@ namespace Shuttle.Core.Data
 
         public void Dispose()
         {
+            if (_disposed)
+            {
+                return;
+            }
+
+            ReferenceCount--;
+
+            if (ReferenceCount > 0)
+            {
+                DisposeIgnored?.Invoke(this, EventArgs.Empty);
+
+                return;
+            }
+
             _databaseContextService.Remove(this);
 
             if (_activeContext != null && _databaseContextService.Contains(_activeContext))
@@ -170,29 +173,14 @@ namespace Shuttle.Core.Data
                 _databaseContextService.Use(_activeContext);
             }
 
-            Dispose(true);
-
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_disposed)
+            if (HasTransaction)
             {
-                return;
+                Transaction.Rollback();
+
+                TransactionRolledBack?.Invoke(this, new TransactionEventArgs(Transaction));
             }
 
-            if (_dispose && disposing)
-            {
-                if (HasTransaction)
-                {
-                    Transaction.Rollback();
-
-                    TransactionRolledBack?.Invoke(this, new TransactionEventArgs(Transaction));
-                }
-
-                Connection.Dispose();
-            }
+            Connection.Dispose();
 
             Connection = null;
             Transaction = null;
