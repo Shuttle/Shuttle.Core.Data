@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Threading;
 using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 using IsolationLevel = System.Data.IsolationLevel;
@@ -9,6 +10,7 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseContext : IDatabaseContext
     {
+        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
         private readonly IDatabaseContextService _databaseContextService;
         private readonly IDbCommandFactory _dbCommandFactory;
         private bool _disposed;
@@ -64,19 +66,28 @@ namespace Shuttle.Core.Data
 
         private async Task<DbConnection> GetOpenConnectionAsync(bool sync)
         {
-            if (Connection.State == ConnectionState.Closed)
-            {
-                if (sync)
-                {
-                    ((DbConnection)Connection).Open();
-                }
-                else
-                {
-                    await ((DbConnection)Connection).OpenAsync().ConfigureAwait(false);
-                }
-            }
+            await _lock.WaitAsync(CancellationToken.None).ConfigureAwait(false);
 
-            return (DbConnection)Connection;
+            try
+            {
+                if (Connection.State != ConnectionState.Open)
+                {
+                    if (sync)
+                    {
+                        ((DbConnection)Connection).Open();
+                    }
+                    else
+                    {
+                        await ((DbConnection)Connection).OpenAsync().ConfigureAwait(false);
+                    }
+                }
+
+                return (DbConnection)Connection;
+            }
+            finally
+            {
+                _lock.Release();
+            }
         }
 
         public bool HasTransaction => Transaction != null;
