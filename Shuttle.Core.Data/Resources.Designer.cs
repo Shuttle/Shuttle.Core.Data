@@ -79,20 +79,20 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Database context with name &apos;{0}&apos; is already active..
+        /// </summary>
+        public static string DatabaseContextAlreadyActiveException {
+            get {
+                return ResourceManager.GetString("DatabaseContextAlreadyActiveException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DatabaseContextFactoryOptions have not been configured.  Cannot call &apos;Create()&apos; directly..
         /// </summary>
         public static string DatabaseContextFactoryOptionsException {
             get {
                 return ResourceManager.GetString("DatabaseContextFactoryOptionsException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Attempt to retrieve non-existent database context with key &apos;{0}&apos;..
-        /// </summary>
-        public static string DatabaseContextKeyNotFoundException {
-            get {
-                return ResourceManager.GetString("DatabaseContextKeyNotFoundException", resourceCulture);
             }
         }
         
@@ -107,15 +107,6 @@ namespace Shuttle.Core.Data {
         
         /// <summary>
         ///   Looks up a localized string similar to Attempt to retrieve non-existent database context with name &apos;{0}&apos;..
-        /// </summary>
-        public static string DatabaseContextNameNotFoundException {
-            get {
-                return ResourceManager.GetString("DatabaseContextNameNotFoundException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Attempt to retrieve non-existent database context..
         /// </summary>
         public static string DatabaseContextNotFoundException {
             get {
@@ -138,6 +129,15 @@ namespace Shuttle.Core.Data {
         public static string DbTypeMappingException {
             get {
                 return ResourceManager.GetString("DbTypeMappingException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to A database context with name &apos;{0}&apos; has already been created..
+        /// </summary>
+        public static string DuplicateDatabaseContextException {
+            get {
+                return ResourceManager.GetString("DuplicateDatabaseContextException", resourceCulture);
             }
         }
         

@@ -26,8 +26,7 @@ namespace Shuttle.Core.Data
                 options.DatabaseContextFactory = dataAccessBuilder.Options.DatabaseContextFactory;
             });
 
-            services.TryAddScoped<IDatabaseContextService, DatabaseContextService>();
-            services.TryAddSingleton<ISynchronizationService, SynchronizationService>();
+            services.TryAddSingleton<IDatabaseContextService, DatabaseContextService>();
             services.TryAddSingleton<IDatabaseContextFactory, DatabaseContextFactory>();
             services.TryAddSingleton<IDbConnectionFactory, DbConnectionFactory>();
             services.TryAddSingleton<IDbCommandFactory, DbCommandFactory>();

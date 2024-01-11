@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 using IsolationLevel = System.Data.IsolationLevel;
 
@@ -9,17 +10,15 @@ namespace Shuttle.Core.Data
     {
 	    event EventHandler<TransactionEventArgs> TransactionStarted;
 	    event EventHandler<TransactionEventArgs> TransactionCommitted;
+	    event EventHandler<TransactionEventArgs> TransactionRolledBack;
 	    event EventHandler<EventArgs> Disposed;
-	    event EventHandler<EventArgs> DisposeIgnored;
 
 	    Guid Key { get; }
 		string Name { get; }
-        int ReferenceCount { get; }
 
-        IDbTransaction Transaction { get; }
-        IDbConnection Connection { get; }
-        IDbCommand CreateCommand(IQuery query);
-        Task<IDbCommand> CreateCommandAsync(IQuery query);
+		IDbTransaction Transaction { get; }
+		BlockedDbCommand CreateCommand(IQuery query);
+		BlockedDbConnection GetBlockedDbConnection();
 
         bool HasTransaction { get; }
         string ProviderName { get; }
@@ -28,6 +27,5 @@ namespace Shuttle.Core.Data
         Task<IDatabaseContext> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified);
         void CommitTransaction();
         Task CommitTransactionAsync();
-	    IDatabaseContext Referenced();
     }
 }

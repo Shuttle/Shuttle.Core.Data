@@ -21,7 +21,7 @@ namespace Shuttle.Core.Data
                 return;
             }
 
-            _databaseContextService.Use(_current);
+            _databaseContextService.Activate(_current);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace Shuttle.Core.Data
             Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             Guard.AgainstNullOrEmptyString(name, nameof(name));
 
-            return databaseContextService.Use(databaseContextService.Get(name));
+            return databaseContextService.Activate(databaseContextService.Get(name));
         }
     }
 }

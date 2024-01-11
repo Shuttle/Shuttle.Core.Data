@@ -19,17 +19,13 @@ public class DatabaseContextFactoryFixture : Fixture
     }
 
     [Test]
-    public void Should_be_able_to_get_an_existing_database_context()
+    public void Should_not_not_be_able_to_create_another_context_with_the_same_name_as_an_existing_context()
     {
         var factory = GetDatabaseContextFactory();
 
-        using (var context = factory.Create(DefaultConnectionStringName))
-        using (var existingContext = factory.Create(DefaultConnectionStringName))
+        using (factory.Create(DefaultConnectionStringName))
         {
-            Assert.IsNotNull(context);
-            Assert.IsNotNull(existingContext);
-
-            Assert.AreSame(existingContext.Connection, context.Connection);
+            Assert.That(()=> factory.Create(DefaultConnectionStringName), Throws.InvalidOperationException);
         }
     }
 

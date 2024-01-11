@@ -42,14 +42,11 @@ from
 
     private async Task GetRowsAsync(int depth)
     {
-        _ = await GetDatabaseGateway().GetRowsAsync(_rowsQuery);
-
         if (depth < 5)
         {
-            using (GetDatabaseContext())
-            {
-                await GetRowsAsync(depth + 1);
-            }
+            await GetRowsAsync(depth + 1);
         }
+
+        _ = await GetDatabaseGateway().GetRowsAsync(_rowsQuery);
     }
 }

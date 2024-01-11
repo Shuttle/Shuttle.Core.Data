@@ -7,14 +7,14 @@ namespace Shuttle.Core.Data
 {
     public interface IDatabaseGateway
     {
-	    IDataReader GetReader(IQuery query, CancellationToken cancellationToken = default);
+	    BlockedDbDataReader GetReader(IQuery query, CancellationToken cancellationToken = default);
 	    int Execute(IQuery query, CancellationToken cancellationToken = default);
 	    T GetScalar<T>(IQuery query, CancellationToken cancellationToken = default);
 	    DataTable GetDataTable(IQuery query, CancellationToken cancellationToken = default);
 	    IEnumerable<DataRow> GetRows(IQuery query, CancellationToken cancellationToken = default);
 	    DataRow GetRow(IQuery query, CancellationToken cancellationToken = default);
 	    
-	    Task<IDataReader> GetReaderAsync(IQuery query, CancellationToken cancellationToken = default);
+	    Task<BlockedDbDataReader> GetReaderAsync(IQuery query, CancellationToken cancellationToken = default);
 		Task<int> ExecuteAsync(IQuery query, CancellationToken cancellationToken = default);
         Task<T> GetScalarAsync<T>(IQuery query, CancellationToken cancellationToken = default);
         Task<DataTable> GetDataTableAsync(IQuery query, CancellationToken cancellationToken = default);

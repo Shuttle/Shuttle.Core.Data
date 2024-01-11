@@ -1,12 +1,15 @@
 using System;
 using System.Data.Common;
+using System.Threading;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
+using Shuttle.Core.Threading;
 
 namespace Shuttle.Core.Data
 {
     public class DatabaseContextFactory : IDatabaseContextFactory
     {
+        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1,1);
         private readonly IOptionsMonitor<ConnectionStringOptions> _connectionStringOptions;
         private readonly DataAccessOptions _dataAccessOptions;
 
@@ -23,34 +26,36 @@ namespace Shuttle.Core.Data
         }
 
         public event EventHandler<DatabaseContextEventArgs> DatabaseContextCreated;
-        public event EventHandler<DatabaseContextEventArgs> DatabaseContextReferenced;
 
         public IDatabaseContext Create(string name)
         {
             Guard.AgainstNullOrEmptyString(name, nameof(name));
 
-            var connectionStringOptions = _connectionStringOptions.Get(name);
+            _lock.Wait();
 
-            if (connectionStringOptions == null || string.IsNullOrEmpty(connectionStringOptions.Name))
+            try
             {
-                throw new InvalidOperationException(string.Format(Resources.ConnectionStringMissingException, name));
-            }
+                var connectionStringOptions = _connectionStringOptions.Get(name);
 
-            if (DatabaseContextService.Contains(name))
-            {
-                var databaseContext = DatabaseContextService.Get(name).Referenced();
+                if (connectionStringOptions == null || string.IsNullOrEmpty(connectionStringOptions.Name))
+                {
+                    throw new InvalidOperationException(string.Format(Resources.ConnectionStringMissingException, name));
+                }
 
-                DatabaseContextReferenced?.Invoke(this, new DatabaseContextEventArgs(databaseContext));
+                if (DatabaseContextService.Contains(name))
+                {
+                    throw new InvalidOperationException(string.Format(Resources.DuplicateDatabaseContextException, name));
+                }
 
-                return databaseContext;
-            }
-            else
-            {
-                var databaseContext = new DatabaseContext(name, connectionStringOptions.ProviderName, (DbConnection)DbConnectionFactory.Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString), DbCommandFactory, DatabaseContextService);
+                var databaseContext = new DatabaseContext(name, connectionStringOptions.ProviderName, (DbConnection)DbConnectionFactory.Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString), DbCommandFactory, DatabaseContextService, _lock);
 
                 DatabaseContextCreated?.Invoke(this, new DatabaseContextEventArgs(databaseContext));
 
                 return databaseContext;
+            }
+            finally
+            {
+                _lock.Release();
             }
         }
 
