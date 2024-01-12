@@ -30,12 +30,12 @@ namespace Shuttle.Core.Data
             return databaseContextService.Find(databaseContext => databaseContext.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)) ?? throw new Exception(Resources.DatabaseContextNotFoundException);
         }
 
-        public static ActiveDatabaseContext Use(this IDatabaseContextService databaseContextService, string name)
+        public static void Activate(this IDatabaseContextService databaseContextService, string name)
         {
             Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             Guard.AgainstNullOrEmptyString(name, nameof(name));
 
-            return databaseContextService.Activate(databaseContextService.Get(name));
+            databaseContextService.Activate(databaseContextService.Get(name));
         }
     }
 }

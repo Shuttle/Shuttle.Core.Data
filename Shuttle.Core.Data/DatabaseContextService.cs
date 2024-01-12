@@ -43,7 +43,7 @@ namespace Shuttle.Core.Data
             }
         }
 
-        public ActiveDatabaseContext Activate(IDatabaseContext context)
+        public void Activate(IDatabaseContext context)
         {
             Guard.AgainstNull(context, nameof(context));
 
@@ -62,8 +62,6 @@ namespace Shuttle.Core.Data
             }
 
             GetAmbientData().ActiveDatabaseContext = active;
-            
-            return new ActiveDatabaseContext(this, current);
         }
 
         public void Add(IDatabaseContext context)

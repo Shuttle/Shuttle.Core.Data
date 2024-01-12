@@ -19,20 +19,19 @@ public class DatabaseContextServiceFixture : Fixture
 
         Assert.That(service.Current.Key, Is.EqualTo(context2.Key));
 
-        using (service.Use("mock-1"))
-        {
-            Assert.That(service.Current.Key, Is.EqualTo(context1.Key));
+        service.Activate("mock-1");
 
-            Assert.That(service.Current, Is.Not.Null);
-            Assert.That(service.Current.Name, Is.EqualTo(service.Current.Name));
-        }
+        Assert.That(service.Current.Key, Is.EqualTo(context1.Key));
+
+        service.Activate("mock-2");
 
         Assert.That(service.Current.Key, Is.EqualTo(context2.Key));
 
-        using (service.Activate(context1))
-        {
-            Assert.That(service.Current.Key, Is.EqualTo(context1.Key));
-        }
+        service.Activate(context1);
+
+        Assert.That(service.Current.Key, Is.EqualTo(context1.Key));
+        
+        service.Activate(context2);
 
         Assert.That(service.Current.Key, Is.EqualTo(context2.Key));
     }
