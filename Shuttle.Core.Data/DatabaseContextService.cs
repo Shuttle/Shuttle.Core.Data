@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Shuttle.Core.Contract;
 using Shuttle.Core.Threading;
 
@@ -8,6 +9,7 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseContextService : IDatabaseContextService
     {
+        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
         private const string AmbientDataKey = "__DatabaseContextService-AmbientData__";
 
         private class AmbientData
@@ -34,12 +36,21 @@ namespace Shuttle.Core.Data
         {
             get
             {
-                if (GetAmbientData().ActiveDatabaseContext == null)
-                {
-                    throw new InvalidOperationException(Resources.DatabaseContextMissing);
-                }
+                _lock.Wait();
 
-                return GetAmbientData().ActiveDatabaseContext;
+                try
+                {
+                    if (GetAmbientData().ActiveDatabaseContext == null)
+                    {
+                        throw new InvalidOperationException(Resources.DatabaseContextMissing);
+                    }
+
+                    return GetAmbientData().ActiveDatabaseContext;
+                }
+                finally
+                {
+                    _lock.Release();
+                }
             }
         }
 
@@ -47,33 +58,51 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(context, nameof(context));
 
-            var current = GetAmbientData().ActiveDatabaseContext;
+            _lock.Wait();
 
-            if (current != null && current.Name.Equals(context.Name))
+            try
             {
-                throw new Exception(string.Format(Resources.DatabaseContextAlreadyActiveException, context.Name));
+                var current = GetAmbientData().ActiveDatabaseContext;
+
+                if (current != null && current.Name.Equals(context.Name))
+                {
+                    throw new Exception(string.Format(Resources.DatabaseContextAlreadyActiveException, context.Name));
+                }
+
+                var active = GetAmbientData().DatabaseContexts.FirstOrDefault(item => item.Name.Equals(context.Name, StringComparison.InvariantCultureIgnoreCase));
+
+                if (active == null)
+                {
+                    throw new Exception(string.Format(Resources.DatabaseContextNotFoundException, context.Name));
+                }
+
+                GetAmbientData().ActiveDatabaseContext = active;
             }
-
-            var active = GetAmbientData().DatabaseContexts.FirstOrDefault(item => item.Name.Equals(context.Name, StringComparison.InvariantCultureIgnoreCase));
-
-            if (active == null)
+            finally
             {
-                throw new Exception(string.Format(Resources.DatabaseContextNotFoundException, context.Name));
+                _lock.Release();
             }
-
-            GetAmbientData().ActiveDatabaseContext = active;
         }
 
         public void Add(IDatabaseContext context)
         {
             Guard.AgainstNull(context, nameof(context));
 
-            if (Find(context) != null)
+            _lock.Wait();
+
+            try
             {
-                throw new Exception(string.Format(Resources.DuplicateDatabaseContextKeyException, context.Key));
-            }
+                if (Find(context) != null)
+                {
+                    throw new Exception(string.Format(Resources.DuplicateDatabaseContextKeyException, context.Key));
+                }
             
-            GetAmbientData().DatabaseContexts.Add(context);
+                GetAmbientData().DatabaseContexts.Add(context);
+            }
+            finally
+            {
+                _lock.Release();
+            }
 
             Activate(context);
         }
@@ -82,31 +111,71 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(context, nameof(context));
 
-            var candidate = Find(context);
+            _lock.Wait();
 
-            if (candidate == null)
+            try
             {
-                return;
-            }
+                var candidate = Find(context);
 
-            if (GetAmbientData().ActiveDatabaseContext != null && candidate.Key.Equals(GetAmbientData().ActiveDatabaseContext.Key))
+                if (candidate == null)
+                {
+                    return;
+                }
+
+                if (GetAmbientData().ActiveDatabaseContext != null && candidate.Key.Equals(GetAmbientData().ActiveDatabaseContext.Key))
+                {
+                    GetAmbientData().ActiveDatabaseContext = null;
+                }
+
+                GetAmbientData().DatabaseContexts.Remove(candidate);
+            }
+            finally
             {
-                GetAmbientData().ActiveDatabaseContext = null;
+                _lock.Release();
             }
-
-            GetAmbientData().DatabaseContexts.Remove(candidate);
         }
 
         public IDatabaseContext Find(Predicate<IDatabaseContext> match)
         {
             Guard.AgainstNull(match, nameof(match));
 
-            return GetAmbientData().DatabaseContexts.Find(match);
+            _lock.Wait();
+
+            try
+            {
+                return GetAmbientData().DatabaseContexts.Find(match);
+            }
+            finally
+            {
+                _lock.Release();
+            }
+        }
+
+        private IDatabaseContext Find(Predicate<IDatabaseContext> match, bool locked)
+        {
+            Guard.AgainstNull(match, nameof(match));
+
+            if (locked)
+            {
+                _lock.Wait();
+            }
+
+            try
+            {
+                return GetAmbientData().DatabaseContexts.Find(match);
+            }
+            finally
+            {
+                if (locked)
+                {
+                    _lock.Release();
+                }
+            }
         }
 
         private IDatabaseContext Find(IDatabaseContext context)
         {
-            return Find(candidate => candidate.Key.Equals(context.Key));
+            return Find(candidate => candidate.Key.Equals(context.Key), false);
         }
     }
 }
