@@ -9,28 +9,8 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseContextService : IDatabaseContextService
     {
-        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
         private const string AmbientDataKey = "__DatabaseContextService-AmbientData__";
-
-        private class AmbientData
-        {
-            public readonly List<IDatabaseContext> DatabaseContexts = new List<IDatabaseContext>();
-            public IDatabaseContext ActiveDatabaseContext = null;
-        }
-
-        private AmbientData GetAmbientData()
-        {
-            var result = AmbientContext.GetData(AmbientDataKey) as AmbientData;
-
-            if (result == null)
-            {
-                result = new AmbientData();
-
-                AmbientContext.SetData(AmbientDataKey, result);
-            }
-
-            return result;
-        }
+        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
 
         public IDatabaseContext Current
         {
@@ -73,7 +53,7 @@ namespace Shuttle.Core.Data
 
                 if (active == null)
                 {
-                    throw new Exception(string.Format(Resources.DatabaseContextNotFoundException, context.Name));
+                    throw new Exception(string.Format(Resources.DatabaseContextNameNotFoundException, context.Name));
                 }
 
                 GetAmbientData().ActiveDatabaseContext = active;
@@ -92,11 +72,11 @@ namespace Shuttle.Core.Data
 
             try
             {
-                if (Find(context) != null)
+                if (Find(candidate => candidate.Name.Equals(context.Name), false) != null)
                 {
-                    throw new Exception(string.Format(Resources.DuplicateDatabaseContextKeyException, context.Key));
+                    throw new Exception(string.Format(Resources.DuplicateDatabaseContextException, context.Name));
                 }
-            
+
                 GetAmbientData().DatabaseContexts.Add(context);
             }
             finally
@@ -115,11 +95,11 @@ namespace Shuttle.Core.Data
 
             try
             {
-                var candidate = Find(context);
+                var candidate = Find(candidate => candidate.Key.Equals(context.Key), false);
 
                 if (candidate == null)
                 {
-                    return;
+                    throw new InvalidOperationException(string.Format(Resources.DatabaseContextKeyNotFoundException, context.Key, context.Name));
                 }
 
                 if (GetAmbientData().ActiveDatabaseContext != null && candidate.Key.Equals(GetAmbientData().ActiveDatabaseContext.Key))
@@ -137,18 +117,7 @@ namespace Shuttle.Core.Data
 
         public IDatabaseContext Find(Predicate<IDatabaseContext> match)
         {
-            Guard.AgainstNull(match, nameof(match));
-
-            _lock.Wait();
-
-            try
-            {
-                return GetAmbientData().DatabaseContexts.Find(match);
-            }
-            finally
-            {
-                _lock.Release();
-            }
+            return Find(match, true);
         }
 
         private IDatabaseContext Find(Predicate<IDatabaseContext> match, bool locked)
@@ -173,9 +142,24 @@ namespace Shuttle.Core.Data
             }
         }
 
-        private IDatabaseContext Find(IDatabaseContext context)
+        private AmbientData GetAmbientData()
         {
-            return Find(candidate => candidate.Key.Equals(context.Key), false);
+            var result = AmbientContext.GetData(AmbientDataKey) as AmbientData;
+
+            if (result == null)
+            {
+                result = new AmbientData();
+
+                AmbientContext.SetData(AmbientDataKey, result);
+            }
+
+            return result;
+        }
+
+        private class AmbientData
+        {
+            public readonly List<IDatabaseContext> DatabaseContexts = new List<IDatabaseContext>();
+            public IDatabaseContext ActiveDatabaseContext;
         }
     }
 }

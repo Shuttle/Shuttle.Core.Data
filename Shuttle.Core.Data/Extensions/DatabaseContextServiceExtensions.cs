@@ -27,7 +27,7 @@ namespace Shuttle.Core.Data
             Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             Guard.AgainstNullOrEmptyString(name, nameof(name));
 
-            return databaseContextService.Find(databaseContext => databaseContext.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)) ?? throw new Exception(Resources.DatabaseContextNotFoundException);
+            return databaseContextService.Find(databaseContext => databaseContext.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)) ?? throw new Exception(Resources.DatabaseContextNameNotFoundException);
         }
 
         public static void Activate(this IDatabaseContextService databaseContextService, string name)

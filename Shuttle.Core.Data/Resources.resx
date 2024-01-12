@@ -130,12 +130,8 @@
   <data name="DatabaseContextMissing" xml:space="preserve">
     <value>There is no active database context.  Use the database context factory to create a context.</value>
   </data>
-  <data name="DatabaseContextNotFoundException" xml:space="preserve">
+  <data name="DatabaseContextNameNotFoundException" xml:space="preserve">
     <value>Attempt to retrieve non-existent database context with name '{0}'.</value>
-    <comment>{0} = database context name</comment>
-  </data>
-  <data name="DuplicateDatabaseContextKeyException" xml:space="preserve">
-    <value>There is already a database context with key '{0}' in the IDatabaseContextCache.</value>
     <comment>{0} = database context name</comment>
   </data>
   <data name="EmbeddedScriptMissingException" xml:space="preserve">
@@ -179,5 +175,9 @@
   <data name="DatabaseContextAlreadyActiveException" xml:space="preserve">
     <value>Database context with name '{0}' is already active.</value>
     <comment>{0} = database context name</comment>
+  </data>
+  <data name="DatabaseContextKeyNotFoundException" xml:space="preserve">
+    <value>Attempt to retrieve non-existent database context with key '{0}' for name '{1}'.</value>
+    <comment>{0} = database context key, {1} = database context name</comment>
   </data>
 </root>

@@ -97,6 +97,15 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Attempt to retrieve non-existent database context with key &apos;{0}&apos; for name &apos;{1}&apos;..
+        /// </summary>
+        public static string DatabaseContextKeyNotFoundException {
+            get {
+                return ResourceManager.GetString("DatabaseContextKeyNotFoundException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to There is no active database context.  Use the database context factory to create a context..
         /// </summary>
         public static string DatabaseContextMissing {
@@ -108,9 +117,9 @@ namespace Shuttle.Core.Data {
         /// <summary>
         ///   Looks up a localized string similar to Attempt to retrieve non-existent database context with name &apos;{0}&apos;..
         /// </summary>
-        public static string DatabaseContextNotFoundException {
+        public static string DatabaseContextNameNotFoundException {
             get {
-                return ResourceManager.GetString("DatabaseContextNotFoundException", resourceCulture);
+                return ResourceManager.GetString("DatabaseContextNameNotFoundException", resourceCulture);
             }
         }
         
@@ -138,15 +147,6 @@ namespace Shuttle.Core.Data {
         public static string DuplicateDatabaseContextException {
             get {
                 return ResourceManager.GetString("DuplicateDatabaseContextException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to There is already a database context with key &apos;{0}&apos; in the IDatabaseContextCache..
-        /// </summary>
-        public static string DuplicateDatabaseContextKeyException {
-            get {
-                return ResourceManager.GetString("DuplicateDatabaseContextKeyException", resourceCulture);
             }
         }
         
