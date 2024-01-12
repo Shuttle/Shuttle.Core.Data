@@ -3,7 +3,6 @@ using System.Data.Common;
 using System.Threading;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Threading;
 
 namespace Shuttle.Core.Data
 {
