@@ -47,7 +47,7 @@ namespace Shuttle.Core.Data
                     throw new InvalidOperationException(string.Format(Resources.DuplicateDatabaseContextException, name));
                 }
 
-                var databaseContext = new DatabaseContext(name, connectionStringOptions.ProviderName, (DbConnection)DbConnectionFactory.Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString), DbCommandFactory, DatabaseContextService, _lock);
+                var databaseContext = new DatabaseContext(name, connectionStringOptions.ProviderName, (DbConnection)DbConnectionFactory.Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString), DbCommandFactory, DatabaseContextService);
 
                 DatabaseContextCreated?.Invoke(this, new DatabaseContextEventArgs(databaseContext));
 

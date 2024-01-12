@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data.Common;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Moq;
@@ -17,7 +16,7 @@ public class DatabaseContextFixture : Fixture
     {
         Assert.Throws<ArgumentException>(() =>
         {
-            using (new DatabaseContext("context", "Microsoft.Data.SqlClient", new SqlConnection("```"), new Mock<IDbCommandFactory>().Object, new DatabaseContextService(), new SemaphoreSlim(1, 1)))
+            using (new DatabaseContext("context", "Microsoft.Data.SqlClient", new SqlConnection("```"), new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
             {
             }
         });
@@ -29,7 +28,7 @@ public class DatabaseContextFixture : Fixture
         Assert.Throws<SqlException>(() =>
         {
             using (var databaseContext = new DatabaseContext("context", "Microsoft.Data.SqlClient", new SqlConnection("data source=.;initial catalog=idontexist;integrated security=sspi"),
-                       new Mock<IDbCommandFactory>().Object, new DatabaseContextService(), new SemaphoreSlim(1, 1)))
+                       new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
             {
                 databaseContext.CreateCommand(new Query("select 1"));
             }
@@ -53,7 +52,7 @@ public class DatabaseContextFixture : Fixture
         using (
             var connection =
             new DatabaseContext("context", "Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
-                new Mock<IDbCommandFactory>().Object, new DatabaseContextService(), new SemaphoreSlim(1, 1)))
+                new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
         {
             if (sync)
             {
@@ -85,7 +84,7 @@ public class DatabaseContextFixture : Fixture
         using (
             var connection =
             new DatabaseContext("context", "Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
-                new Mock<IDbCommandFactory>().Object, new DatabaseContextService(), new SemaphoreSlim(1, 1)))
+                new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
         {
             if (sync)
             {
@@ -115,7 +114,7 @@ public class DatabaseContextFixture : Fixture
         using (
             var connection =
             new DatabaseContext("context", "Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
-                new Mock<IDbCommandFactory>().Object, new DatabaseContextService(), new SemaphoreSlim(1, 1)))
+                new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
         {
             if (sync)
             {
@@ -134,7 +133,7 @@ public class DatabaseContextFixture : Fixture
         using (
             var connection =
             new DatabaseContext("context", "Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
-                new Mock<IDbCommandFactory>().Object, new DatabaseContextService(), new SemaphoreSlim(1, 1)))
+                new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
         {
             connection.Dispose();
             connection.Dispose();
@@ -151,7 +150,7 @@ public class DatabaseContextFixture : Fixture
 
         dbCommandFactory.Setup(m => m.Create(dbConnection, query.Object)).Returns(dbCommand.Object);
 
-        using (var connection = new DatabaseContext("context", "Microsoft.Data.SqlClient", dbConnection, dbCommandFactory.Object, new DatabaseContextService(), new SemaphoreSlim(1, 1)))
+        using (var connection = new DatabaseContext("context", "Microsoft.Data.SqlClient", dbConnection, dbCommandFactory.Object, new DatabaseContextService()))
         {
             connection.CreateCommand(query.Object);
         }

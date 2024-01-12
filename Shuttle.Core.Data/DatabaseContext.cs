@@ -10,22 +10,19 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseContext : IDatabaseContext
     {
-        private readonly SemaphoreSlim _semaphore;
-        private bool _disposed;
-
         private readonly IDatabaseContextService _databaseContextService;
         private readonly IDbCommandFactory _dbCommandFactory;
         private readonly SemaphoreSlim _dbCommandLock = new SemaphoreSlim(1, 1);
-        private readonly SemaphoreSlim _dbDataReaderLock = new SemaphoreSlim(1, 1);
-        private readonly SemaphoreSlim _dbConnectionLock = new SemaphoreSlim(1, 1);
         private readonly IDbConnection _dbConnection;
+        private readonly SemaphoreSlim _dbConnectionLock = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim _dbDataReaderLock = new SemaphoreSlim(1, 1);
+        private bool _disposed;
 
-        public DatabaseContext(string name, string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory, IDatabaseContextService databaseContextService, SemaphoreSlim semaphore)
+        public DatabaseContext(string name, string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory, IDatabaseContextService databaseContextService)
         {
             Name = Guard.AgainstNullOrEmptyString(name, nameof(name));
             _dbCommandFactory = Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
             _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
-            _semaphore= Guard.AgainstNull(semaphore, nameof(semaphore));
 
             Key = Guid.NewGuid();
 
@@ -44,16 +41,6 @@ namespace Shuttle.Core.Data
         public string Name { get; }
         public IDbTransaction Transaction { get; private set; }
         public string ProviderName { get; }
-
-        private void GuardDisposed()
-        {
-            if (!_disposed)
-            {
-                return;
-            }
-
-            throw new ObjectDisposedException(nameof(DatabaseContext));
-        }
 
         public BlockedDbCommand CreateCommand(IQuery query)
         {
@@ -110,26 +97,17 @@ namespace Shuttle.Core.Data
                 return;
             }
 
-            _semaphore.Wait();
+            _databaseContextService.Remove(this);
 
-            try
+            if (HasTransaction)
             {
-                _databaseContextService.Remove(this);
+                Transaction.Rollback();
 
-                if (HasTransaction)
-                {
-                    Transaction.Rollback();
-
-                    TransactionRolledBack?.Invoke(this, new TransactionEventArgs(Transaction));
-                }
-
-                _dbConnection.Dispose();
-                _disposed = true;
+                TransactionRolledBack?.Invoke(this, new TransactionEventArgs(Transaction));
             }
-            finally
-            {
-                _semaphore.Release();
-            }
+
+            _dbConnection.Dispose();
+            _disposed = true;
 
             Disposed?.Invoke(this, EventArgs.Empty);
         }
@@ -191,6 +169,16 @@ namespace Shuttle.Core.Data
             }
 
             return (DbConnection)_dbConnection;
+        }
+
+        private void GuardDisposed()
+        {
+            if (!_disposed)
+            {
+                return;
+            }
+
+            throw new ObjectDisposedException(nameof(DatabaseContext));
         }
     }
 }
