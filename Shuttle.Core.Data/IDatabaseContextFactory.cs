@@ -6,11 +6,7 @@ namespace Shuttle.Core.Data
 	{
 		event EventHandler<DatabaseContextEventArgs> DatabaseContextCreated;
 
-        IDatabaseContext Create(string name);
+        IDatabaseContext Create(string connectionStringName);
         IDatabaseContext Create();
-
-        IDbConnectionFactory DbConnectionFactory { get; }
-        IDbCommandFactory DbCommandFactory { get; }
-        IDatabaseContextService DatabaseContextService { get; }
     }
 }

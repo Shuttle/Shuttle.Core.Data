@@ -5,11 +5,11 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseContextEventArgs : EventArgs
     {
-        public IDatabaseContext DatabaseContext { get; }
-
         public DatabaseContextEventArgs(IDatabaseContext databaseContext)
         {
             DatabaseContext = Guard.AgainstNull(databaseContext, nameof(databaseContext));
         }
+
+        public IDatabaseContext DatabaseContext { get; }
     }
 }

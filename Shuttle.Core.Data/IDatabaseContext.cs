@@ -1,12 +1,11 @@
 using System;
 using System.Data;
-using System.Threading;
 using System.Threading.Tasks;
 using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Shuttle.Core.Data
 {
-    public interface IDatabaseContext : IDisposable
+    public interface IDatabaseContext : IDisposable, IAsyncDisposable
     {
 	    event EventHandler<TransactionEventArgs> TransactionStarted;
 	    event EventHandler<TransactionEventArgs> TransactionCommitted;
@@ -18,7 +17,7 @@ namespace Shuttle.Core.Data
 
 		IDbTransaction Transaction { get; }
 		BlockedDbCommand CreateCommand(IQuery query);
-		BlockedDbConnection GetBlockedDbConnection();
+		BlockedDbConnection GetDbConnection();
 
         bool HasTransaction { get; }
         string ProviderName { get; }

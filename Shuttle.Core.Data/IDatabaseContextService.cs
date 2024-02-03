@@ -4,9 +4,13 @@ namespace Shuttle.Core.Data
 {
 	public interface IDatabaseContextService
 	{
-		void Activate(IDatabaseContext context);
-		void Add(IDatabaseContext context);
-		void Remove(IDatabaseContext context);
+		event EventHandler<DatabaseContextAsyncLocalValueChangedEventArgs> DatabaseContextAsyncLocalValueChanged;
+		event EventHandler<EventArgs> DatabaseContextAsyncLocalAssigned;
+		event EventHandler<DatabaseContextAsyncLocalValueAssignedEventArgs> DatabaseContextAsyncLocalValueAssigned;
+
+        void Activate(IDatabaseContext databaseContext);
+		void Add(IDatabaseContext databaseContext);
+		void Remove(IDatabaseContext databaseContext);
 		IDatabaseContext Find(Predicate<IDatabaseContext> match);
 		IDatabaseContext Current { get; }
 	}

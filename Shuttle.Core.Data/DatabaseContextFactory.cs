@@ -8,45 +8,49 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseContextFactory : IDatabaseContextFactory
     {
-        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1,1);
         private readonly IOptionsMonitor<ConnectionStringOptions> _connectionStringOptions;
         private readonly DataAccessOptions _dataAccessOptions;
+        private readonly IDatabaseContextService _databaseContextService;
+        private readonly IDbCommandFactory _dbCommandFactory;
+
+        private readonly IDbConnectionFactory _dbConnectionFactory;
+        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
 
         public DatabaseContextFactory(IOptionsMonitor<ConnectionStringOptions> connectionStringOptions, IOptions<DataAccessOptions> dataAccessOptions, IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory, IDatabaseContextService databaseContextService)
         {
             Guard.AgainstNull(dataAccessOptions, nameof(dataAccessOptions));
-            
+
             _connectionStringOptions = Guard.AgainstNull(connectionStringOptions, nameof(connectionStringOptions));
             _dataAccessOptions = Guard.AgainstNull(dataAccessOptions.Value, nameof(dataAccessOptions.Value));
 
-            DbConnectionFactory = Guard.AgainstNull(dbConnectionFactory, nameof(dbConnectionFactory));
-            DbCommandFactory = Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
-            DatabaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
+            _dbConnectionFactory = Guard.AgainstNull(dbConnectionFactory, nameof(dbConnectionFactory));
+            _dbCommandFactory = Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
+            _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
         }
 
         public event EventHandler<DatabaseContextEventArgs> DatabaseContextCreated;
 
-        public IDatabaseContext Create(string name)
+        public IDatabaseContext Create(string connectionStringName)
         {
-            Guard.AgainstNullOrEmptyString(name, nameof(name));
+            Guard.AgainstNullOrEmptyString(connectionStringName, nameof(connectionStringName));
 
             _lock.Wait();
 
             try
             {
-                var connectionStringOptions = _connectionStringOptions.Get(name);
+                var connectionStringOptions = _connectionStringOptions.Get(connectionStringName);
 
                 if (connectionStringOptions == null || string.IsNullOrEmpty(connectionStringOptions.Name))
                 {
-                    throw new InvalidOperationException(string.Format(Resources.ConnectionStringMissingException, name));
+                    throw new InvalidOperationException(string.Format(Resources.ConnectionStringMissingException, connectionStringName));
                 }
 
-                if (DatabaseContextService.Contains(name))
+                if (_databaseContextService.Contains(connectionStringName))
                 {
-                    throw new InvalidOperationException(string.Format(Resources.DuplicateDatabaseContextException, name));
+                    throw new InvalidOperationException(string.Format(Resources.DuplicateDatabaseContextException, connectionStringName));
                 }
 
-                var databaseContext = new DatabaseContext(name, connectionStringOptions.ProviderName, (DbConnection)DbConnectionFactory.Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString), DbCommandFactory, DatabaseContextService);
+                var databaseContext = new DatabaseContext(connectionStringName, connectionStringOptions.ProviderName, (DbConnection)_dbConnectionFactory.Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString), _dbCommandFactory, _databaseContextService);
 
                 DatabaseContextCreated?.Invoke(this, new DatabaseContextEventArgs(databaseContext));
 
@@ -57,10 +61,6 @@ namespace Shuttle.Core.Data
                 _lock.Release();
             }
         }
-
-        public IDbConnectionFactory DbConnectionFactory { get; }
-        public IDbCommandFactory DbCommandFactory { get; }
-        public IDatabaseContextService DatabaseContextService { get; }
 
         public IDatabaseContext Create()
         {

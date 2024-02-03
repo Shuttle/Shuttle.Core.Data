@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Shuttle.Core.Contract;
@@ -11,6 +10,7 @@ namespace Shuttle.Core.Data
     {
         private const string AmbientDataKey = "__DatabaseContextService-AmbientData__";
         private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+        private static AsyncLocal<DatabaseContextAmbientData> _ambientData;
 
         public IDatabaseContext Current
         {
@@ -20,12 +20,7 @@ namespace Shuttle.Core.Data
 
                 try
                 {
-                    if (GetAmbientData().ActiveDatabaseContext == null)
-                    {
-                        throw new InvalidOperationException(Resources.DatabaseContextMissing);
-                    }
-
-                    return GetAmbientData().ActiveDatabaseContext;
+                    return GetAmbientData().ActiveDatabaseContext ?? throw new InvalidOperationException(Resources.DatabaseContextMissing);
                 }
                 finally
                 {
@@ -34,9 +29,13 @@ namespace Shuttle.Core.Data
             }
         }
 
-        public void Activate(IDatabaseContext context)
+        public event EventHandler<DatabaseContextAsyncLocalValueChangedEventArgs> DatabaseContextAsyncLocalValueChanged;
+        public event EventHandler<EventArgs> DatabaseContextAsyncLocalAssigned ;
+        public event EventHandler<DatabaseContextAsyncLocalValueAssignedEventArgs> DatabaseContextAsyncLocalValueAssigned;
+
+        public void Activate(IDatabaseContext databaseContext)
         {
-            Guard.AgainstNull(context, nameof(context));
+            Guard.AgainstNull(databaseContext, nameof(databaseContext));
 
             _lock.Wait();
 
@@ -44,19 +43,19 @@ namespace Shuttle.Core.Data
             {
                 var current = GetAmbientData().ActiveDatabaseContext;
 
-                if (current != null && current.Name.Equals(context.Name))
+                if (current != null && current.Name.Equals(databaseContext.Name))
                 {
-                    throw new Exception(string.Format(Resources.DatabaseContextAlreadyActiveException, context.Name));
+                    throw new Exception(string.Format(Resources.DatabaseContextAlreadyActiveException, databaseContext.Name));
                 }
 
-                var active = GetAmbientData().DatabaseContexts.FirstOrDefault(item => item.Name.Equals(context.Name, StringComparison.InvariantCultureIgnoreCase));
+                var active = GetAmbientData().DatabaseContexts.FirstOrDefault(item => item.Name.Equals(databaseContext.Name, StringComparison.InvariantCultureIgnoreCase));
 
                 if (active == null)
                 {
-                    throw new Exception(string.Format(Resources.DatabaseContextNameNotFoundException, context.Name));
+                    throw new Exception(string.Format(Resources.DatabaseContextNameNotFoundException, databaseContext.Name));
                 }
 
-                GetAmbientData().ActiveDatabaseContext = active;
+                GetAmbientData().Active(active);
             }
             finally
             {
@@ -64,50 +63,33 @@ namespace Shuttle.Core.Data
             }
         }
 
-        public void Add(IDatabaseContext context)
+        public void Add(IDatabaseContext databaseContext)
         {
-            Guard.AgainstNull(context, nameof(context));
+            Guard.AgainstNull(databaseContext, nameof(databaseContext));
 
             _lock.Wait();
 
             try
             {
-                if (Find(candidate => candidate.Name.Equals(context.Name), false) != null)
-                {
-                    throw new Exception(string.Format(Resources.DuplicateDatabaseContextException, context.Name));
-                }
-
-                GetAmbientData().DatabaseContexts.Add(context);
+                GetAmbientData().Add(databaseContext);
             }
             finally
             {
                 _lock.Release();
             }
 
-            Activate(context);
+            Activate(databaseContext);
         }
 
-        public void Remove(IDatabaseContext context)
+        public void Remove(IDatabaseContext databaseContext)
         {
-            Guard.AgainstNull(context, nameof(context));
+            Guard.AgainstNull(databaseContext, nameof(databaseContext));
 
             _lock.Wait();
 
             try
             {
-                var candidate = Find(candidate => candidate.Key.Equals(context.Key), false);
-
-                if (candidate == null)
-                {
-                    throw new InvalidOperationException(string.Format(Resources.DatabaseContextKeyNotFoundException, context.Key, context.Name));
-                }
-
-                if (GetAmbientData().ActiveDatabaseContext != null && candidate.Key.Equals(GetAmbientData().ActiveDatabaseContext.Key))
-                {
-                    GetAmbientData().ActiveDatabaseContext = null;
-                }
-
-                GetAmbientData().DatabaseContexts.Remove(candidate);
+                GetAmbientData().Remove(databaseContext);
             }
             finally
             {
@@ -117,49 +99,40 @@ namespace Shuttle.Core.Data
 
         public IDatabaseContext Find(Predicate<IDatabaseContext> match)
         {
-            return Find(match, true);
-        }
-
-        private IDatabaseContext Find(Predicate<IDatabaseContext> match, bool locked)
-        {
             Guard.AgainstNull(match, nameof(match));
 
-            if (locked)
-            {
-                _lock.Wait();
-            }
+            _lock.Wait();
 
             try
             {
-                return GetAmbientData().DatabaseContexts.Find(match);
+                return GetAmbientData().Find(match);
             }
             finally
             {
-                if (locked)
-                {
-                    _lock.Release();
-                }
+                _lock.Release();
             }
         }
 
-        private AmbientData GetAmbientData()
+        private DatabaseContextAmbientData GetAmbientData()
         {
-            var result = AmbientContext.GetData(AmbientDataKey) as AmbientData;
-
-            if (result == null)
+            if (_ambientData == null)
             {
-                result = new AmbientData();
+                _ambientData = new AsyncLocal<DatabaseContextAmbientData>(args =>
+                {
+                    DatabaseContextAsyncLocalValueChanged?.Invoke(this, new DatabaseContextAsyncLocalValueChangedEventArgs(args));
+                });
 
-                AmbientContext.SetData(AmbientDataKey, result);
+                DatabaseContextAsyncLocalAssigned?.Invoke(this, EventArgs.Empty);
             }
 
-            return result;
-        }
+            if (_ambientData.Value == null)
+            {
+                _ambientData.Value = new DatabaseContextAmbientData();
 
-        private class AmbientData
-        {
-            public readonly List<IDatabaseContext> DatabaseContexts = new List<IDatabaseContext>();
-            public IDatabaseContext ActiveDatabaseContext;
+                DatabaseContextAsyncLocalValueAssigned?.Invoke(this, new DatabaseContextAsyncLocalValueAssignedEventArgs(_ambientData.Value));
+            }
+
+            return _ambientData.Value;
         }
     }
 }

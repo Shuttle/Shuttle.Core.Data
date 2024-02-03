@@ -55,7 +55,7 @@ namespace Shuttle.Core.Data
             return new BlockedDbCommand((DbCommand)command, new BlockingSemaphoreSlim(_dbCommandLock), _dbDataReaderLock);
         }
 
-        public BlockedDbConnection GetBlockedDbConnection()
+        public BlockedDbConnection GetDbConnection()
         {
             _dbConnectionLock.Wait(CancellationToken.None);
 
@@ -179,6 +179,13 @@ namespace Shuttle.Core.Data
             }
 
             throw new ObjectDisposedException(nameof(DatabaseContext));
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            Dispose();
+
+            await new ValueTask();
         }
     }
 }

@@ -27,9 +27,9 @@ namespace Shuttle.Core.Data.Tests.Fakes
 			return result;
 		}
 
-		public Task<IEnumerable<Order>> AssembleAsync(MappedData data)
+		public async Task<IEnumerable<Order>> AssembleAsync(MappedData data)
 		{
-			return Task.FromResult(Assemble(data));
+			return await Task.FromResult(Assemble(data));
 		}
 	}
 }
