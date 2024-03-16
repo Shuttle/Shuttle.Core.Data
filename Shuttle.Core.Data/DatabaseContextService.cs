@@ -48,14 +48,14 @@ namespace Shuttle.Core.Data
                     throw new Exception(string.Format(Resources.DatabaseContextAlreadyActiveException, databaseContext.Name));
                 }
 
-                var active = GetAmbientData().DatabaseContexts.FirstOrDefault(item => item.Name.Equals(databaseContext.Name, StringComparison.InvariantCultureIgnoreCase));
+                var activate = GetAmbientData().DatabaseContexts.FirstOrDefault(item => item.Name.Equals(databaseContext.Name, StringComparison.InvariantCultureIgnoreCase));
 
-                if (active == null)
+                if (activate == null)
                 {
                     throw new Exception(string.Format(Resources.DatabaseContextNameNotFoundException, databaseContext.Name));
                 }
 
-                GetAmbientData().Active(active);
+                GetAmbientData().Activate(activate);
             }
             finally
             {

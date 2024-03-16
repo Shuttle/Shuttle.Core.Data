@@ -11,7 +11,7 @@ namespace Shuttle.Core.Data
 
         private readonly List<IDatabaseContext> _databaseContexts = new List<IDatabaseContext>();
 
-        internal void Active(IDatabaseContext databaseContext)
+        internal void Activate(IDatabaseContext databaseContext)
         {
             ActiveDatabaseContext = databaseContext;
         }
@@ -24,11 +24,6 @@ namespace Shuttle.Core.Data
             }
 
             _databaseContexts.Add(context);
-        }
-
-        internal void Inactive()
-        {
-            ActiveDatabaseContext = null;
         }
 
         internal void Remove(IDatabaseContext databaseContext)
