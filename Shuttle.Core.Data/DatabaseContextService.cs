@@ -2,15 +2,21 @@
 using System.Linq;
 using System.Threading;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Threading;
 
 namespace Shuttle.Core.Data
 {
     public class DatabaseContextService : IDatabaseContextService
     {
-        private const string AmbientDataKey = "__DatabaseContextService-AmbientData__";
-        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
         private static AsyncLocal<DatabaseContextAmbientData> _ambientData;
+        private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+
+        public DatabaseContextService()
+        {
+            _ambientData = new AsyncLocal<DatabaseContextAmbientData>(OnAsyncLocalValueChanged)
+            {
+                Value = new DatabaseContextAmbientData()
+            };
+        }
 
         public IDatabaseContext Current
         {
@@ -30,7 +36,6 @@ namespace Shuttle.Core.Data
         }
 
         public event EventHandler<DatabaseContextAsyncLocalValueChangedEventArgs> DatabaseContextAsyncLocalValueChanged;
-        public event EventHandler<EventArgs> DatabaseContextAsyncLocalAssigned ;
         public event EventHandler<DatabaseContextAsyncLocalValueAssignedEventArgs> DatabaseContextAsyncLocalValueAssigned;
 
         public void Activate(IDatabaseContext databaseContext)
@@ -115,16 +120,6 @@ namespace Shuttle.Core.Data
 
         private DatabaseContextAmbientData GetAmbientData()
         {
-            if (_ambientData == null)
-            {
-                _ambientData = new AsyncLocal<DatabaseContextAmbientData>(args =>
-                {
-                    DatabaseContextAsyncLocalValueChanged?.Invoke(this, new DatabaseContextAsyncLocalValueChangedEventArgs(args));
-                });
-
-                DatabaseContextAsyncLocalAssigned?.Invoke(this, EventArgs.Empty);
-            }
-
             if (_ambientData.Value == null)
             {
                 _ambientData.Value = new DatabaseContextAmbientData();
@@ -133,6 +128,11 @@ namespace Shuttle.Core.Data
             }
 
             return _ambientData.Value;
+        }
+
+        private void OnAsyncLocalValueChanged(AsyncLocalValueChangedArgs<DatabaseContextAmbientData> args)
+        {
+            DatabaseContextAsyncLocalValueChanged?.Invoke(this, new DatabaseContextAsyncLocalValueChangedEventArgs(args));
         }
     }
 }

@@ -5,7 +5,6 @@ namespace Shuttle.Core.Data
 	public interface IDatabaseContextService
 	{
 		event EventHandler<DatabaseContextAsyncLocalValueChangedEventArgs> DatabaseContextAsyncLocalValueChanged;
-		event EventHandler<EventArgs> DatabaseContextAsyncLocalAssigned;
 		event EventHandler<DatabaseContextAsyncLocalValueAssignedEventArgs> DatabaseContextAsyncLocalValueAssigned;
 
         void Activate(IDatabaseContext databaseContext);
