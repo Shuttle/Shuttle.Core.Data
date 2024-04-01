@@ -12,6 +12,11 @@ namespace Shuttle.Core.Data
 
         public DatabaseContextService()
         {
+            if (_ambientData != null)
+            {
+                return;
+            }
+
             _ambientData = new AsyncLocal<DatabaseContextAmbientData>(OnAsyncLocalValueChanged)
             {
                 Value = new DatabaseContextAmbientData()
