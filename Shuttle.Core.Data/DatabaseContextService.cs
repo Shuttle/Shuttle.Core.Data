@@ -7,8 +7,16 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseContextService : IDatabaseContextService
     {
+        private class NullScope : IDisposable
+        {
+            public void Dispose()
+            {
+            }
+        }
+
         private static AsyncLocal<DatabaseContextAmbientData> _ambientData;
         private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+        private readonly NullScope _nullScope = new NullScope();
 
         public DatabaseContextService()
         {
@@ -17,10 +25,7 @@ namespace Shuttle.Core.Data
                 return;
             }
 
-            _ambientData = new AsyncLocal<DatabaseContextAmbientData>(OnAsyncLocalValueChanged)
-            {
-                Value = new DatabaseContextAmbientData()
-            };
+            _ambientData = new AsyncLocal<DatabaseContextAmbientData>(OnAsyncLocalValueChanged);
         }
 
         public IDatabaseContext Current
@@ -38,6 +43,13 @@ namespace Shuttle.Core.Data
                     _lock.Release();
                 }
             }
+        }
+
+        public IDisposable GetAmbientScope()
+        {
+            GetAmbientData();
+
+            return _nullScope;
         }
 
         public event EventHandler<DatabaseContextAsyncLocalValueChangedEventArgs> DatabaseContextAsyncLocalValueChanged;
