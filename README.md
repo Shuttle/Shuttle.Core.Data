@@ -8,7 +8,7 @@ Provides an abstraction built directly on ADO.NET which falls within the Micro O
 
 # Overview
 
-The `Shuttle.Core.Data` package provides a thin abstraction over ADO.NET by making use of the `DbProviderFactories`.  Even though it provides object/relational mapping mechanisms it is in no way an ORM.
+The `Shuttle.Core.Data` package provides a thin abstraction over ADO.NET by making use of the `DbProviderFactories`.  Even though it provides object/relational mapping mechanisms it is in no way a fully fledged ORM.
 
 ## Configuration
 
