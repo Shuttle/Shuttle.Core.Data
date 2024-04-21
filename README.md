@@ -8,7 +8,7 @@ Provides an abstraction built directly on ADO.NET which falls within the Micro O
 
 # Overview
 
-The `Shuttle.Core.Data` package provides a thin abstraction over ADO.NET by making use of the `DbProviderFactories` (see `Shuttle.Core.Data.SqlClient` for .Net Core Provider Factory adapter).  Even though it provides object/relational mapping mechanisms it is in no way an ORM.
+The `Shuttle.Core.Data` package provides a thin abstraction over ADO.NET by making use of the `DbProviderFactories`.  Even though it provides object/relational mapping mechanisms it is in no way an ORM.
 
 ## Configuration
 
@@ -72,24 +72,12 @@ The default JSON settings structure is as follows:
 
 In order to access a database we need a database connection.  A database connection is represented by an `IDatabaseContext` instance that may be obtained by using an instance of an `IDatabaseContextFactory` implementation.
 
-The `DatabaseContextFactory` implementation makes use of an `IDbConnectionFactory` implementation which creates a `System.Data.IDbConnection` by using the provider name and connection string.  An `IDbCommandFactory` creates a `System.Data.IDbCommand` by using an `IDbConnection` instance.
+The `DatabaseContextFactory` implementation makes use of an `IDbConnectionFactory` implementation which creates a `System.Data.IDbConnection` by using the provider name and connection string, which is obtained from the registered connection name.  An `IDbCommandFactory` creates a `System.Data.IDbCommand` by using an `IDbConnection` instance.
 
 ``` c#
-var databaseContextFactory = provider.GetRequiredService<DatabaseContextFactory>();
+var databaseContextFactory = provider.GetRequiredService<IDatabaseContextFactory>();
 
 using (var databaseContext = databaseContextFactory.Create("connection-name"))
-{
-	// database interaction
-}
-
-using (var databaseContext = databaseContextFactory
-	.Create("Microsoft.Data.SqlClient", 
-		"Data Source=.\sqlexpress;Initial Catalog=Shuttle;Integrated Security=SSPI;TrustServerCertificate=true"))
-{
-	// database interaction
-}
-
-using (var databaseContext = databaseContextFactory.Create(existingIDbConnection))
 {
 	// database interaction
 }
@@ -105,31 +93,19 @@ void Prepare(IDbCommand command);
 
 This should ensure that the given `IDbCommand` is configured for execution by setting the relvant command attributes and parameters.
 
-## RawQuery
+## Query
 
-The `RawQuery` represents a `Text` command type:
-
-``` c#
-public RawQuery(string sql);
-public static IQueryParameter Create(string sql, params object[] args);
-public static IQueryParameter Create(string sql, dynamic parameters);
-```
-
-You can either use the constructor or one of the static methods to specify the `sql` to use.  Parameters may either be added using the `AddParameterValue` of the returned `IQueryParameter` or they may be added as `params object[] args` in order to insert them at the required index.  When using `dynamic` parameters the object values are converted to `Column` instances and added as parameters using `AddParameterValue`.
-
-## ProcedureQuery
-
-The `ProcedureQuery` represents a `StoredProcedure` command type.
-
-## Dynamic mapping extensions
-
-Methods that take an `IQuery` instance as a parameter will typically also be implemented as an extension method that take the `sql` and `dynamic` parameters as input, e.g.:
+The `Query` represents a `Text` command type:
 
 ``` c#
-public static int DataAccessMethod(this IDataAccessInterface dataAccessInstance, string sql, dynamic parameters = null);
+public Query(string commandText, CommandType commandType = CommandType.Text)
 ```
 
-Where `DataAccessMethod` is the relevant method on the `IDataAccessInterface` that you would like to call.
+You can then add parameters to the query:
+
+``` c#
+query.AddParameter(new Column<Guid>("Id", DbType.Guid), new Guid('{75208260-CF93-454E-95EC-FE1903F3664E}'));
+```
 
 # Column
 
@@ -154,7 +130,7 @@ namespace Shuttle.Ordering.DataAccess
             new Column<string>("OrderDate", DbType.DateTime);
 
         public static readonly Column<string> CustomerName =
-        new Column<string>("CustomerName", DbType.String, 65);
+			new Column<string>("CustomerName", DbType.String, 65);
 
         public static readonly Column<string> CustomerEMail =
             new Column<string>("CustomerEMail", DbType.String); // size omitted
@@ -172,52 +148,46 @@ public T Value(DataRow row)
 
 This will return the typed value of the specified column as contained in the passed-in `DataRow`.
 
-# IQueryParameter: IQuery
-
-An `IQueryParameter` inherits the `IQuery` interface and extends it by allowing you to add parameters to a query by specifying an `IColumn` (see below) instance along with the value for the parameter.
-
-There are two implementations of this interface.
-
 # IDatabaseGateway
 
-The `DatabaseGateway` is used to execute `IQuery` instances in order return data from, or make changes to, the underlying data store.  If there is no active open `IDatabaseContext` returned by the `DatabaseContext.Current` and `InvalidOperationException` will be thrown.
+The `DatabaseGateway` is used to execute `IQuery` instances in order return data from, or make changes to, the underlying data store.  If there is no active open `IDatabaseContext` returned by the `DatabaseContextService.Current` an `InvalidOperationException` will be thrown.
 
-The following section each describe the methods available in the `IDatabaseGateway` interface.
+The following sections each describe the methods available in the `IDatabaseGateway` interface.
 
-## GetReader
+## GetReaderAsync
 
 ``` c#
-Task<IDataReader> GetReader(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+Task<IDataReader> GetReaderAsync(IQuery query, CancellationToken cancellationToken = default);
 ```
 
 Returns an `IDataReader` instance for the given `query` statement:
 
 ``` c#
-using (var databaseContext = databaseContextFactory.Create("connection-name"))
+using (databaseContextFactory.Create("connection-name"))
 {
-	var reader = await gateway.GetReader(databaseContext, RawQuery.Create("select Id, Username from dbo.Member"));
+	var reader = await gateway.GetReaderAsync(new Query("select Id, Username from dbo.Member"));
 }
 ```
 
-## Execute
+## ExecuteAsync
 
 ``` c#
-Task<int> Execute(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+Task<int> ExecuteAsync(IQuery query, CancellationToken cancellationToken = default);
 ```
 
 Executes the given query and returns the number of rows affected:
 
 ``` c#
-using (var databaseContext = databaseContextFactory.Create("connection-name"))
+using (databaseContextFactory.Create("connection-name"))
 {
-	gateway.Execute(databaseContext, RawQuery.Create("delete from dbo.Member where Username = 'mr.resistor'"));
+	await gateway.ExecuteAsync(new Query("delete from dbo.Member where Username = 'mr.resistor'"));
 }
 ```
 
-## GetScalar
+## GetScalarAsync
 
 ```c#
-Task<T> GetScalar<T>(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+Task<T> GetScalarAsync<T>(IQuery query, CancellationToken cancellationToken = default);
 ```
 
 Get the scalar value returned by the `select` query.  The query shoud return only one value (scalar):
@@ -225,63 +195,54 @@ Get the scalar value returned by the `select` query.  The query shoud return onl
 ```c#
 using (var databaseContext = databaseContextFactory.Create("connection-name"))
 {
-	var username = await gateway.GetScalar<string>(
-		databaseContext,
-		RawQuery.Create("select Username from dbo.Member where Id = 10")
-	);
+	var username = await gateway.GetScalarAsync<string>(new Query("select Username from dbo.Member where Id = 10"));
 	
-	var id = await gateway.GetScalar<int>(
-		databaseContext,
-		RawQuery.Create("select Id from dbo.Member where Username = 'mr.resistor'")
-	);
+	var id = await gateway.GetScalarAsync<int>(new Query.Create("select Id from dbo.Member where Username = 'mr.resistor'")	);
 }
 ```
 
-## GetDataTable
+## GetDataTableAsync
 
 ``` c#
-Task<DataTable> GetDataTable(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+Task<DataTable> GetDataTableAsync(IQuery query, CancellationToken cancellationToken = default);
 ```
 
 Returns a `DataTable` containing the rows returned for the given `select` query.
 
 ``` c#
-using (var databaseContext = databaseContextFactory.Create("connection-name"))
+using (databaseContextFactory.Create("connection-name"))
 {
-	var table = await gateway.GetDataTable(databaseContext, RawQuery.Create("select Id, Username from dbo.Member"));
+	var table = await gateway.GetDataTableAsync(new Query("select Id, Username from dbo.Member"));
 }
 ```
 
-## GetRows
+## GetRowsAsync
 
 ``` c#
-Task<IEnumerable<DataRow>> GetRows(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+Task<IEnumerable<DataRow>> GetRowsAsync(IQuery query, CancellationToken cancellationToken = default);
 ```
 
 Returns an enumerable containing the `DataRow` instances returned for a `select` query:
 
 ``` c#
-using (var databaseContext = databaseContextFactory.Create("connection-name"))
+using (databaseContextFactory.Create("connection-name"))
 {
-	var rows = gateway.GetRows(databaseContext, RawQuery.Create("select Id, Username from dbo.Member"));
+	var rows = await gateway.GetRowsAsync(new Query("select Id, Username from dbo.Member"));
 }
 ```
 
-## GetRow
+## GetRowAsync
 
 ``` c#
-Task<DataRow> GetRow(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+Task<DataRow> GetRowAsync(IQuery query, CancellationToken cancellationToken = default);
 ```
 
 Returns a single `DataRow` containing the values returned for a `select` statement that returns exactly one row:
 
 ``` c#
-using (var databaseContext = databaseContextFactory.Create("connection-name"))
+using (databaseContextFactory.Create("connection-name"))
 {
-	var row = await gateway.GetRow(
-		databaseContext,
-		RawQuery.Create("select Id, Username, EMail, DateActivated from dbo.Member where Id = 10")
-	);
+	var row = await gateway.GetRowAsync(new Query("select Id, Username, EMail, DateActivated from dbo.Member where Id = 10")	);
 }
 ```
 
@@ -291,72 +252,53 @@ An `IDataRepository<T>` implementation is responsible for returning a hydrated o
 
 The following methods can be used to interact with your object type.
 
-## FetchItems
+## FetchItemsAsync
 
 ``` c#
-Task<IEnumerable<T>> FetchItems(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+Task<IEnumerable<T>> FetchItemsAsync(IQuery query, CancellationToken cancellationToken = default);
 ```
 
 Uses the `select` clause represented by the `IQuery` instance to create a list of objects of type `T`.  The `select` clause will need to select all the required columns and will, typically, return more than one instance.
 
-## FetchItem
+## FetchItemAsync
 
 ``` c#
-Task<T> FetchItem(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+Task<T> FetchItemAsync(IQuery query, CancellationToken cancellationToken = default);
 ```
 
 Returns a single object instance of type `T` that is hydrated using the data returned from the `select` clause represented by the `IQuery` instance.
 
-## FetchMappedRows
+## FetchMappedRowsAsync
 
 ``` c#
-IEnumerable<MappedRow<T>> FetchMappedRows(IQuery query);
+Task<MappedRow<T>> FetchMappedRowsAsync(IQuery query, CancellationToken cancellationToken = default);
 ```
 
 This is similar to the `FetchItems` method but instead returns a list of `MappedRow<T>` instances.  Uses the `select` clause represented by the `IQuery` instance to create a list of `MappedRow` instances of type `T`.  The `select` clause will need to select all the required columns and will, typically, return more than one instance.
 
-## FetchMappedRow
+## FetchMappedRowAsync
 
 ``` c#
-Task<MappedRow<T>> FetchMappedRow(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+Task<IEnumerable<MappedRow<T>>> FetchMappedRowAsync(IQuery query, CancellationToken cancellationToken = default);
 ```
 
 Similar to the `FetchItem` method but instead return a `MappedRow<T>` instance that is hydrated using the data returned from the `select` clause represented by the `IQuery` instance.
 
-## FetchMappedRows
+## ContainsAsync
 
 ``` c#
-Task<IEnumerable<MappedRow<T>>> FetchMappedRows(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
-```
-
-Similar to the `FetchMappedRow` method but returns an enumerable containing all the `MappedRow` instances.
-
-## Contains
-
-``` c#
-Task<bool> Contains(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+Task<bool> ContainsAsync(IQuery query, CancellationToken cancellationToken = default);
 ```
 
 Returns `true` is the `IQuery` instance `select` clause returns an `int` scalar that equals `1`; else returns `false`.
 
-## RawQuery
+## Query
 
-The `RawQuery` enables you to create any query using the native language structure:
-
-``` c#
-var query = RawQuery.Create("select UserName from dbo.Member where Id = @Id")
-	.AddParameterValue(new Column<Guid>("Id", DbType.Guid), 
-		new Guid('{75208260-CF93-454E-95EC-FE1903F3664E}'));
-```
-
-## ProcedureQuery
-
-The `ProcedureQuery` is used to execute a stored procedure:
+The `Query` enables you to create any query using the native language structure:
 
 ``` c#
-var query = ProcedureQuery.Create("uspMemberById")
-	.AddParameterValue(new Column<Guid>("Id", DbType.Guid), 
-		new Guid('{75208260-CF93-454E-95EC-FE1903F3664E}'));
+var query = new Query("select UserName from dbo.Member where Id = @Id")
+	.AddParameter(new Column<Guid>("Id", DbType.Guid), new Guid('{75208260-CF93-454E-95EC-FE1903F3664E}'));
 ```
 
 # IDataRowMapper
@@ -392,9 +334,9 @@ namespace Shuttle.ProcessManagement
 
 # MappedRow
 
-A `MappedRow` instance contains bother a `DataRow` and the object that the `DataRow` mapped to.  
+A `MappedRow` instance contains both a `DataRow` and the object that the `DataRow` mapped to.  
 
-This may be useful in situation where the `DataRow` contains more information that is available on the object.  An example may be an `OrderLine` where the `DataRow` contains the `OrderId` column but the `OrderLine` object does not.  In order to still be able to make that association it is useful to have both available.
+This may be useful in situations where the `DataRow` contains more information than is available on the object.  An example may be an `OrderLine` where the `DataRow` contains the `OrderId` column but the `OrderLine` object does not.  In order to still be able to make that association it is useful to have both available.
 
 # IAssembler
 

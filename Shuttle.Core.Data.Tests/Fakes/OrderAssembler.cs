@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Shuttle.Core.Data.Tests.Fakes
@@ -27,7 +28,7 @@ namespace Shuttle.Core.Data.Tests.Fakes
 			return result;
 		}
 
-		public async Task<IEnumerable<Order>> AssembleAsync(MappedData data)
+		public async Task<IEnumerable<Order>> AssembleAsync(MappedData data, CancellationToken cancellationToken)
 		{
 			return await Task.FromResult(Assemble(data));
 		}
