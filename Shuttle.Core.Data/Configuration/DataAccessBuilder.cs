@@ -8,8 +8,6 @@ namespace Shuttle.Core.Data
 {
     public class DataAccessBuilder
     {
-        public const string SectionName = "Shuttle:DataAccess";
-
         private DataAccessOptions _dataAccessOptions = new DataAccessOptions();
 
         public DataAccessOptions Options

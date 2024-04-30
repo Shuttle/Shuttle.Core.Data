@@ -1,25 +1,30 @@
 using System;
 using System.Data;
+using System.Threading.Tasks;
+using IsolationLevel = System.Data.IsolationLevel;
 
 namespace Shuttle.Core.Data
 {
-    public interface IDatabaseContext : IDisposable
+    public interface IDatabaseContext : IDisposable, IAsyncDisposable
     {
-		Guid Key { get; }
+	    event EventHandler<TransactionEventArgs> TransactionStarted;
+	    event EventHandler<TransactionEventArgs> TransactionCommitted;
+	    event EventHandler<TransactionEventArgs> TransactionRolledBack;
+	    event EventHandler<EventArgs> Disposed;
+
+	    Guid Key { get; }
 		string Name { get; }
 
-        IDbTransaction Transaction { get; }
-        IDbConnection Connection { get; }
-        IDbCommand CreateCommandToExecute(IQuery query);
+		IDbTransaction Transaction { get; }
+		BlockedDbCommand CreateCommand(IQuery query);
+		BlockedDbConnection GetDbConnection();
 
         bool HasTransaction { get; }
         string ProviderName { get; }
 
-        IDatabaseContext BeginTransaction();
-        IDatabaseContext BeginTransaction(IsolationLevel isolationLevel);
+        IDatabaseContext BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Unspecified);
+        Task<IDatabaseContext> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified);
         void CommitTransaction();
-	    IDatabaseContext WithName(string name);
-	    IDatabaseContext Suppressed();
-	    IDatabaseContext SuppressDispose();
+        Task CommitTransactionAsync();
     }
 }

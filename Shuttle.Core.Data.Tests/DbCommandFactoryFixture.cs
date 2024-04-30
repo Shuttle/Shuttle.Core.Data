@@ -21,7 +21,7 @@ namespace Shuttle.Core.Data.Tests
             connection.Setup(m => m.CreateCommand()).Returns(command.Object);
             query.Setup(m => m.Prepare(command.Object));
 
-            var result = factory.CreateCommandUsing(connection.Object, query.Object);
+            var result = factory.Create(connection.Object, query.Object);
 
             connection.VerifyAll();
             query.VerifyAll();

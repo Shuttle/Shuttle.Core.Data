@@ -1,115 +1,160 @@
 ﻿using System;
-using System.Data;
-using System.Data.SqlClient;
+using System.Data.Common;
+using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Moq;
 using NUnit.Framework;
+using Shuttle.Core.Threading;
 
-namespace Shuttle.Core.Data.Tests
+namespace Shuttle.Core.Data.Tests;
+
+[TestFixture]
+public class DatabaseContextFixture : Fixture
 {
-	[TestFixture]
-	public class DatabaseContextFixture : Fixture
-	{
-		[Test]
-		public void Should_not_be_able_to_create_an_invalid_connection()
-		{
-		    Assert.Throws<ArgumentException>(() =>
-		    {
-		        using (new DatabaseContext("System.Data.SqlClient", new SqlConnection("```"), new Mock<IDbCommandFactory>().Object, new DatabaseContextCache()))
-		        {
-		        }
-		    });
-		}
+    [Test]
+    public void Should_not_be_able_to_create_an_invalid_connection()
+    {
+        Assert.Throws<ArgumentException>(() =>
+        {
+            using (new DatabaseContext("context", "Microsoft.Data.SqlClient", new SqlConnection("```"), new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
+            {
+            }
+        });
+    }
 
-		[Test]
-		public void Should_not_be_able_to_create_a_non_existent_connection()
-		{
-		    Assert.Throws<SqlException>(() =>
-		    {
-		        using (
-		            new DatabaseContext("System.Data.SqlClient", new SqlConnection("data source=.;initial catalog=idontexist;integrated security=sspi"),
-		                new Mock<IDbCommandFactory>().Object, new DatabaseContextCache()))
-		        {
-		        }
-		    });
-		}
+    [Test]
+    public void Should_not_be_able_to_create_a_non_existent_connection()
+    {
+        Assert.Throws<SqlException>(() =>
+        {
+            using (var databaseContext = new DatabaseContext("context", "Microsoft.Data.SqlClient", new SqlConnection("data source=.;initial catalog=idontexist;integrated security=sspi"),
+                       new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
+            {
+                databaseContext.CreateCommand(new Query("select 1"));
+            }
+        });
+    }
 
-		[Test]
-		public void Should_be_able_to_create_a_valid_connection()
-		{
-			using (
-				new DatabaseContext("System.Data.SqlClient", GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString),
-					new Mock<IDbCommandFactory>().Object, new DatabaseContextCache()))
-			{
-			}
-		}
+    [Test]
+    public void Should_be_able_to_begin_and_commit_a_transaction()
+    {
+        Should_be_able_to_begin_and_commit_a_transaction_async(true).GetAwaiter().GetResult();
+    }
 
-        [Test]
-		public void Should_be_able_to_begin_and_commit_a_transaction()
-		{
-			using (
-				var connection =
-					new DatabaseContext("System.Data.SqlClient", GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString),
-						new Mock<IDbCommandFactory>().Object, new DatabaseContextCache()))
-			{
-				connection.BeginTransaction();
-				connection.CommitTransaction();
-			}
-		}
+    [Test]
+    public async Task Should_be_able_to_begin_and_commit_a_transaction_async()
+    {
+        await Should_be_able_to_begin_and_commit_a_transaction_async(false);
+    }
 
-		[Test]
-		public void Should_be_able_to_begin_and_rollback_a_transaction()
-		{
-			using (
-				var connection =
-					new DatabaseContext("System.Data.SqlClient", GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString),
-						new Mock<IDbCommandFactory>().Object, new DatabaseContextCache()))
-			{
-				connection.BeginTransaction();
-			}
-		}
+    private async Task Should_be_able_to_begin_and_commit_a_transaction_async(bool sync)
+    {
+        using (
+            var connection =
+            new DatabaseContext("context", "Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
+                new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
+        {
+            if (sync)
+            {
+                connection.BeginTransaction();
+                connection.CommitTransaction();
+            }
+            else
+            {
+                await connection.BeginTransactionAsync();
+                await connection.CommitTransactionAsync();
+            }
+        }
+    }
 
-		[Test]
-		public void Should_be_able_to_call_commit_without_a_transaction()
-		{
-			using (
-				var connection =
-					new DatabaseContext("System.Data.SqlClient", GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString),
-						new Mock<IDbCommandFactory>().Object, new DatabaseContextCache()))
-			{
-				connection.CommitTransaction();
-			}
-		}
+    [Test]
+    public void Should_be_able_to_begin_and_rollback_a_transaction()
+    {
+        Should_be_able_to_begin_and_rollback_a_transaction_async(true).GetAwaiter().GetResult();
+    }
 
-		[Test]
-		public void Should_be_able_to_call_dispose_more_than_once()
-		{
-			using (
-				var connection =
-					new DatabaseContext("System.Data.SqlClient", GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString),
-						new Mock<IDbCommandFactory>().Object, new DatabaseContextCache()))
-			{
-				connection.Dispose();
-				connection.Dispose();
-			}
-		}
+    [Test]
+    public async Task Should_be_able_to_begin_and_rollback_a_transaction_async()
+    {
+        await Should_be_able_to_begin_and_rollback_a_transaction_async(false);
+    }
 
-		[Test]
-		public void Should_be_able_to_create_a_command()
-		{
-			var dbCommandFactory = new Mock<IDbCommandFactory>();
-			var dbConnection = GetDbConnectionFactory().CreateConnection(DefaultProviderName, DefaultConnectionString);
-			var query = new Mock<IQuery>();
-			var dbCommand = new Mock<IDbCommand>();
+    private async Task Should_be_able_to_begin_and_rollback_a_transaction_async(bool sync)
+    {
+        using (
+            var connection =
+            new DatabaseContext("context", "Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
+                new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
+        {
+            if (sync)
+            {
+                connection.BeginTransaction();
+            }
+            else
+            {
+                await connection.BeginTransactionAsync();
+            }
+        }
+    }
 
-			dbCommandFactory.Setup(m => m.CreateCommandUsing(dbConnection, query.Object)).Returns(dbCommand.Object);
+    [Test]
+    public void Should_be_able_to_call_commit_without_a_transaction()
+    {
+        Should_be_able_to_call_commit_without_a_transaction_async(true).GetAwaiter().GetResult();
+    }
 
-			using (
-				var connection = new DatabaseContext("System.Data.SqlClient", dbConnection, dbCommandFactory.Object, new DatabaseContextCache()))
-			{
-				connection.CreateCommandToExecute(query.Object);
-			}
+    [Test]
+    public async Task Should_be_able_to_call_commit_without_a_transaction_async()
+    {
+        await Should_be_able_to_call_commit_without_a_transaction_async(false);
+    }
 
-			dbCommandFactory.VerifyAll();
-		}
-	}
+    private async Task Should_be_able_to_call_commit_without_a_transaction_async(bool sync)
+    {
+        using (
+            var connection =
+            new DatabaseContext("context", "Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
+                new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
+        {
+            if (sync)
+            {
+                connection.CommitTransaction();
+            }
+            else
+            {
+                await connection.CommitTransactionAsync();
+            }
+        }
+    }
+
+    [Test]
+    public void Should_be_able_to_call_dispose_more_than_once()
+    {
+        using (
+            var connection =
+            new DatabaseContext("context", "Microsoft.Data.SqlClient", GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString),
+                new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
+        {
+            connection.Dispose();
+            connection.Dispose();
+        }
+    }
+
+    [Test]
+    public void Should_be_able_to_create_a_command()
+    {
+        var dbCommandFactory = new Mock<IDbCommandFactory>();
+        var dbConnection = GetDbConnectionFactory().Create(DefaultProviderName, DefaultConnectionString);
+        var query = new Mock<IQuery>();
+        var dbCommand = new Mock<DbCommand>();
+
+        dbCommandFactory.Setup(m => m.Create(dbConnection, query.Object)).Returns(dbCommand.Object);
+
+        using (var connection = new DatabaseContext("context", "Microsoft.Data.SqlClient", dbConnection, dbCommandFactory.Object, new DatabaseContextService()))
+        {
+            connection.CreateCommand(query.Object);
+        }
+
+        dbCommandFactory.VerifyAll();
+    }
 }

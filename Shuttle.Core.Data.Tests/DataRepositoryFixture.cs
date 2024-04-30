@@ -1,126 +1,204 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 
-namespace Shuttle.Core.Data.Tests
+namespace Shuttle.Core.Data.Tests;
+
+[TestFixture]
+public class DataRepositoryFixture : Fixture
 {
-	[TestFixture]
-	public class DataRepositoryFixture : Fixture
-	{
-		[Test]
-		public void Should_be_able_to_fetch_all_items()
-		{
-			var gateway = new Mock<IDatabaseGateway>();
-			var mapper = new Mock<IDataRowMapper<object>>();
-			var query = new Mock<IQuery>();
-			var dataRow = new DataTable().NewRow();
-			var anObject = new object();
+    [Test]
+    public void Should_be_able_to_fetch_all_items()
+    {
+        Should_be_able_to_fetch_all_items_async(true).GetAwaiter().GetResult();
+    }
 
-			gateway.Setup(m => m.GetRows(query.Object)).Returns(new List<DataRow> {dataRow});
-			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(new MappedRow<object>(dataRow, anObject));
+    [Test]
+    public async Task Should_be_able_to_fetch_all_items_async()
+    {
+        await Should_be_able_to_fetch_all_items_async(false);
+    }
 
-			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
+    private async Task Should_be_able_to_fetch_all_items_async(bool sync)
+    {
+        var gateway = new Mock<IDatabaseGateway>();
+        var mapper = new Mock<IDataRowMapper<object>>();
+        var query = new Mock<IQuery>();
+        var dataRow = new DataTable().NewRow();
+        var anObject = new object();
 
-			var result = repository.FetchItems(query.Object).ToList();
+        gateway.Setup(m => m.GetRows(query.Object, CancellationToken.None)).Returns(new List<DataRow> { dataRow });
+        gateway.Setup(m => m.GetRowsAsync(query.Object, CancellationToken.None)).ReturnsAsync(new List<DataRow> { dataRow });
+        mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(new MappedRow<object>(dataRow, anObject));
 
-			Assert.IsNotNull(result);
-			Assert.AreEqual(1, result.Count);
-			Assert.AreSame(anObject, result[0]);
-		}
+        var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-		[Test]
-		public void Should_be_able_to_fetch_a_single_item()
-		{
-			var gateway = new Mock<IDatabaseGateway>();
-			var mapper = new Mock<IDataRowMapper<object>>();
-			var query = new Mock<IQuery>();
-			var dataRow = new DataTable().NewRow();
-			var anObject = new object();
+        var result = (sync
+            ? repository.FetchItems(query.Object)
+            : await repository.FetchItemsAsync(query.Object)).ToList();
 
-			gateway.Setup(m => m.GetRow(query.Object)).Returns(dataRow);
-			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(new MappedRow<object>(dataRow, anObject));
+        Assert.IsNotNull(result);
+        Assert.AreEqual(1, result.Count);
+        Assert.AreSame(anObject, result[0]);
+    }
 
-			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
+    [Test]
+    public void Should_be_able_to_fetch_a_single_item()
+    {
+        Should_be_able_to_fetch_a_single_item_async(true).GetAwaiter().GetResult();
+    }
 
-			var result = repository.FetchItem(query.Object);
+    [Test]
+    public async Task Should_be_able_to_fetch_a_single_item_async()
+    {
+        await Should_be_able_to_fetch_a_single_item_async(false);
+    }
 
-			Assert.IsNotNull(result);
-			Assert.AreSame(anObject, result);
-		}
+    private async Task Should_be_able_to_fetch_a_single_item_async(bool sync)
+    {
+        var gateway = new Mock<IDatabaseGateway>();
+        var mapper = new Mock<IDataRowMapper<object>>();
+        var query = new Mock<IQuery>();
+        var dataRow = new DataTable().NewRow();
+        var anObject = new object();
 
-		[Test]
-		public void Should_be_able_to_get_default_when_fetching_a_single_item_that_is_not_found()
-		{
-			var gateway = new Mock<IDatabaseGateway>();
-			var query = new Mock<IQuery>();
+        gateway.Setup(m => m.GetRowAsync(query.Object, CancellationToken.None)).ReturnsAsync(dataRow);
+        mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(new MappedRow<object>(dataRow, anObject));
 
-			gateway.Setup(m => m.GetRow(query.Object)).Returns((DataRow) null);
+        var repository = new DataRepository<object>(gateway.Object, mapper.Object);
 
-			var repository = new DataRepository<object>(gateway.Object, new Mock<IDataRowMapper<object>>().Object);
+        var result = await repository.FetchItemAsync(query.Object);
 
-			var result = repository.FetchItem(query.Object);
+        Assert.IsNotNull(result);
+        Assert.AreSame(anObject, result);
+    }
 
-			Assert.IsNull(result);
-		}
+    [Test]
+    public void Should_be_able_to_get_default_when_fetching_a_single_item_that_is_not_found()
+    {
+        Should_be_able_to_get_default_when_fetching_a_single_item_that_is_not_found_async(true).GetAwaiter().GetResult();
+    }
 
-		[Test]
-		public void Should_be_able_to_call_contains()
-		{
-			var gateway = new Mock<IDatabaseGateway>();
-			var query = new Mock<IQuery>();
+    [Test]
+    public async Task Should_be_able_to_get_default_when_fetching_a_single_item_that_is_not_found_async()
+    {
+        await Should_be_able_to_get_default_when_fetching_a_single_item_that_is_not_found_async(false);
+    }
 
-			gateway.Setup(m => m.GetScalar<int>(query.Object)).Returns(1);
+    private async Task Should_be_able_to_get_default_when_fetching_a_single_item_that_is_not_found_async(bool sync)
+    {
+        var gateway = new Mock<IDatabaseGateway>();
+        var query = new Mock<IQuery>();
 
-			var repository = new DataRepository<object>(gateway.Object, new Mock<IDataRowMapper<object>>().Object);
+        gateway.Setup(m => m.GetRow(query.Object, CancellationToken.None)).Returns((DataRow)null);
+        gateway.Setup(m => m.GetRowAsync(query.Object, CancellationToken.None)).ReturnsAsync((DataRow)null);
 
-			Assert.IsTrue(repository.Contains(query.Object));
-		}
+        var repository = new DataRepository<object>(gateway.Object, new Mock<IDataRowMapper<object>>().Object);
 
-		[Test]
-		public void Should_be_able_to_fetch_mapped_rows()
-		{
-			var gateway = new Mock<IDatabaseGateway>();
-			var mapper = new Mock<IDataRowMapper<object>>();
-			var query = new Mock<IQuery>();
-			var dataRow = new DataTable().NewRow();
-			var anObject = new object();
-			var mappedRow = new MappedRow<object>(dataRow, anObject);
+        var result = sync
+            ? repository.FetchItem(query.Object)
+            : await repository.FetchItemAsync(query.Object);
 
-			gateway.Setup(m => m.GetRows(query.Object)).Returns(new List<DataRow> {dataRow});
-			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(mappedRow);
+        Assert.IsNull(result);
+    }
 
-			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
+    [Test]
+    public void Should_be_able_to_call_contains()
+    {
+        Should_be_able_to_call_contains_async(true).GetAwaiter().GetResult();
+    }
 
-			var result = repository.FetchMappedRows(query.Object).ToList();
+    [Test]
+    public async Task Should_be_able_to_call_contains_async()
+    {
+        await Should_be_able_to_call_contains_async(false);
+    }
 
-			Assert.IsNotNull(result);
-			Assert.AreEqual(1, result.Count);
-			Assert.AreSame(dataRow, result[0].Row);
-			Assert.AreSame(anObject, result[0].Result);
-		}
+    public async Task Should_be_able_to_call_contains_async(bool sync)
+    {
+        var gateway = new Mock<IDatabaseGateway>();
+        var query = new Mock<IQuery>();
 
-		[Test]
-		public void Should_be_able_to_fetch_a_single_row()
-		{
-			var gateway = new Mock<IDatabaseGateway>();
-			var mapper = new Mock<IDataRowMapper<object>>();
-			var query = new Mock<IQuery>();
-			var dataRow = new DataTable().NewRow();
-			var anObject = new object();
-			var mappedRow = new MappedRow<object>(dataRow, anObject);
+        gateway.Setup(m => m.GetScalar<int>(query.Object, CancellationToken.None)).Returns(1);
+        gateway.Setup(m => m.GetScalarAsync<int>(query.Object, CancellationToken.None)).ReturnsAsync(1);
 
-			gateway.Setup(m => m.GetRow(query.Object)).Returns(dataRow);
-			mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(mappedRow);
+        var repository = new DataRepository<object>(gateway.Object, new Mock<IDataRowMapper<object>>().Object);
 
-			var repository = new DataRepository<object>(gateway.Object, mapper.Object);
+        Assert.That(sync ? repository.Contains(query.Object) : await repository.ContainsAsync(query.Object), Is.True);
+    }
 
-			var result = repository.FetchMappedRow(query.Object);
+    [Test]
+    public void Should_be_able_to_fetch_mapped_rows()
+    {
+        Should_be_able_to_fetch_mapped_rows_async(true).GetAwaiter().GetResult();
+    }
 
-			Assert.IsNotNull(result);
-			Assert.AreSame(dataRow, result.Row);
-			Assert.AreSame(anObject, result.Result);
-		}
-	}
+    [Test]
+    public async Task Should_be_able_to_fetch_mapped_rows_async()
+    {
+        await Should_be_able_to_fetch_mapped_rows_async(false);
+    }
+
+    private async Task Should_be_able_to_fetch_mapped_rows_async(bool sync)
+    {
+        var gateway = new Mock<IDatabaseGateway>();
+        var mapper = new Mock<IDataRowMapper<object>>();
+        var query = new Mock<IQuery>();
+        var dataRow = new DataTable().NewRow();
+        var anObject = new object();
+        var mappedRow = new MappedRow<object>(dataRow, anObject);
+
+        gateway.Setup(m => m.GetRows(query.Object, CancellationToken.None)).Returns(new List<DataRow> { dataRow });
+        gateway.Setup(m => m.GetRowsAsync(query.Object, CancellationToken.None)).ReturnsAsync(new List<DataRow> { dataRow });
+        mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(mappedRow);
+
+        var repository = new DataRepository<object>(gateway.Object, mapper.Object);
+
+        var result = (sync ? repository.FetchMappedRows(query.Object) : await repository.FetchMappedRowsAsync(query.Object)).ToList();
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(1, result.Count);
+        Assert.AreSame(dataRow, result[0].Row);
+        Assert.AreSame(anObject, result[0].Result);
+    }
+
+    [Test]
+    public void Should_be_able_to_fetch_a_single_row()
+    {
+        Should_be_able_to_fetch_a_single_row_async(true).GetAwaiter().GetResult();
+    }
+
+    [Test]
+    public async Task Should_be_able_to_fetch_a_single_row_async()
+    {
+        await Should_be_able_to_fetch_a_single_row_async(false);
+    }
+
+    private async Task Should_be_able_to_fetch_a_single_row_async(bool sync)
+    {
+        var gateway = new Mock<IDatabaseGateway>();
+        var mapper = new Mock<IDataRowMapper<object>>();
+        var query = new Mock<IQuery>();
+        var dataRow = new DataTable().NewRow();
+        var anObject = new object();
+        var mappedRow = new MappedRow<object>(dataRow, anObject);
+
+        gateway.Setup(m => m.GetRow(query.Object, CancellationToken.None)).Returns(dataRow);
+        gateway.Setup(m => m.GetRowAsync(query.Object, CancellationToken.None)).ReturnsAsync(dataRow);
+        mapper.Setup(m => m.Map(It.IsAny<DataRow>())).Returns(mappedRow);
+
+        var repository = new DataRepository<object>(gateway.Object, mapper.Object);
+
+        var result = sync
+            ? repository.FetchMappedRow(query.Object)
+            : await repository.FetchMappedRowAsync(query.Object);
+
+        Assert.IsNotNull(result);
+        Assert.AreSame(dataRow, result.Row);
+        Assert.AreSame(anObject, result.Result);
+    }
 }

@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Dynamic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
@@ -16,69 +19,117 @@ namespace Shuttle.Core.Data
         private readonly IDatabaseGateway _databaseGateway;
         private readonly IDataRowMapper _dataRowMapper;
 
-        public QueryMapper(IDatabaseGateway databaseGateway, IDataRowMapper dataRowMapper)
+        public QueryMapper(IDatabaseContextService databaseContextService, IDatabaseGateway databaseGateway, IDataRowMapper dataRowMapper)
         {
             _databaseGateway = Guard.AgainstNull(databaseGateway, nameof(databaseGateway));
             _dataRowMapper = Guard.AgainstNull(dataRowMapper, nameof(dataRowMapper));
         }
 
-        public MappedRow<T> MapRow<T>(IQuery query) where T : new()
+        public MappedRow<T> MapRow<T>(IQuery query, CancellationToken cancellationToken = default) where T : new()
         {
             Guard.AgainstNull(query, nameof(query));
 
-            return _dataRowMapper.MapRow<T>(_databaseGateway.GetRow(query));
+            return _dataRowMapper.MapRow<T>(_databaseGateway.GetRow(query, cancellationToken));
         }
 
-        public IEnumerable<MappedRow<T>> MapRows<T>(IQuery query) where T : new()
+        public async Task<MappedRow<T>> MapRowAsync<T>(IQuery query, CancellationToken cancellationToken = default) where T : new()
         {
             Guard.AgainstNull(query, nameof(query));
 
-            return _dataRowMapper.MapRows<T>(_databaseGateway.GetRows(query));
+            return _dataRowMapper.MapRow<T>(await _databaseGateway.GetRowAsync(query, cancellationToken));
         }
 
-        public T MapObject<T>(IQuery query) where T : new()
+        public IEnumerable<MappedRow<T>> MapRows<T>(IQuery query, CancellationToken cancellationToken = default) where T : new()
         {
             Guard.AgainstNull(query, nameof(query));
 
-            using (var reader = _databaseGateway.GetReader(query))
+            return _dataRowMapper.MapRows<T>(_databaseGateway.GetRows(query, cancellationToken));
+        }
+
+        public async Task<IEnumerable<MappedRow<T>>> MapRowsAsync<T>(IQuery query, CancellationToken cancellationToken = default) where T : new()
+        {
+            Guard.AgainstNull(query, nameof(query));
+
+            return _dataRowMapper.MapRows<T>(await _databaseGateway.GetRowsAsync(query, cancellationToken));
+        }
+
+        public T MapObject<T>(IQuery query, CancellationToken cancellationToken = default) where T : new()
+        {
+            Guard.AgainstNull(query, nameof(query));
+
+            using (var reader = _databaseGateway.GetReader(query, cancellationToken))
             {
-                var columns = GetColumns(reader);
+                var columns = GetColumns(reader.DbDataReader);
 
-                if (reader.Read())
+                if (reader.DbDataReader.Read())
                 {
-                    return Map<T>(GetPropertyInfo<T>(), reader, columns);
+                    return Map<T>(GetPropertyInfo<T>(), reader.DbDataReader, columns);
                 }
             }
 
             return default;
         }
 
-        public IEnumerable<T> MapObjects<T>(IQuery query) where T : new()
+        public async Task<T> MapObjectAsync<T>(IQuery query, CancellationToken cancellationToken= default) where T : new()
+        {
+            Guard.AgainstNull(query, nameof(query));
+
+            using var reader = await _databaseGateway.GetReaderAsync(query, cancellationToken);
+
+            var columns = GetColumns(reader.DbDataReader);
+
+            if (await reader.DbDataReader.ReadAsync(cancellationToken))
+            {
+                return Map<T>(GetPropertyInfo<T>(), reader.DbDataReader, columns);
+            }
+
+            return default;
+        }
+
+        public IEnumerable<T> MapObjects<T>(IQuery query, CancellationToken cancellationToken = default) where T : new()
+        {
+            Guard.AgainstNull(query, nameof(query));
+
+                var result = new List<T>();
+
+                using (var reader = _databaseGateway.GetReader(query, cancellationToken))
+                {
+                    var columns = GetColumns(reader.DbDataReader);
+
+                    while (reader.DbDataReader.Read())
+                    {
+                        result.Add(Map<T>(GetPropertyInfo<T>(), reader.DbDataReader, columns));
+                    }
+                }
+
+                return result;
+        }
+
+        public async Task<IEnumerable<T>> MapObjectsAsync<T>(IQuery query, CancellationToken cancellationToken =  default) where T : new()
         {
             Guard.AgainstNull(query, nameof(query));
 
             var result = new List<T>();
 
-            using (var reader = _databaseGateway.GetReader(query))
-            {
-                var columns = GetColumns(reader);
+            using var reader = await _databaseGateway.GetReaderAsync(query, cancellationToken);
 
-                while (reader.Read())
-                {
-                    result.Add(Map<T>(GetPropertyInfo<T>(), reader, columns));
-                }
+            var columns = GetColumns(reader.DbDataReader);
+
+            while (await reader.DbDataReader.ReadAsync(cancellationToken))
+            {
+                result.Add(Map<T>(GetPropertyInfo<T>(), reader.DbDataReader, columns));
             }
 
             return result;
         }
 
-        public T MapValue<T>(IQuery query)
+        public T MapValue<T>(IQuery query, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(query, nameof(query));
 
-            using (var reader = _databaseGateway.GetReader(query))
+            using (var reader = _databaseGateway.GetReader(query, cancellationToken))
             {
-                while (reader.Read())
+                while (reader.DbDataReader.Read())
                 {
                     return MapRowValue<T>(reader);
                 }
@@ -87,15 +138,29 @@ namespace Shuttle.Core.Data
             return default;
         }
 
-        public IEnumerable<T> MapValues<T>(IQuery query)
+        public async Task<T> MapValueAsync<T>(IQuery query, CancellationToken cancellationToken = default)
+        {
+            Guard.AgainstNull(query, nameof(query));
+
+            using var reader = await _databaseGateway.GetReaderAsync(query, cancellationToken);
+
+            while (await reader.DbDataReader.ReadAsync(cancellationToken))
+            {
+                return MapRowValue<T>(reader);
+            }
+
+            return default;
+        }
+
+        public IEnumerable<T> MapValues<T>(IQuery query, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(query, nameof(query));
 
             var result = new List<T>();
 
-            using (var reader = _databaseGateway.GetReader(query))
+            using (var reader = _databaseGateway.GetReader(query, cancellationToken))
             {
-                while (reader.Read())
+                while (reader.DbDataReader.Read())
                 {
                     var value = MapRowValue<T>(reader);
 
@@ -103,6 +168,27 @@ namespace Shuttle.Core.Data
                     {
                         result.Add(value);
                     }
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<IEnumerable<T>> MapValuesAsync<T>(IQuery query, CancellationToken cancellationToken = default)
+        {
+            Guard.AgainstNull(query, nameof(query));
+
+            var result = new List<T>();
+
+            using var reader = await _databaseGateway.GetReaderAsync(query, cancellationToken);
+
+            while (await reader.DbDataReader.ReadAsync(cancellationToken))
+            {
+                var value = MapRowValue<T>(reader);
+
+                if (value != null)
+                {
+                    result.Add(value);
                 }
             }
 
@@ -121,43 +207,77 @@ namespace Shuttle.Core.Data
             return result;
         }
 
-        public dynamic MapItem(IQuery query)
+        public dynamic MapItem(IQuery query, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(query, nameof(query));
 
-            using (var reader = _databaseGateway.GetReader(query))
+            using (var reader = _databaseGateway.GetReader(query, cancellationToken))
             {
-                var columns = GetColumns(reader);
+                var columns = GetColumns(reader.DbDataReader);
 
-                if (reader.Read())
+                if (reader.DbDataReader.Read())
                 {
-                    return DynamicMap(reader, columns);
+                    return DynamicMap(reader.DbDataReader, columns);
                 }
             }
 
             return default;
         }
 
-        public IEnumerable<dynamic> MapItems(IQuery query)
+        public async Task<dynamic> MapItemAsync(IQuery query, CancellationToken cancellationToken = default)
+        {
+            Guard.AgainstNull(query, nameof(query));
+
+            using var reader = await _databaseGateway.GetReaderAsync(query, cancellationToken);
+
+            var columns = GetColumns(reader.DbDataReader);
+
+            if (await reader.DbDataReader.ReadAsync(cancellationToken))
+            {
+                return DynamicMap(reader.DbDataReader, columns);
+            }
+
+            return default;
+        }
+
+        public IEnumerable<dynamic> MapItems(IQuery query, CancellationToken cancellationToken = default)
         {
             Guard.AgainstNull(query, nameof(query));
 
             var result = new List<dynamic>();
 
-            using (var reader = _databaseGateway.GetReader(query))
+            using (var reader = _databaseGateway.GetReader(query, cancellationToken))
             {
-                var columns = GetColumns(reader);
+                var columns = GetColumns(reader.DbDataReader);
 
-                while (reader.Read())
+                while (reader.DbDataReader.Read())
                 {
-                    result.Add(DynamicMap(reader, columns));
+                    result.Add(DynamicMap(reader.DbDataReader, columns));
                 }
             }
 
             return result;
         }
 
-        private PropertyInfo[] GetPropertyInfo<T>()
+        public async Task<IEnumerable<dynamic>> MapItemsAsync(IQuery query, CancellationToken cancellationToken = default)
+        {
+            Guard.AgainstNull(query, nameof(query));
+
+            var result = new List<dynamic>();
+
+            using var reader = await _databaseGateway.GetReaderAsync(query, cancellationToken);
+
+            var columns = GetColumns(reader.DbDataReader);
+
+            while (await reader.DbDataReader.ReadAsync(cancellationToken))
+            {
+                result.Add(DynamicMap(reader.DbDataReader, columns));
+            }
+
+            return result;
+        }
+
+        private IEnumerable<PropertyInfo> GetPropertyInfo<T>()
         {
             lock (_lock)
             {
@@ -172,7 +292,7 @@ namespace Shuttle.Core.Data
             }
         }
 
-        private T Map<T>(IEnumerable<PropertyInfo> properties, IDataRecord record, Dictionary<string, int> columns) where T : new()
+        private static T Map<T>(IEnumerable<PropertyInfo> properties, IDataRecord record, Dictionary<string, int> columns) where T : new()
         {
             var result = new T();
 
@@ -212,11 +332,11 @@ namespace Shuttle.Core.Data
             return Enumerable.Range(0, record.FieldCount).ToDictionary(item => record.GetName(item) ?? $"__missing_column_name:{item}", item => item);
         }
 
-        private static T MapRowValue<T>(IDataReader dataReader)
+        private static T MapRowValue<T>(BlockedDbDataReader reader)
         {
             var underlyingSystemType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
 
-            var value = dataReader.GetValue(0);
+            var value = reader.DbDataReader.GetValue(0);
 
             return value == null
                 ? default

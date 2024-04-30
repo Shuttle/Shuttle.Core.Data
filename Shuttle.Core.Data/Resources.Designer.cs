@@ -79,6 +79,15 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Database context with name &apos;{0}&apos; is already active..
+        /// </summary>
+        public static string DatabaseContextAlreadyActiveException {
+            get {
+                return ResourceManager.GetString("DatabaseContextAlreadyActiveException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DatabaseContextFactoryOptions have not been configured.  Cannot call &apos;Create()&apos; directly..
         /// </summary>
         public static string DatabaseContextFactoryOptionsException {
@@ -88,7 +97,7 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Attempt to retrieve non-existent database context with key &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Attempt to retrieve non-existent database context with key &apos;{0}&apos; for name &apos;{1}&apos;..
         /// </summary>
         public static string DatabaseContextKeyNotFoundException {
             get {
@@ -115,15 +124,6 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Attempt to retrieve non-existent database context..
-        /// </summary>
-        public static string DatabaseContextNotFoundException {
-            get {
-                return ResourceManager.GetString("DatabaseContextNotFoundException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Could not create a connection from provider factory &apos;{0}&apos;..
         /// </summary>
         public static string DbProviderFactoryCreateConnectionException {
@@ -142,11 +142,11 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There is already a database context with key &apos;{0}&apos; in the IDatabaseContextCache..
+        ///   Looks up a localized string similar to A database context with name &apos;{0}&apos; has already been created..
         /// </summary>
-        public static string DuplicateDatabaseContextKeyException {
+        public static string DuplicateDatabaseContextException {
             get {
-                return ResourceManager.GetString("DuplicateDatabaseContextKeyException", resourceCulture);
+                return ResourceManager.GetString("DuplicateDatabaseContextException", resourceCulture);
             }
         }
         

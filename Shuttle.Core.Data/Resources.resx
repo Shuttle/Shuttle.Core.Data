@@ -124,25 +124,14 @@
     <value>Could not create a connection from provider factory '{0}'.</value>
     <comment>{0} = provider name</comment>
   </data>
-  <data name="DatabaseContextNotFoundException" xml:space="preserve">
-    <value>Attempt to retrieve non-existent database context.</value>
-  </data>
   <data name="DatabaseContextFactoryOptionsException" xml:space="preserve">
     <value>DatabaseContextFactoryOptions have not been configured.  Cannot call 'Create()' directly.</value>
-  </data>
-  <data name="DatabaseContextKeyNotFoundException" xml:space="preserve">
-    <value>Attempt to retrieve non-existent database context with key '{0}'.</value>
-    <comment>{0} = database context key</comment>
   </data>
   <data name="DatabaseContextMissing" xml:space="preserve">
     <value>There is no active database context.  Use the database context factory to create a context.</value>
   </data>
   <data name="DatabaseContextNameNotFoundException" xml:space="preserve">
     <value>Attempt to retrieve non-existent database context with name '{0}'.</value>
-    <comment>{0} = database context name</comment>
-  </data>
-  <data name="DuplicateDatabaseContextKeyException" xml:space="preserve">
-    <value>There is already a database context with key '{0}' in the IDatabaseContextCache.</value>
     <comment>{0} = database context name</comment>
   </data>
   <data name="EmbeddedScriptMissingException" xml:space="preserve">
@@ -178,5 +167,17 @@
   <data name="DynamicGetValueException" xml:space="preserve">
     <value>Could not retrieve the value for property `{0}` from `parameters`.</value>
     <comment>{0} = property name</comment>
+  </data>
+  <data name="DuplicateDatabaseContextException" xml:space="preserve">
+    <value>A database context with name '{0}' has already been created.</value>
+    <comment>{0} = name</comment>
+  </data>
+  <data name="DatabaseContextAlreadyActiveException" xml:space="preserve">
+    <value>Database context with name '{0}' is already active.</value>
+    <comment>{0} = database context name</comment>
+  </data>
+  <data name="DatabaseContextKeyNotFoundException" xml:space="preserve">
+    <value>Attempt to retrieve non-existent database context with key '{0}' for name '{1}'.</value>
+    <comment>{0} = database context key, {1} = database context name</comment>
   </data>
 </root>

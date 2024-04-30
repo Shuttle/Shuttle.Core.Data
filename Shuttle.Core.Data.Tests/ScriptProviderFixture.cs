@@ -8,55 +8,54 @@ namespace Shuttle.Core.Data.Tests
 {
     public class ScriptProviderFixture : Fixture
     {
-		[SetUp]
-	    public void SetupContext()
-		{
-			var cache = new Mock<IDatabaseContextCache>();
-
-			cache.Setup(m => m.Current).Returns(new Mock<IDatabaseContext>().Object);
-		}
-
 	    [Test]
-	    public void Should_fail_when_there_is_no_ambient_database_context()
-	    {
+	    public void Should_fail_when_there_connections_string_is_not_found()
+        {
+            var connectionStringOptions = new Mock<IOptionsMonitor<ConnectionStringOptions>>();
+
 		    Assert.Throws<InvalidOperationException>(
-			    () => new ScriptProvider(Options.Create(new ScriptProviderOptions()), new DatabaseContextCache()).Get("throw"));
+			    () => new ScriptProvider(connectionStringOptions.Object, Options.Create(new ScriptProviderOptions())).Get("missing", "throw"));
 	    }
 
 	    [Test]
-        public void Should_eb_able_to_retrieve_script_from_file()
+        public void Should_be_able_to_retrieve_script_from_file()
 	    {
-            var provider = new ScriptProvider(Options.Create(new ScriptProviderOptions
+            var connectionStringOptions = new Mock<IOptionsMonitor<ConnectionStringOptions>>();
+
+            connectionStringOptions.Setup(m => m.Get("shuttle")).Returns(new ConnectionStringOptions
+            {
+                Name = "shuttle"
+            });
+
+            var provider = new ScriptProvider(connectionStringOptions.Object, Options.Create( new ScriptProviderOptions
             {
                 FileNameFormat = "{ScriptName}.sql",
                 ScriptFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @".\.scripts\")
-            }), MockDatabaseContextCache());
+            }));
 
-            var script = provider.Get("file-script");
+            var script = provider.Get("shuttle", "file-script");
 
             Assert.IsFalse(string.IsNullOrEmpty(script));
             Assert.AreEqual("select 'file-script'", script);
         }
 
-        private static IDatabaseContextCache MockDatabaseContextCache()
-        {
-	        var databaseContextCache = new Mock<IDatabaseContextCache>();
-
-	        databaseContextCache.Setup(m => m.Current).Returns(new Mock<IDatabaseContext>().Object);
-
-            return databaseContextCache.Object;
-        }
-
         [Test]
         public void Should_eb_able_to_retrieve_script_from_resource()
         {
-            var provider = new ScriptProvider(Options.Create(new ScriptProviderOptions
+            var connectionStringOptions = new Mock<IOptionsMonitor<ConnectionStringOptions>>();
+
+            connectionStringOptions.Setup(m => m.Get("shuttle")).Returns(new ConnectionStringOptions
+            {
+                Name = "shuttle"
+            });
+
+            var provider = new ScriptProvider(connectionStringOptions.Object, Options.Create(new ScriptProviderOptions
             {
                 ResourceAssembly = GetType().Assembly,
-                ResourceNameFormat = "Shuttle.Core.Data.Tests..scripts.System.Data.SqlClient.{ScriptName}.sql"
-            }), MockDatabaseContextCache());
+                ResourceNameFormat = "Shuttle.Core.Data.Tests..scripts.Microsoft.Data.SqlClient.{ScriptName}.sql"
+            }));
 
-            var script = provider.Get("embedded-script");
+            var script = provider.Get("shuttle", "embedded-script");
 
             Assert.IsFalse(string.IsNullOrEmpty(script));
             Assert.AreEqual("select 'embedded-script'", script);
@@ -65,12 +64,19 @@ namespace Shuttle.Core.Data.Tests
         [Test]
         public void Should_throw_exception_when_no_resource_or_file_found()
         {
-            var provider = new ScriptProvider(Options.Create(new ScriptProviderOptions
+            var connectionStringOptions = new Mock<IOptionsMonitor<ConnectionStringOptions>>();
+
+            connectionStringOptions.Setup(m => m.Get("shuttle")).Returns(new ConnectionStringOptions
+            {
+                Name = "shuttle"
+            });
+
+            var provider = new ScriptProvider(connectionStringOptions.Object, Options.Create(new ScriptProviderOptions
             {
                 ResourceAssembly = GetType().Assembly
-            }), MockDatabaseContextCache());
+            }));
 
-            Assert.Throws<InvalidOperationException>(() => provider.Get("System.Data.SqlClient", "missing-script"));
+            Assert.Throws<InvalidOperationException>(() => provider.Get("Microsoft.Data.SqlClient", "missing-script"));
         }
     }
 }

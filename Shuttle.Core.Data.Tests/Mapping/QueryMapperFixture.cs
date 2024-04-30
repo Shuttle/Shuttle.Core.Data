@@ -1,18 +1,30 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
-namespace Shuttle.Core.Data.Tests
-{
-    [TestFixture]
-    public class QueryMapperFixture : MappingFixture
-    {
-        [Test]
-        public void Should_be_able_to_perform_basic_mapping()
-        {
-            var mapper = GetQueryMapper();
+namespace Shuttle.Core.Data.Tests;
 
-            var queryRow = RawQuery.Create(@"
+[TestFixture]
+public class QueryMapperFixture : MappingFixture
+{
+    [Test]
+    public void Should_be_able_to_perform_basic_mapping()
+    {
+        Should_be_able_to_perform_basic_mapping_async(true).GetAwaiter().GetResult();
+    }
+
+    [Test]
+    public async Task Should_be_able_to_perform_basic_mapping_async()
+    {
+        await Should_be_able_to_perform_basic_mapping_async(false);
+    }
+
+    private async Task Should_be_able_to_perform_basic_mapping_async(bool sync)
+    {
+        var mapper = GetQueryMapper();
+
+        var queryRow = new Query(@"
 select top 1
     Id,
     Name,
@@ -21,7 +33,7 @@ from
     BasicMapping
 ");
 
-            var queryRows = RawQuery.Create(@"
+        var queryRows = new Query(@"
 select
     Id,
     Name,
@@ -30,28 +42,49 @@ from
     BasicMapping
 ");
 
-            using (GetDatabaseContext())
-            {
-                var item = mapper.MapObject<BasicMapping>(queryRow);
-                var items = mapper.MapObjects<BasicMapping>(queryRows);
-
-                Assert.IsNotNull(item);
-                Assert.AreEqual(2, items.Count());
-
-                var mappedRow = mapper.MapRow<BasicMapping>(queryRow);
-                var mappedRows = mapper.MapRows<BasicMapping>(queryRows);
-
-                Assert.IsNotNull(mappedRow);
-                Assert.AreEqual(2, mappedRows.Count());
-            }
-        }
-
-        [Test]
-        public void Should_be_able_to_perform_basic_mapping_even_though_columns_are_missing()
+        using (GetDatabaseContext())
         {
-            var mapper = GetQueryMapper();
+            var item = sync
+                ? mapper.MapObject<BasicMapping>(queryRow)
+                : await mapper.MapObjectAsync<BasicMapping>(queryRow);
 
-            var queryRow = RawQuery.Create(@"
+            var items = sync
+                ? mapper.MapObjects<BasicMapping>(queryRows)
+                : await mapper.MapObjectsAsync<BasicMapping>(queryRows);
+
+            Assert.IsNotNull(item);
+            Assert.AreEqual(2, items.Count());
+
+            var mappedRow = sync
+                ? mapper.MapRow<BasicMapping>(queryRow)
+                : await mapper.MapRowAsync<BasicMapping>(queryRow);
+
+            var mappedRows = sync
+                ? mapper.MapRows<BasicMapping>(queryRows)
+                : await mapper.MapRowsAsync<BasicMapping>(queryRows);
+
+            Assert.IsNotNull(mappedRow);
+            Assert.AreEqual(2, mappedRows.Count());
+        }
+    }
+
+    [Test]
+    public void Should_be_able_to_perform_basic_mapping_even_though_columns_are_missing()
+    {
+        Should_be_able_to_perform_basic_mapping_even_though_columns_are_missing_async(true).GetAwaiter().GetResult();
+    }
+
+    [Test]
+    public async Task Should_be_able_to_perform_basic_mapping_even_though_columns_are_missing_async()
+    {
+        await Should_be_able_to_perform_basic_mapping_even_though_columns_are_missing_async(false);
+    }
+
+    private async Task Should_be_able_to_perform_basic_mapping_even_though_columns_are_missing_async(bool sync)
+    {
+        var mapper = GetQueryMapper();
+
+        var queryRow = new Query(@"
 select top 1
     Id,
     Name as NotMapped,
@@ -60,7 +93,7 @@ from
     BasicMapping
 ");
 
-            var queryRows = RawQuery.Create(@"
+        var queryRows = new Query(@"
 select
     Id,
     Name,
@@ -69,58 +102,84 @@ from
     BasicMapping
 ");
 
-            using (GetDatabaseContext())
-            {
-                var item = mapper.MapObject<BasicMapping>(queryRow);
-                var items = mapper.MapObjects<BasicMapping>(queryRows);
-
-                Assert.IsNotNull(item);
-                Assert.AreEqual(2, items.Count());
-
-                var mappedRow = mapper.MapRow<BasicMapping>(queryRow);
-                var mappedRows = mapper.MapRows<BasicMapping>(queryRows);
-
-                Assert.IsNotNull(mappedRow);
-                Assert.AreEqual(2, mappedRows.Count());
-            }
-        }
-
-        [Test]
-        public void Should_be_able_to_perform_value_mapping()
+        using (GetDatabaseContext())
         {
-            var mapper = GetQueryMapper();
+            var item = await mapper.MapObjectAsync<BasicMapping>(queryRow);
+            var items = await mapper.MapObjectsAsync<BasicMapping>(queryRows);
 
-            var queryRow = RawQuery.Create(@"
+            Assert.IsNotNull(item);
+            Assert.AreEqual(2, items.Count());
+
+            var mappedRow = mapper.MapRowAsync<BasicMapping>(queryRow).Result;
+            var mappedRows = await mapper.MapRowsAsync<BasicMapping>(queryRows);
+
+            Assert.IsNotNull(mappedRow);
+            Assert.AreEqual(2, mappedRows.Count());
+        }
+    }
+
+    [Test]
+    public void Should_be_able_to_perform_value_mapping()
+    {
+        Should_be_able_to_perform_value_mapping_async(true).GetAwaiter().GetResult();
+    }
+
+    [Test]
+    public async Task Should_be_able_to_perform_value_mapping_async()
+    {
+        await Should_be_able_to_perform_value_mapping_async(false);
+    }
+
+    private async Task Should_be_able_to_perform_value_mapping_async(bool sync)
+    {
+        var mapper = GetQueryMapper();
+
+        var queryRow = new Query(@"
 select top 1
     Id
 from
     BasicMapping
 ");
 
-            var queryRows = RawQuery.Create(@"
+        var queryRows = new Query(@"
 select
     Id
 from
     BasicMapping
 ");
 
-            using (GetDatabaseContext())
-            {
-                var value = mapper.MapValue<Guid>(queryRow);
-                var values = mapper.MapValues<Guid>(queryRows);
-
-                Assert.IsNotNull(value);
-                Assert.AreEqual(2, values.Count());
-            }
-        }
-
-        [Test]
-        public void Should_be_able_to_perform_dynamic_mapping()
+        using (GetDatabaseContext())
         {
-            var databaseGateway = GetDatabaseGateway();
-            var queryMapper = GetQueryMapper();
+            var value = sync
+                ? mapper.MapValue<Guid>(queryRow)
+                : await mapper.MapValueAsync<Guid>(queryRow);
 
-            var queryRow = RawQuery.Create(@"
+            var values = sync
+                ? mapper.MapValues<Guid>(queryRows)
+                : await mapper.MapValuesAsync<Guid>(queryRows);
+
+            Assert.IsNotNull(value);
+            Assert.AreEqual(2, values.Count());
+        }
+    }
+
+    [Test]
+    public void Should_be_able_to_perform_dynamic_mapping()
+    {
+        Should_be_able_to_perform_dynamic_mapping_async(true).GetAwaiter().GetResult();
+    }
+
+    [Test]
+    public async Task Should_be_able_to_perform_dynamic_mapping_async()
+    {
+        await Should_be_able_to_perform_dynamic_mapping_async(false);
+    }
+
+    public async Task Should_be_able_to_perform_dynamic_mapping_async(bool sync)
+    {
+        var queryMapper = GetQueryMapper();
+
+        var queryRow = new Query(@"
 select top 1
     Id,
     Name,
@@ -129,7 +188,7 @@ from
     BasicMapping
 ");
 
-            var queryRows = RawQuery.Create(@"
+        var queryRows = new Query(@"
 select
     Id,
     Name,
@@ -138,14 +197,18 @@ from
     BasicMapping
 ");
 
-            using (GetDatabaseContext())
-            {
-                var item = queryMapper.MapItem(queryRow);
-                var items = queryMapper.MapItems(queryRows);
+        using (GetDatabaseContext())
+        {
+            var item = sync
+                ? queryMapper.MapItem(queryRow)
+                : await queryMapper.MapItemAsync(queryRow);
 
-                Assert.IsNotNull(item);
-                Assert.AreEqual(2, items.Count());
-            }
+            var items = sync
+                ? queryMapper.MapItems(queryRows)
+                : await queryMapper.MapItemsAsync(queryRows);
+
+            Assert.IsNotNull(item);
+            Assert.AreEqual(2, items.Count());
         }
     }
 }

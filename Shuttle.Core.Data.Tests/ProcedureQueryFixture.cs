@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using Moq;
 using NUnit.Framework;
 
@@ -14,8 +14,7 @@ namespace Shuttle.Core.Data.Tests
 		{
 			const string sql = "uspDoSomething";
 
-			var query1 = new ProcedureQuery(sql);
-			var query2 = ProcedureQuery.Create(sql);
+			var query1 = new Query(sql, CommandType.StoredProcedure);
 		}
 
 		[Test]
@@ -24,8 +23,8 @@ namespace Shuttle.Core.Data.Tests
 			const string sql = "uspDoSomething";
 
 			var guid = Guid.NewGuid();
-			var mc = new MappedColumn<Guid>("Id", DbType.Guid);
-			var query = new ProcedureQuery(sql).AddParameterValue(mc, guid);
+			var mc = new Column<Guid>("Id", DbType.Guid);
+			var query = new Query(sql, CommandType.StoredProcedure).AddParameter(mc, guid);
 			var dataParameterCollection = new Mock<IDataParameterCollection>();
 
 			var command = new Mock<IDbCommand>();

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
+using Shuttle.Core.Threading;
 
 namespace Shuttle.Core.Data
 {
@@ -25,7 +26,7 @@ namespace Shuttle.Core.Data
                 options.DatabaseContextFactory = dataAccessBuilder.Options.DatabaseContextFactory;
             });
 
-            services.TryAddSingleton<IDatabaseContextCache, ThreadStaticDatabaseContextCache>();
+            services.TryAddSingleton<IDatabaseContextService, DatabaseContextService>();
             services.TryAddSingleton<IDatabaseContextFactory, DatabaseContextFactory>();
             services.TryAddSingleton<IDbConnectionFactory, DbConnectionFactory>();
             services.TryAddSingleton<IDbCommandFactory, DbCommandFactory>();

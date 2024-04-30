@@ -1,37 +1,20 @@
 using System;
 using System.Data;
-#if !NETSTANDARD2_0
 using System.Data.Common;
-#endif
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data
 {
 	public class DbConnectionFactory : IDbConnectionFactory
 	{
-#if (NETSTANDARD2_0)
-		private readonly IDbProviderFactories _providerFactories;
+		public event EventHandler<DbConnectionCreatedEventArgs> DbConnectionCreated;
 
-	    public DbConnectionFactory(IDbProviderFactories providerFactories)
-	    {
-            _providerFactories = Guard.AgainstNull(providerFactories, nameof(providerFactories));
-        }
-#endif
-
-		public event EventHandler<DbConnectionCreatedEventArgs> DbConnectionCreated = delegate
-		{
-		};
-
-		public IDbConnection CreateConnection(string providerName, string connectionString)
+		public IDbConnection Create(string providerName, string connectionString)
 		{
 			Guard.AgainstNullOrEmptyString(providerName, nameof(providerName));
 			Guard.AgainstNullOrEmptyString(connectionString, nameof(connectionString));
 
-#if NETSTANDARD2_0
-			var dbProviderFactory = _providerFactories.GetFactory(providerName);
-#else
 			var dbProviderFactory = DbProviderFactories.GetFactory(providerName);
-#endif
 			var connection = dbProviderFactory.CreateConnection();
 
 			if (connection == null)
@@ -41,7 +24,7 @@ namespace Shuttle.Core.Data
 
 			connection.ConnectionString = connectionString;
 
-			DbConnectionCreated.Invoke(this, new DbConnectionCreatedEventArgs(connection));
+			DbConnectionCreated?.Invoke(this, new DbConnectionCreatedEventArgs(connection));
 
 			return connection;
 		}

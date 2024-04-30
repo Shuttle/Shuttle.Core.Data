@@ -1,16 +1,12 @@
-using System.Data;
+using System;
 
 namespace Shuttle.Core.Data
 {
 	public interface IDatabaseContextFactory
 	{
-		IDatabaseContext Create(string name);
-		IDatabaseContext Create(string providerName, string connectionString);
-		IDatabaseContext Create(string providerName, IDbConnection dbConnection);
-        IDatabaseContext Create();
+		event EventHandler<DatabaseContextEventArgs> DatabaseContextCreated;
 
-        IDbConnectionFactory DbConnectionFactory { get; }
-        IDbCommandFactory DbCommandFactory { get; }
-        IDatabaseContextCache DatabaseContextCache { get; }
+        IDatabaseContext Create(string connectionStringName);
+        IDatabaseContext Create();
     }
 }

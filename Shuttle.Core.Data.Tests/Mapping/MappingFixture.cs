@@ -1,15 +1,16 @@
-﻿using NUnit.Framework;
+﻿using System.Threading.Tasks;
+using NUnit.Framework;
 
 namespace Shuttle.Core.Data.Tests;
 
 public class MappingFixture : Fixture
 {
     [SetUp]
-    public void SetUp()
+    public async Task SetUp()
     {
         using (GetDatabaseContext())
         {
-            GetDatabaseGateway().Execute(RawQuery.Create(@"
+            await GetDatabaseGateway().ExecuteAsync(new Query(@"
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BasicMapping]') AND type in (N'U'))
 BEGIN
 CREATE TABLE [dbo].[BasicMapping](
@@ -41,15 +42,7 @@ values
     'E09D96E1-5401-4CB6-A871-092DA1C7248D',
     'Name-1',
     25
-)
-
-insert into BasicMapping
-(
-    Id,
-    Name,
-    Age
-)
-values
+),
 (
     'B5E0088E-4873-4244-9B91-1059E0383C3E',
     'Name-2',
