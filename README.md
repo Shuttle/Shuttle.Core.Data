@@ -42,10 +42,6 @@ services.AddDataAccess(builder =>
 	builder.Options.CommandTimeout = timeout;
 	
 	builder.Options.DatabaseContextFactory.DefaultConnectionStringName = "connection-string-name";
-	// -- or --
-    builder.Options.DatabaseContextFactory.DefaultProviderName = "provider-name",
-    builder.Options.DatabaseContextFactory.DefaultConnectionString = "connection-string"
-    }
 });
 ```
 
@@ -59,9 +55,6 @@ The default JSON settings structure is as follows:
 			"DatabaseContextFactory":
 			{
 				"DefaultConnectionStringName": "connection-string-name",
-				// or
-				"DefaultProviderName": "provider-name",
-				"DefaultConnectionString": "connection-string"
 			}
 		} 
 	}
@@ -85,13 +78,19 @@ using (var databaseContext = databaseContextFactory.Create("connection-name"))
 
 # IQuery
 
-An `IQuery` encapsulates a database query that can be executed.  There is only one method that needs to be implemented:
+An `IQuery` encapsulates a database query that can be executed:
 
 ``` c#
 void Prepare(IDbCommand command);
 ```
 
 This should ensure that the given `IDbCommand` is configured for execution by setting the relvant command attributes and parameters.
+
+```c#
+IQuery AddParameter(IColumn column, object value);
+```
+
+This method is used to add a parameter to the query.  The `IColumn` instance is used to define the column type and the value is the value that should be used for the parameter.
 
 ## Query
 
