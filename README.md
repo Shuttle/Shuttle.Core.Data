@@ -76,6 +76,25 @@ using (var databaseContext = databaseContextFactory.Create("connection-name"))
 }
 ```
 
+# IDatabaseContextService
+
+The `DatabaseContextService` provides ambient access to the current `IDatabaseContext` instance.  This is useful in situations where you do not want to pass the `IDatabaseContext` instance around.
+
+``` c#
+event EventHandler<DatabaseContextAsyncLocalValueChangedEventArgs> DatabaseContextAsyncLocalValueChanged;
+event EventHandler<DatabaseContextAsyncLocalValueAssignedEventArgs> DatabaseContextAsyncLocalValueAssigned;
+```
+
+Attach delegates to the above events should you wish to track ambient data changes.
+
+``` c#
+void SetAmbientScope()
+```
+
+This method is used to set the ambient scope explicitly.  Since the ambient scope is set as soon as it is accessed it is conceivable that it is created on the "root" thread.  Use this method to set any explicit ambietn data for thread specific scnearios.
+
+``` c#
+
 # IQuery
 
 An `IQuery` encapsulates a database query that can be executed:
