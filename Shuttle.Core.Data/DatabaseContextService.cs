@@ -37,11 +37,13 @@ namespace Shuttle.Core.Data
             }
         }
 
-        public void SetAmbientScope()
+        public IDisposable BeginScope()
         {
             _ambientData.Value = new DatabaseContextAmbientData();
 
             DatabaseContextAsyncLocalValueAssigned?.Invoke(this, new DatabaseContextAsyncLocalValueAssignedEventArgs(_ambientData.Value, true));
+
+            return new AmbientScope();
         }
 
         public event EventHandler<DatabaseContextAsyncLocalValueChangedEventArgs> DatabaseContextAsyncLocalValueChanged;
@@ -131,9 +133,7 @@ namespace Shuttle.Core.Data
         {
             if (_ambientData.Value == null)
             {
-                _ambientData.Value = new DatabaseContextAmbientData();
-
-                DatabaseContextAsyncLocalValueAssigned?.Invoke(this, new DatabaseContextAsyncLocalValueAssignedEventArgs(_ambientData.Value, false));
+                throw new InvalidOperationException(Resources.NoAmbientScopeException);
             }
 
             return _ambientData.Value;
@@ -142,6 +142,14 @@ namespace Shuttle.Core.Data
         private void OnAsyncLocalValueChanged(AsyncLocalValueChangedArgs<DatabaseContextAmbientData> args)
         {
             DatabaseContextAsyncLocalValueChanged?.Invoke(this, new DatabaseContextAsyncLocalValueChangedEventArgs(args));
+        }
+
+        private class AmbientScope : IDisposable
+        {
+            public void Dispose()
+            {
+                _ambientData.Value = null;
+            }
         }
     }
 }

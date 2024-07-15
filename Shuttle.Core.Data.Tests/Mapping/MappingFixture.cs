@@ -8,9 +8,10 @@ public class MappingFixture : Fixture
     [SetUp]
     public async Task SetUp()
     {
-        using (GetDatabaseContext())
+        using (DatabaseContextService.BeginScope())
+        using (DatabaseContextFactory.Create())
         {
-            await GetDatabaseGateway().ExecuteAsync(new Query(@"
+            await DatabaseGateway.ExecuteAsync(new Query(@"
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[BasicMapping]') AND type in (N'U'))
 BEGIN
 CREATE TABLE [dbo].[BasicMapping](

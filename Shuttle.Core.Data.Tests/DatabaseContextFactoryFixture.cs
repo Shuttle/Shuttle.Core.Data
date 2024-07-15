@@ -12,7 +12,8 @@ public class DatabaseContextFactoryFixture : Fixture
     [Test]
     public void Should_be_able_to_create_a_database_context()
     {
-        using (var context = GetDatabaseContextFactory().Create(DefaultConnectionStringName))
+        using (DatabaseContextService.BeginScope())
+        using (var context = DatabaseContextFactory.Create(DefaultConnectionStringName))
         {
             Assert.IsNotNull(context);
         }
@@ -21,8 +22,9 @@ public class DatabaseContextFactoryFixture : Fixture
     [Test]
     public void Should_not_not_be_able_to_create_another_context_with_the_same_name_as_an_existing_context()
     {
-        var factory = GetDatabaseContextFactory();
+        var factory = DatabaseContextFactory;
 
+        using (DatabaseContextService.BeginScope())
         using (factory.Create(DefaultConnectionStringName))
         {
             Assert.That(()=> factory.Create(DefaultConnectionStringName), Throws.InvalidOperationException);

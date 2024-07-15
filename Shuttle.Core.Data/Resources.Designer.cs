@@ -169,6 +169,15 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No ambient scope has been started.  Please call `BeginScope` first..
+        /// </summary>
+        public static string NoAmbientScopeException {
+            get {
+                return ResourceManager.GetString("NoAmbientScopeException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Connection settings named &apos;{0}&apos; has no provider name..
         /// </summary>
         public static string ProviderNameMissingException {

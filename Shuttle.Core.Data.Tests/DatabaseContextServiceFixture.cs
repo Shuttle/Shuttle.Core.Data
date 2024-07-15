@@ -11,28 +11,31 @@ public class DatabaseContextServiceFixture : Fixture
     {
         var service = new DatabaseContextService();
 
-        var context1 = new DatabaseContext("mock-1", "provider-name", new Mock<DbConnection>().Object, new Mock<IDbCommandFactory>().Object, service);
+        using (service.BeginScope())
+        {
+            var context1 = new DatabaseContext("mock-1", "provider-name", new Mock<DbConnection>().Object, new Mock<IDbCommandFactory>().Object, service);
 
-        Assert.That(service.Current.Key, Is.EqualTo(context1.Key));
+            Assert.That(service.Current.Key, Is.EqualTo(context1.Key));
 
-        var context2 = new DatabaseContext("mock-2", "provider-name", new Mock<DbConnection>().Object, new Mock<IDbCommandFactory>().Object, service);
+            var context2 = new DatabaseContext("mock-2", "provider-name", new Mock<DbConnection>().Object, new Mock<IDbCommandFactory>().Object, service);
 
-        Assert.That(service.Current.Key, Is.EqualTo(context2.Key));
+            Assert.That(service.Current.Key, Is.EqualTo(context2.Key));
 
-        service.Activate("mock-1");
+            service.Activate("mock-1");
 
-        Assert.That(service.Current.Key, Is.EqualTo(context1.Key));
+            Assert.That(service.Current.Key, Is.EqualTo(context1.Key));
 
-        service.Activate("mock-2");
+            service.Activate("mock-2");
 
-        Assert.That(service.Current.Key, Is.EqualTo(context2.Key));
+            Assert.That(service.Current.Key, Is.EqualTo(context2.Key));
 
-        service.Activate(context1);
+            service.Activate(context1);
 
-        Assert.That(service.Current.Key, Is.EqualTo(context1.Key));
-        
-        service.Activate(context2);
+            Assert.That(service.Current.Key, Is.EqualTo(context1.Key));
 
-        Assert.That(service.Current.Key, Is.EqualTo(context2.Key));
+            service.Activate(context2);
+
+            Assert.That(service.Current.Key, Is.EqualTo(context2.Key));
+        }
     }
 }

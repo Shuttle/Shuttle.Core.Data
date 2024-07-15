@@ -22,7 +22,7 @@ public class QueryMapperFixture : MappingFixture
 
     private async Task Should_be_able_to_perform_basic_mapping_async(bool sync)
     {
-        var mapper = GetQueryMapper();
+        var mapper = QueryMapper;
 
         var queryRow = new Query(@"
 select top 1
@@ -42,7 +42,8 @@ from
     BasicMapping
 ");
 
-        using (GetDatabaseContext())
+        using (DatabaseContextService.BeginScope())
+        await using (DatabaseContextFactory.Create())
         {
             var item = sync
                 ? mapper.MapObject<BasicMapping>(queryRow)
@@ -82,7 +83,7 @@ from
 
     private async Task Should_be_able_to_perform_basic_mapping_even_though_columns_are_missing_async(bool sync)
     {
-        var mapper = GetQueryMapper();
+        var mapper = QueryMapper;
 
         var queryRow = new Query(@"
 select top 1
@@ -102,7 +103,8 @@ from
     BasicMapping
 ");
 
-        using (GetDatabaseContext())
+        using (DatabaseContextService.BeginScope())
+        await using (DatabaseContextFactory.Create())
         {
             var item = await mapper.MapObjectAsync<BasicMapping>(queryRow);
             var items = await mapper.MapObjectsAsync<BasicMapping>(queryRows);
@@ -132,7 +134,7 @@ from
 
     private async Task Should_be_able_to_perform_value_mapping_async(bool sync)
     {
-        var mapper = GetQueryMapper();
+        var mapper = QueryMapper;
 
         var queryRow = new Query(@"
 select top 1
@@ -148,7 +150,8 @@ from
     BasicMapping
 ");
 
-        using (GetDatabaseContext())
+        using (DatabaseContextService.BeginScope())
+        await using (DatabaseContextFactory.Create())
         {
             var value = sync
                 ? mapper.MapValue<Guid>(queryRow)
@@ -177,7 +180,7 @@ from
 
     public async Task Should_be_able_to_perform_dynamic_mapping_async(bool sync)
     {
-        var queryMapper = GetQueryMapper();
+        var queryMapper = QueryMapper;
 
         var queryRow = new Query(@"
 select top 1
@@ -197,7 +200,8 @@ from
     BasicMapping
 ");
 
-        using (GetDatabaseContext())
+        using (DatabaseContextService.BeginScope())
+        await using (DatabaseContextFactory.Create())
         {
             var item = sync
                 ? queryMapper.MapItem(queryRow)

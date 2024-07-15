@@ -24,42 +24,27 @@ namespace Shuttle.Core.Data.Tests
             Services.AddDataAccess(builder =>
 	            {
 		            builder.AddConnectionString(DefaultConnectionStringName, DefaultProviderName, DefaultConnectionString);
+		            builder.Options.DatabaseContextFactory.DefaultConnectionStringName = DefaultConnectionStringName;
 	            }
             );
 
             Services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
 
             Provider = Services.BuildServiceProvider();
+
+            DbConnectionFactory = Provider.GetRequiredService<IDbConnectionFactory>();
+            DatabaseContextFactory = Provider.GetRequiredService<IDatabaseContextFactory>();
+            DatabaseGateway = Provider.GetRequiredService<IDatabaseGateway>();
+            QueryMapper = Provider.GetRequiredService<IQueryMapper>();
+            DataRowMapper = Provider.GetRequiredService<IDataRowMapper>();
+            DatabaseContextService = Provider.GetRequiredService<IDatabaseContextService>();
         }
 
-        protected IDbConnectionFactory GetDbConnectionFactory()
-        {
-	        return Provider.GetRequiredService<IDbConnectionFactory>();
-        }
-
-        protected IDatabaseContextFactory GetDatabaseContextFactory()
-        {
-	        return Provider.GetRequiredService<IDatabaseContextFactory>();
-        }
-
-        protected IDatabaseContext GetDatabaseContext()
-		{
-			return GetDatabaseContextFactory().Create(DefaultConnectionStringName);
-		}
-
-        protected IDatabaseGateway GetDatabaseGateway()
-        {
-	        return Provider.GetRequiredService<IDatabaseGateway>();
-        }
-
-        protected IQueryMapper GetQueryMapper()
-        {
-	        return Provider.GetRequiredService<IQueryMapper>();
-        }
-
-        protected IDataRowMapper GetDataRowMapper()
-        {
-	        return Provider.GetRequiredService<IDataRowMapper>();
-        }
+        protected IDbConnectionFactory DbConnectionFactory { get; }
+        protected IDatabaseContextFactory DatabaseContextFactory { get; }
+        protected IDatabaseGateway DatabaseGateway { get; }
+        protected IQueryMapper QueryMapper { get; }
+        protected IDataRowMapper DataRowMapper { get; }
+        protected IDatabaseContextService DatabaseContextService { get; }
     }
 }

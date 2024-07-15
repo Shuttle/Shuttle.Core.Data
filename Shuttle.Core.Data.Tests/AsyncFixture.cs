@@ -22,11 +22,12 @@ from
     {
         var threads = new List<Thread>();
 
-        var databaseContextService = Provider.GetRequiredService<IDatabaseContextService>();
+        using (DatabaseContextService.BeginScope())
+        {
+            var databaseContext = DatabaseContextService.Find(context => context.Name.Equals(DefaultConnectionStringName));
 
-        var databaseContext = databaseContextService.Find(context => context.Name.Equals(DefaultConnectionStringName));
-
-        Assert.That(databaseContext, Is.Null);
+            Assert.That(databaseContext, Is.Null);
+        }
 
         for (var i = 0; i < 10; i++)
         {
@@ -34,11 +35,10 @@ from
             {
                 threads.Add(new Thread(() =>
                 {
-                    databaseContextService.SetAmbientScope();
-
-                    using (GetDatabaseContext())
+                    using (DatabaseContextService.BeginScope())
+                    using (DatabaseContextFactory.Create())
                     {
-                        GetDatabaseGateway().GetRowsAsync(_rowsQuery);
+                        DatabaseGateway.GetRowsAsync(_rowsQuery);
                     }
                 }));
             }
@@ -64,9 +64,10 @@ from
         {
             tasks.Add(Task.Run(() =>
             {
-                using (GetDatabaseContext())
+                using (DatabaseContextService.BeginScope())
+                using (DatabaseContextFactory.Create())
                 {
-                    GetDatabaseGateway().GetRowsAsync(_rowsQuery);
+                    DatabaseGateway.GetRowsAsync(_rowsQuery);
                 }
             }));
         }
@@ -79,11 +80,12 @@ from
     {
         var tasks = new List<Task>();
 
-        using (GetDatabaseContext())
+        using (DatabaseContextService.BeginScope())
+        using (DatabaseContextFactory.Create())
         {
             for (var i = 0; i < 10; i++)
             {
-                tasks.Add(GetDatabaseGateway().GetRowsAsync(_rowsQuery));
+                tasks.Add(DatabaseGateway.GetRowsAsync(_rowsQuery));
             }
 
             Task.WaitAll(tasks.ToArray());
@@ -93,7 +95,8 @@ from
     [Test]
     public async Task Should_be_able_to_use_the_same_database_context_across_synchronized_tasks_async()
     {
-        using (GetDatabaseContext())
+        using (DatabaseContextService.BeginScope())
+        await using (DatabaseContextFactory.Create())
         {
             await GetRowsAsync(0);
         }
@@ -106,6 +109,6 @@ from
             await GetRowsAsync(depth + 1);
         }
 
-        _ = await GetDatabaseGateway().GetRowsAsync(_rowsQuery);
+        _ = await DatabaseGateway.GetRowsAsync(_rowsQuery);
     }
 }

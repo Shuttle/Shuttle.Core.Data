@@ -22,9 +22,6 @@ public class DataRowMapperFixture : MappingFixture
 
     private async Task Should_be_able_to_perform_basic_mapping_async(bool sync)
     {
-        var databaseGateway = GetDatabaseGateway();
-        var dataRowMapper = GetDataRowMapper();
-
         var rowQuery = new Query(@"
 select top 1
     Id,
@@ -43,25 +40,26 @@ from
     BasicMapping
 ");
 
-        using (GetDatabaseContext())
+        using (DatabaseContextService.BeginScope())
+        await using (DatabaseContextFactory.Create())
         {
             var item = sync
-                ? dataRowMapper.MapObject<BasicMapping>(databaseGateway.GetRow(rowQuery))
-                : dataRowMapper.MapObject<BasicMapping>(await databaseGateway.GetRowAsync(rowQuery));
+                ? DataRowMapper.MapObject<BasicMapping>(DatabaseGateway.GetRow(rowQuery))
+                : DataRowMapper.MapObject<BasicMapping>(await DatabaseGateway.GetRowAsync(rowQuery));
 
             var items = sync
-                ? dataRowMapper.MapObjects<BasicMapping>(databaseGateway.GetRows(rowsQuery))
-                : dataRowMapper.MapObjects<BasicMapping>(await databaseGateway.GetRowsAsync(rowsQuery));
+                ? DataRowMapper.MapObjects<BasicMapping>(DatabaseGateway.GetRows(rowsQuery))
+                : DataRowMapper.MapObjects<BasicMapping>(await DatabaseGateway.GetRowsAsync(rowsQuery));
 
             Assert.IsNotNull(item);
             Assert.AreEqual(2, items.Count());
 
             var mappedRow = sync
-                ? dataRowMapper.MapRow<BasicMapping>(databaseGateway.GetRow(rowQuery))
-                : dataRowMapper.MapRow<BasicMapping>(await databaseGateway.GetRowAsync(rowQuery));
+                ? DataRowMapper.MapRow<BasicMapping>(DatabaseGateway.GetRow(rowQuery))
+                : DataRowMapper.MapRow<BasicMapping>(await DatabaseGateway.GetRowAsync(rowQuery));
             var mappedRows = sync
-                ? dataRowMapper.MapRows<BasicMapping>(databaseGateway.GetRows(rowsQuery))
-                : dataRowMapper.MapRows<BasicMapping>(await databaseGateway.GetRowsAsync(rowsQuery));
+                ? DataRowMapper.MapRows<BasicMapping>(DatabaseGateway.GetRows(rowsQuery))
+                : DataRowMapper.MapRows<BasicMapping>(await DatabaseGateway.GetRowsAsync(rowsQuery));
 
             Assert.IsNotNull(mappedRow);
             Assert.AreEqual(2, mappedRows.Count());
@@ -82,8 +80,8 @@ from
 
     private async Task Should_be_able_to_perform_basic_mapping_even_though_columns_are_missing_async(bool sync)
     {
-        var databaseGateway = GetDatabaseGateway();
-        var dataRowMapper = GetDataRowMapper();
+        var databaseGateway = DatabaseGateway;
+        var dataRowMapper = DataRowMapper;
 
         var rowQuery = new Query(@"
 select top 1
@@ -103,7 +101,8 @@ from
     BasicMapping
 ");
 
-        using (GetDatabaseContext())
+        using (DatabaseContextService.BeginScope())
+        await using (DatabaseContextFactory.Create())
         {
             var item = sync
                 ? dataRowMapper.MapObject<BasicMapping>(databaseGateway.GetRow(rowQuery))
@@ -143,8 +142,8 @@ from
 
     private async Task Should_be_able_to_perform_value_mapping_async(bool sync)
     {
-        var databaseGateway = GetDatabaseGateway();
-        var dataRowMapper = GetDataRowMapper();
+        var databaseGateway = DatabaseGateway;
+        var dataRowMapper = DataRowMapper;
 
         var rowQuery = new Query(@"
 select top 1
@@ -160,7 +159,8 @@ from
     BasicMapping
 ");
 
-        using (GetDatabaseContext())
+        using (DatabaseContextService.BeginScope())
+        await using (DatabaseContextFactory.Create())
         {
             var value = sync
                 ? dataRowMapper.MapValue<Guid>(databaseGateway.GetRow(rowQuery))
@@ -192,8 +192,8 @@ from
     {
         var id = new Guid("B5E0088E-4873-4244-9B91-1059E0383C3E");
 
-        var databaseGateway = GetDatabaseGateway();
-        var dataRowMapper = GetDataRowMapper();
+        var databaseGateway = DatabaseGateway;
+        var dataRowMapper = DataRowMapper;
 
         var rowSql = @"
 select 
@@ -216,7 +216,8 @@ from
     BasicMapping
 ");
 
-        using (GetDatabaseContext())
+        using (DatabaseContextService.BeginScope())
+        await using (DatabaseContextFactory.Create())
         {
             var item = sync
                 ? dataRowMapper.MapItem(databaseGateway.GetRow(rowQuery))

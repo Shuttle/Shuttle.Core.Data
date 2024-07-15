@@ -12,6 +12,6 @@ namespace Shuttle.Core.Data
 		void Remove(IDatabaseContext databaseContext);
 		IDatabaseContext Find(Predicate<IDatabaseContext> match);
 		IDatabaseContext Current { get; }
-		void SetAmbientScope();
+		IDisposable BeginScope();
 	}
 }

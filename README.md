@@ -61,6 +61,25 @@ The default JSON settings structure is as follows:
 }
 ```
 
+# IDatabaseContextService
+
+The `DatabaseContextService` provides ambient access to the current `IDatabaseContext` instance.  This is useful in situations where you do not want to pass the `IDatabaseContext` instance around.
+
+``` c#
+event EventHandler<DatabaseContextAsyncLocalValueChangedEventArgs> DatabaseContextAsyncLocalValueChanged;
+event EventHandler<DatabaseContextAsyncLocalValueAssignedEventArgs> DatabaseContextAsyncLocalValueAssigned;
+```
+
+Attach delegates to the above events should you wish to track ambient data changes.
+
+``` c#
+void BeginScope()
+```
+
+Before any database context can be created a scope must be started.  This is typically done in the integration/application layer (controller/minimal API methods, message handlers).  Nested scopes are not permitted as the ambient context will flow across any `async` methods.
+
+``` c#
+
 # IDatabaseContextFactory
 
 In order to access a database we need a database connection.  A database connection is represented by an `IDatabaseContext` instance that may be obtained by using an instance of an `IDatabaseContextFactory` implementation.
@@ -75,25 +94,6 @@ using (var databaseContext = databaseContextFactory.Create("connection-name"))
 	// database interaction
 }
 ```
-
-# IDatabaseContextService
-
-The `DatabaseContextService` provides ambient access to the current `IDatabaseContext` instance.  This is useful in situations where you do not want to pass the `IDatabaseContext` instance around.
-
-``` c#
-event EventHandler<DatabaseContextAsyncLocalValueChangedEventArgs> DatabaseContextAsyncLocalValueChanged;
-event EventHandler<DatabaseContextAsyncLocalValueAssignedEventArgs> DatabaseContextAsyncLocalValueAssigned;
-```
-
-Attach delegates to the above events should you wish to track ambient data changes.
-
-``` c#
-void SetAmbientScope()
-```
-
-This method is used to set the ambient scope explicitly.  Since the ambient scope is set as soon as it is accessed it is conceivable that it is created on the "root" thread.  Use this method to set any explicit ambietn data for thread specific scnearios.
-
-``` c#
 
 # IQuery
 
