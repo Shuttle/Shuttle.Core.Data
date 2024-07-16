@@ -67,6 +67,7 @@ The `DatabaseContextService` provides ambient access to the current `IDatabaseCo
 
 ``` c#
 event EventHandler<DatabaseContextAsyncLocalValueChangedEventArgs> DatabaseContextAsyncLocalValueChanged;
+
 event EventHandler<DatabaseContextAsyncLocalValueAssignedEventArgs> DatabaseContextAsyncLocalValueAssigned;
 ```
 
@@ -76,19 +77,19 @@ Attach delegates to the above events should you wish to track ambient data chang
 void BeginScope()
 ```
 
-Before any database context can be created a scope must be started.  This is typically done in the integration/application layer (controller/minimal API methods, message handlers).  Nested scopes are not permitted as the ambient context will flow across any `async` methods.
-
-``` c#
-
 # IDatabaseContextFactory
 
 In order to access a database we need a database connection.  A database connection is represented by an `IDatabaseContext` instance that may be obtained by using an instance of an `IDatabaseContextFactory` implementation.
 
 The `DatabaseContextFactory` implementation makes use of an `IDbConnectionFactory` implementation which creates a `System.Data.IDbConnection` by using the provider name and connection string, which is obtained from the registered connection name.  An `IDbCommandFactory` creates a `System.Data.IDbCommand` by using an `IDbConnection` instance.
 
+Before any database context can be created a scope must be started.  This is typically done in the integration/application layer (controller/minimal API methods, message handlers).  Nested scopes are not permitted as the ambient context will flow across any `async` methods.
+
 ``` c#
+var databaseContextService = provider.GetRequiredService<IDatabaseContextService>();
 var databaseContextFactory = provider.GetRequiredService<IDatabaseContextFactory>();
 
+using (databaseContextService.BeginScope()) // <-- will configure the scope (cannot be nested)
 using (var databaseContext = databaseContextFactory.Create("connection-name"))
 {
 	// database interaction
