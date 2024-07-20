@@ -27,7 +27,6 @@ public class DatabaseContextFixture : Fixture
     {
         Assert.Throws<SqlException>(() =>
         {
-            using (DatabaseContextService.BeginScope())
             using (var databaseContext = new DatabaseContext("context", "Microsoft.Data.SqlClient", new SqlConnection("data source=.;initial catalog=idontexist;integrated security=sspi"),
                        new Mock<IDbCommandFactory>().Object, DatabaseContextService))
             {
@@ -50,7 +49,6 @@ public class DatabaseContextFixture : Fixture
 
     private async Task Should_be_able_to_begin_and_commit_a_transaction_async(bool sync)
     {
-        using (DatabaseContextService.BeginScope())
         await using (var databaseContext = new DatabaseContext("context", "Microsoft.Data.SqlClient", DbConnectionFactory.Create(DefaultProviderName, DefaultConnectionString), new Mock<IDbCommandFactory>().Object, DatabaseContextService))
         {
             if (sync)
@@ -80,7 +78,6 @@ public class DatabaseContextFixture : Fixture
 
     private async Task Should_be_able_to_begin_and_rollback_a_transaction_async(bool sync)
     {
-        using (DatabaseContextService.BeginScope())
         await using (var databaseContext = new DatabaseContext("context", "Microsoft.Data.SqlClient", DbConnectionFactory.Create(DefaultProviderName, DefaultConnectionString), new Mock<IDbCommandFactory>().Object, new DatabaseContextService()))
         {
             if (sync)
@@ -108,7 +105,6 @@ public class DatabaseContextFixture : Fixture
 
     private async Task Should_be_able_to_call_commit_without_a_transaction_async(bool sync)
     {
-        using (DatabaseContextService.BeginScope())
         await using (var databaseContext = new DatabaseContext("context", "Microsoft.Data.SqlClient", DbConnectionFactory.Create(DefaultProviderName, DefaultConnectionString), new Mock<IDbCommandFactory>().Object, DatabaseContextService))
         {
             if (sync)
@@ -125,7 +121,6 @@ public class DatabaseContextFixture : Fixture
     [Test]
     public void Should_be_able_to_call_dispose_more_than_once()
     {
-        using (DatabaseContextService.BeginScope())
         using (var databaseContext = new DatabaseContext("context", "Microsoft.Data.SqlClient", DbConnectionFactory.Create(DefaultProviderName, DefaultConnectionString), new Mock<IDbCommandFactory>().Object, DatabaseContextService))
         {
             databaseContext.Dispose();
@@ -143,7 +138,6 @@ public class DatabaseContextFixture : Fixture
 
         dbCommandFactory.Setup(m => m.Create(dbConnection, query.Object)).Returns(dbCommand.Object);
 
-        using (DatabaseContextService.BeginScope())
         using (var databaseContext = new DatabaseContext("context", "Microsoft.Data.SqlClient", dbConnection, dbCommandFactory.Object, DatabaseContextService))
         {
             databaseContext.CreateCommand(query.Object);

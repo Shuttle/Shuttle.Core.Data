@@ -12,7 +12,6 @@ public class DatabaseContextFactoryFixture : Fixture
     [Test]
     public void Should_be_able_to_create_a_database_context()
     {
-        using (DatabaseContextService.BeginScope())
         using (var context = DatabaseContextFactory.Create(DefaultConnectionStringName))
         {
             Assert.IsNotNull(context);
@@ -24,7 +23,6 @@ public class DatabaseContextFactoryFixture : Fixture
     {
         var factory = DatabaseContextFactory;
 
-        using (DatabaseContextService.BeginScope())
         using (factory.Create(DefaultConnectionStringName))
         {
             Assert.That(()=> factory.Create(DefaultConnectionStringName), Throws.InvalidOperationException);

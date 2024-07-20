@@ -61,6 +61,15 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There is already a `DatabaseContextScope`.  Nested scopes are not supported..
+        /// </summary>
+        public static string AmbientScopeException {
+            get {
+                return ResourceManager.GetString("AmbientScopeException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [hidden].
         /// </summary>
         public static string ConnectionStringHiddenValue {
@@ -165,15 +174,6 @@ namespace Shuttle.Core.Data {
         public static string EmbeddedScriptMissingException {
             get {
                 return ResourceManager.GetString("EmbeddedScriptMissingException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No ambient scope has been started.  Please call `BeginScope` first..
-        /// </summary>
-        public static string NoAmbientScopeException {
-            get {
-                return ResourceManager.GetString("NoAmbientScopeException", resourceCulture);
             }
         }
         

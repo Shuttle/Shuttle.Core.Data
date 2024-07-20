@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Shuttle.Core.Data
 {
-    public class DatabaseContextAmbientData
+    public class DatabaseContextCollection
     {
         public IEnumerable<IDatabaseContext> DatabaseContexts => _databaseContexts.AsReadOnly();
 

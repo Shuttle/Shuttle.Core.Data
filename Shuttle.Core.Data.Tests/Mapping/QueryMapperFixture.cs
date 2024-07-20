@@ -42,7 +42,6 @@ from
     BasicMapping
 ");
 
-        using (DatabaseContextService.BeginScope())
         await using (DatabaseContextFactory.Create())
         {
             var item = sync
@@ -103,7 +102,6 @@ from
     BasicMapping
 ");
 
-        using (DatabaseContextService.BeginScope())
         await using (DatabaseContextFactory.Create())
         {
             var item = await mapper.MapObjectAsync<BasicMapping>(queryRow);
@@ -150,7 +148,6 @@ from
     BasicMapping
 ");
 
-        using (DatabaseContextService.BeginScope())
         await using (DatabaseContextFactory.Create())
         {
             var value = sync
@@ -200,7 +197,6 @@ from
     BasicMapping
 ");
 
-        using (DatabaseContextService.BeginScope())
         await using (DatabaseContextFactory.Create())
         {
             var item = sync

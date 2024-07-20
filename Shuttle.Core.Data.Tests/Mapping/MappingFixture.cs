@@ -8,7 +8,6 @@ public class MappingFixture : Fixture
     [SetUp]
     public async Task SetUp()
     {
-        using (DatabaseContextService.BeginScope())
         using (DatabaseContextFactory.Create())
         {
             await DatabaseGateway.ExecuteAsync(new Query(@"

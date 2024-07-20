@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
 namespace Shuttle.Core.Data.Tests;
@@ -22,12 +21,9 @@ from
     {
         var threads = new List<Thread>();
 
-        using (DatabaseContextService.BeginScope())
-        {
-            var databaseContext = DatabaseContextService.Find(context => context.Name.Equals(DefaultConnectionStringName));
+        var databaseContext = DatabaseContextService.Find(context => context.Name.Equals(DefaultConnectionStringName));
 
-            Assert.That(databaseContext, Is.Null);
-        }
+        Assert.That(databaseContext, Is.Null);
 
         for (var i = 0; i < 10; i++)
         {
@@ -35,7 +31,7 @@ from
             {
                 threads.Add(new Thread(() =>
                 {
-                    using (DatabaseContextService.BeginScope())
+                    using (new DatabaseContextScope())
                     using (DatabaseContextFactory.Create())
                     {
                         DatabaseGateway.GetRowsAsync(_rowsQuery);
@@ -64,7 +60,7 @@ from
         {
             tasks.Add(Task.Run(() =>
             {
-                using (DatabaseContextService.BeginScope())
+                using (new DatabaseContextScope())
                 using (DatabaseContextFactory.Create())
                 {
                     DatabaseGateway.GetRowsAsync(_rowsQuery);
@@ -80,7 +76,6 @@ from
     {
         var tasks = new List<Task>();
 
-        using (DatabaseContextService.BeginScope())
         using (DatabaseContextFactory.Create())
         {
             for (var i = 0; i < 10; i++)
@@ -95,7 +90,6 @@ from
     [Test]
     public async Task Should_be_able_to_use_the_same_database_context_across_synchronized_tasks_async()
     {
-        using (DatabaseContextService.BeginScope())
         await using (DatabaseContextFactory.Create())
         {
             await GetRowsAsync(0);

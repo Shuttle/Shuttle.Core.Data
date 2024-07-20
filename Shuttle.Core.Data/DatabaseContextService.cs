@@ -7,18 +7,8 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseContextService : IDatabaseContextService
     {
-        private static AsyncLocal<DatabaseContextAmbientData> _ambientData;
+        private readonly DatabaseContextCollection _databaseContextCollection = new DatabaseContextCollection();
         private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
-
-        public DatabaseContextService()
-        {
-            if (_ambientData != null)
-            {
-                return;
-            }
-
-            _ambientData = new AsyncLocal<DatabaseContextAmbientData>(OnAsyncLocalValueChanged);
-        }
 
         public IDatabaseContext Current
         {
@@ -28,7 +18,7 @@ namespace Shuttle.Core.Data
 
                 try
                 {
-                    return GetAmbientData().ActiveDatabaseContext ?? throw new InvalidOperationException(Resources.DatabaseContextMissing);
+                    return GetDatabaseContextCollection().ActiveDatabaseContext ?? throw new InvalidOperationException(Resources.DatabaseContextMissing);
                 }
                 finally
                 {
@@ -36,18 +26,6 @@ namespace Shuttle.Core.Data
                 }
             }
         }
-
-        public IDisposable BeginScope()
-        {
-            _ambientData.Value = new DatabaseContextAmbientData();
-
-            DatabaseContextAsyncLocalValueAssigned?.Invoke(this, new DatabaseContextAsyncLocalValueAssignedEventArgs(_ambientData.Value, true));
-
-            return new AmbientScope();
-        }
-
-        public event EventHandler<DatabaseContextAsyncLocalValueChangedEventArgs> DatabaseContextAsyncLocalValueChanged;
-        public event EventHandler<DatabaseContextAsyncLocalValueAssignedEventArgs> DatabaseContextAsyncLocalValueAssigned;
 
         public void Activate(IDatabaseContext databaseContext)
         {
@@ -57,21 +35,21 @@ namespace Shuttle.Core.Data
 
             try
             {
-                var current = GetAmbientData().ActiveDatabaseContext;
+                var current = GetDatabaseContextCollection().ActiveDatabaseContext;
 
                 if (current != null && current.Name.Equals(databaseContext.Name))
                 {
                     throw new Exception(string.Format(Resources.DatabaseContextAlreadyActiveException, databaseContext.Name));
                 }
 
-                var activate = GetAmbientData().DatabaseContexts.FirstOrDefault(item => item.Name.Equals(databaseContext.Name, StringComparison.InvariantCultureIgnoreCase));
+                var activate = GetDatabaseContextCollection().DatabaseContexts.FirstOrDefault(item => item.Name.Equals(databaseContext.Name, StringComparison.InvariantCultureIgnoreCase));
 
                 if (activate == null)
                 {
                     throw new Exception(string.Format(Resources.DatabaseContextNameNotFoundException, databaseContext.Name));
                 }
 
-                GetAmbientData().Activate(activate);
+                GetDatabaseContextCollection().Activate(activate);
             }
             finally
             {
@@ -87,7 +65,7 @@ namespace Shuttle.Core.Data
 
             try
             {
-                GetAmbientData().Add(databaseContext);
+                GetDatabaseContextCollection().Add(databaseContext);
             }
             finally
             {
@@ -105,7 +83,7 @@ namespace Shuttle.Core.Data
 
             try
             {
-                GetAmbientData().Remove(databaseContext);
+                GetDatabaseContextCollection().Remove(databaseContext);
             }
             finally
             {
@@ -121,7 +99,7 @@ namespace Shuttle.Core.Data
 
             try
             {
-                return GetAmbientData().Find(match);
+                return GetDatabaseContextCollection().Find(match);
             }
             finally
             {
@@ -129,27 +107,14 @@ namespace Shuttle.Core.Data
             }
         }
 
-        private DatabaseContextAmbientData GetAmbientData()
+        private DatabaseContextCollection GetDatabaseContextCollection()
         {
-            if (_ambientData.Value == null)
+            if (DatabaseContextScope.Current == null)
             {
-                throw new InvalidOperationException(Resources.NoAmbientScopeException);
+                return _databaseContextCollection;
             }
 
-            return _ambientData.Value;
-        }
-
-        private void OnAsyncLocalValueChanged(AsyncLocalValueChangedArgs<DatabaseContextAmbientData> args)
-        {
-            DatabaseContextAsyncLocalValueChanged?.Invoke(this, new DatabaseContextAsyncLocalValueChangedEventArgs(args));
-        }
-
-        private class AmbientScope : IDisposable
-        {
-            public void Dispose()
-            {
-                _ambientData.Value = null;
-            }
+            return DatabaseContextScope.Current;
         }
     }
 }
