@@ -1,10 +1,8 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Threading;
 using System.Threading.Tasks;
 using Shuttle.Core.Contract;
-using Shuttle.Core.Threading;
 
 namespace Shuttle.Core.Data
 {
@@ -12,10 +10,7 @@ namespace Shuttle.Core.Data
     {
         private readonly IDatabaseContextService _databaseContextService;
         private readonly IDbCommandFactory _dbCommandFactory;
-        private readonly SemaphoreSlim _dbCommandLock = new SemaphoreSlim(1, 1);
         private readonly IDbConnection _dbConnection;
-        private readonly SemaphoreSlim _dbConnectionLock = new SemaphoreSlim(1, 1);
-        private readonly SemaphoreSlim _dbDataReaderLock = new SemaphoreSlim(1, 1);
         private bool _disposed;
 
         public DatabaseContext(string name, string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory, IDatabaseContextService databaseContextService)
@@ -39,27 +34,23 @@ namespace Shuttle.Core.Data
 
         public Guid Key { get; }
         public string Name { get; }
-        public IDbTransaction Transaction { get; private set; }
+        public DbTransaction Transaction { get; private set; }
         public string ProviderName { get; }
 
-        public BlockedDbCommand CreateCommand(IQuery query)
+        public DbCommand CreateCommand(IQuery query)
         {
             GuardDisposed();
-
-            _dbCommandLock.Wait(CancellationToken.None);
 
             var command = _dbCommandFactory.Create(GetOpenConnectionAsync(true).GetAwaiter().GetResult(), Guard.AgainstNull(query, nameof(query)));
 
             command.Transaction = Transaction;
 
-            return new BlockedDbCommand((DbCommand)command, new BlockingSemaphoreSlim(_dbCommandLock), _dbDataReaderLock);
+            return command;
         }
 
-        public BlockedDbConnection GetDbConnection()
+        public IDbConnection GetDbConnection()
         {
-            _dbConnectionLock.Wait(CancellationToken.None);
-
-            return new BlockedDbConnection(GetOpenConnectionAsync(true).GetAwaiter().GetResult(), new BlockingSemaphoreSlim(_dbConnectionLock));
+            return GetOpenConnectionAsync(true).GetAwaiter().GetResult();
         }
 
         public bool HasTransaction => Transaction != null;
@@ -110,6 +101,13 @@ namespace Shuttle.Core.Data
             _disposed = true;
 
             Disposed?.Invoke(this, EventArgs.Empty);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            Dispose();
+
+            await new ValueTask();
         }
 
         private async Task<IDatabaseContext> BeginTransactionAsync(IsolationLevel isolationLevel, bool sync)
@@ -179,13 +177,6 @@ namespace Shuttle.Core.Data
             }
 
             throw new ObjectDisposedException(nameof(DatabaseContext));
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            Dispose();
-
-            await new ValueTask();
         }
     }
 }

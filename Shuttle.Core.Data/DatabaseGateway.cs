@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +36,7 @@ namespace Shuttle.Core.Data
 
             using (var reader = sync ? GetReader(query, cancellationToken) : await GetReaderAsync(query, cancellationToken).ConfigureAwait(false))
             {
-                results.Load(reader.DbDataReader);
+                results.Load(reader);
             }
 
             return results;
@@ -74,17 +75,17 @@ namespace Shuttle.Core.Data
             return table.Rows[0];
         }
 
-        public BlockedDbDataReader GetReader(IQuery query, CancellationToken cancellationToken = default)
+        public DbDataReader GetReader(IQuery query, CancellationToken cancellationToken = default)
         {
             return GetReaderAsync(query, cancellationToken, true).GetAwaiter().GetResult();
         }
 
-        public async Task<BlockedDbDataReader> GetReaderAsync(IQuery query, CancellationToken cancellationToken = default)
+        public async Task<DbDataReader> GetReaderAsync(IQuery query, CancellationToken cancellationToken = default)
         {
             return await GetReaderAsync(query, cancellationToken, false).ConfigureAwait(false);
         }
 
-        private async Task<BlockedDbDataReader> GetReaderAsync(IQuery query, CancellationToken cancellationToken, bool sync)
+        private async Task<DbDataReader> GetReaderAsync(IQuery query, CancellationToken cancellationToken, bool sync)
         {
             Guard.AgainstNull(query, nameof(query));
 

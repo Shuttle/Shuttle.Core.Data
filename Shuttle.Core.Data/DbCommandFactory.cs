@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Data.Common;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 
@@ -18,7 +19,7 @@ namespace Shuttle.Core.Data
 
 	    public event EventHandler<DbCommandCreatedEventArgs> DbCommandCreated;
 
-	    public IDbCommand Create(IDbConnection connection, IQuery query)
+	    public DbCommand Create(IDbConnection connection, IQuery query)
         {
             var command = Guard.AgainstNull(connection, nameof(connection)).CreateCommand();
 
@@ -28,7 +29,7 @@ namespace Shuttle.Core.Data
 
             DbCommandCreated?.Invoke(this, new DbCommandCreatedEventArgs(command));
 
-            return command;
+            return (DbCommand)command;
         }
     }
 }

@@ -72,22 +72,6 @@ from
     }
 
     [Test]
-    public void Should_be_able_to_use_the_same_database_context_across_tasks()
-    {
-        var tasks = new List<Task>();
-
-        using (DatabaseContextFactory.Create())
-        {
-            for (var i = 0; i < 10; i++)
-            {
-                tasks.Add(DatabaseGateway.GetRowsAsync(_rowsQuery));
-            }
-
-            Task.WaitAll(tasks.ToArray());
-        }
-    }
-
-    [Test]
     public async Task Should_be_able_to_use_the_same_database_context_across_synchronized_tasks_async()
     {
         await using (DatabaseContextFactory.Create())

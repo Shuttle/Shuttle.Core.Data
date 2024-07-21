@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Data.Common;
 using System.Threading.Tasks;
 using IsolationLevel = System.Data.IsolationLevel;
 
@@ -15,9 +16,9 @@ namespace Shuttle.Core.Data
 	    Guid Key { get; }
 		string Name { get; }
 
-		IDbTransaction Transaction { get; }
-		BlockedDbCommand CreateCommand(IQuery query);
-		BlockedDbConnection GetDbConnection();
+		DbTransaction Transaction { get; }
+		DbCommand CreateCommand(IQuery query);
+		IDbConnection GetDbConnection();
 
         bool HasTransaction { get; }
         string ProviderName { get; }
