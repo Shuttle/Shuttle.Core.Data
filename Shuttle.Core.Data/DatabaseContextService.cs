@@ -109,12 +109,7 @@ namespace Shuttle.Core.Data
 
         private DatabaseContextCollection GetDatabaseContextCollection()
         {
-            if (DatabaseContextScope.Current == null)
-            {
-                return _databaseContextCollection;
-            }
-
-            return DatabaseContextScope.Current;
+            return DatabaseContextScope.Current ?? _databaseContextCollection;
         }
     }
 }

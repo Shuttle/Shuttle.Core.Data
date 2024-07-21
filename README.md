@@ -8,6 +8,8 @@ Provides an abstraction built directly on ADO.NET which falls within the Micro O
 
 # Overview
 
+***NOTE:*** Since a database connection is represented by a `IDatabaseContext` instance it is important to understand that this instance is not thread-safe.  It is therefore important to ensure that the `IDatabaseContext` instance is not shared between threads.  See the `DatabaseContextScope` to ensure thread-safe database context flow.
+
 The `Shuttle.Core.Data` package provides a thin abstraction over ADO.NET by making use of the `DbProviderFactories`.  Even though it provides object/relational mapping mechanisms it is in no way a fully fledged ORM.
 
 ## Configuration

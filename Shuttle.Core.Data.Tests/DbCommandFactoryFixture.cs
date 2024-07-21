@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Data.Common;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
@@ -14,7 +15,7 @@ namespace Shuttle.Core.Data.Tests
             var factory = new DbCommandFactory(Options.Create(new DataAccessOptions { CommandTimeout = 15 }));
             var connection = new Mock<IDbConnection>();
             var query = new Mock<IQuery>();
-            var command = new Mock<IDbCommand>();
+            var command = new Mock<DbCommand>();
 
             command.SetupSet(m => m.CommandTimeout = 15).Verifiable("CommandTimeout not set to 15");
 

@@ -59,11 +59,11 @@ namespace Shuttle.Core.Data
 
             using (var reader = _databaseGateway.GetReader(query, cancellationToken))
             {
-                var columns = GetColumns(reader.DbDataReader);
+                var columns = GetColumns(reader);
 
-                if (reader.DbDataReader.Read())
+                if (reader.Read())
                 {
-                    return Map<T>(GetPropertyInfo<T>(), reader.DbDataReader, columns);
+                    return Map<T>(GetPropertyInfo<T>(), reader, columns);
                 }
             }
 
@@ -76,11 +76,11 @@ namespace Shuttle.Core.Data
 
             using var reader = await _databaseGateway.GetReaderAsync(query, cancellationToken);
 
-            var columns = GetColumns(reader.DbDataReader);
+            var columns = GetColumns(reader);
 
-            if (await reader.DbDataReader.ReadAsync(cancellationToken))
+            if (await reader.ReadAsync(cancellationToken))
             {
-                return Map<T>(GetPropertyInfo<T>(), reader.DbDataReader, columns);
+                return Map<T>(GetPropertyInfo<T>(), reader, columns);
             }
 
             return default;
@@ -94,11 +94,11 @@ namespace Shuttle.Core.Data
 
                 using (var reader = _databaseGateway.GetReader(query, cancellationToken))
                 {
-                    var columns = GetColumns(reader.DbDataReader);
+                    var columns = GetColumns(reader);
 
-                    while (reader.DbDataReader.Read())
+                    while (reader.Read())
                     {
-                        result.Add(Map<T>(GetPropertyInfo<T>(), reader.DbDataReader, columns));
+                        result.Add(Map<T>(GetPropertyInfo<T>(), reader, columns));
                     }
                 }
 
@@ -113,11 +113,11 @@ namespace Shuttle.Core.Data
 
             using var reader = await _databaseGateway.GetReaderAsync(query, cancellationToken);
 
-            var columns = GetColumns(reader.DbDataReader);
+            var columns = GetColumns(reader);
 
-            while (await reader.DbDataReader.ReadAsync(cancellationToken))
+            while (await reader.ReadAsync(cancellationToken))
             {
-                result.Add(Map<T>(GetPropertyInfo<T>(), reader.DbDataReader, columns));
+                result.Add(Map<T>(GetPropertyInfo<T>(), reader, columns));
             }
 
             return result;
@@ -129,7 +129,7 @@ namespace Shuttle.Core.Data
 
             using (var reader = _databaseGateway.GetReader(query, cancellationToken))
             {
-                while (reader.DbDataReader.Read())
+                while (reader.Read())
                 {
                     return MapRowValue<T>(reader);
                 }
@@ -144,7 +144,7 @@ namespace Shuttle.Core.Data
 
             using var reader = await _databaseGateway.GetReaderAsync(query, cancellationToken);
 
-            while (await reader.DbDataReader.ReadAsync(cancellationToken))
+            while (await reader.ReadAsync(cancellationToken))
             {
                 return MapRowValue<T>(reader);
             }
@@ -160,7 +160,7 @@ namespace Shuttle.Core.Data
 
             using (var reader = _databaseGateway.GetReader(query, cancellationToken))
             {
-                while (reader.DbDataReader.Read())
+                while (reader.Read())
                 {
                     var value = MapRowValue<T>(reader);
 
@@ -182,7 +182,7 @@ namespace Shuttle.Core.Data
 
             using var reader = await _databaseGateway.GetReaderAsync(query, cancellationToken);
 
-            while (await reader.DbDataReader.ReadAsync(cancellationToken))
+            while (await reader.ReadAsync(cancellationToken))
             {
                 var value = MapRowValue<T>(reader);
 
@@ -213,11 +213,11 @@ namespace Shuttle.Core.Data
 
             using (var reader = _databaseGateway.GetReader(query, cancellationToken))
             {
-                var columns = GetColumns(reader.DbDataReader);
+                var columns = GetColumns(reader);
 
-                if (reader.DbDataReader.Read())
+                if (reader.Read())
                 {
-                    return DynamicMap(reader.DbDataReader, columns);
+                    return DynamicMap(reader, columns);
                 }
             }
 
@@ -230,11 +230,11 @@ namespace Shuttle.Core.Data
 
             using var reader = await _databaseGateway.GetReaderAsync(query, cancellationToken);
 
-            var columns = GetColumns(reader.DbDataReader);
+            var columns = GetColumns(reader);
 
-            if (await reader.DbDataReader.ReadAsync(cancellationToken))
+            if (await reader.ReadAsync(cancellationToken))
             {
-                return DynamicMap(reader.DbDataReader, columns);
+                return DynamicMap(reader, columns);
             }
 
             return default;
@@ -248,11 +248,11 @@ namespace Shuttle.Core.Data
 
             using (var reader = _databaseGateway.GetReader(query, cancellationToken))
             {
-                var columns = GetColumns(reader.DbDataReader);
+                var columns = GetColumns(reader);
 
-                while (reader.DbDataReader.Read())
+                while (reader.Read())
                 {
-                    result.Add(DynamicMap(reader.DbDataReader, columns));
+                    result.Add(DynamicMap(reader, columns));
                 }
             }
 
@@ -267,11 +267,11 @@ namespace Shuttle.Core.Data
 
             using var reader = await _databaseGateway.GetReaderAsync(query, cancellationToken);
 
-            var columns = GetColumns(reader.DbDataReader);
+            var columns = GetColumns(reader);
 
-            while (await reader.DbDataReader.ReadAsync(cancellationToken))
+            while (await reader.ReadAsync(cancellationToken))
             {
-                result.Add(DynamicMap(reader.DbDataReader, columns));
+                result.Add(DynamicMap(reader, columns));
             }
 
             return result;
@@ -332,11 +332,11 @@ namespace Shuttle.Core.Data
             return Enumerable.Range(0, record.FieldCount).ToDictionary(item => record.GetName(item) ?? $"__missing_column_name:{item}", item => item);
         }
 
-        private static T MapRowValue<T>(BlockedDbDataReader reader)
+        private static T MapRowValue<T>(DbDataReader reader)
         {
             var underlyingSystemType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
 
-            var value = reader.DbDataReader.GetValue(0);
+            var value = reader.GetValue(0);
 
             return value == null
                 ? default
