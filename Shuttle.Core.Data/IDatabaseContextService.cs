@@ -8,6 +8,7 @@ namespace Shuttle.Core.Data
 		void Add(IDatabaseContext databaseContext);
 		void Remove(IDatabaseContext databaseContext);
 		IDatabaseContext Find(Predicate<IDatabaseContext> match);
-		IDatabaseContext Current { get; }
+		IDatabaseContext Active { get; }
+		bool HasActive { get; }
 	}
 }

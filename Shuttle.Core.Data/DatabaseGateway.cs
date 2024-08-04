@@ -89,7 +89,7 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(query, nameof(query));
 
-            using (var command = _databaseContextService.Current.CreateCommand(query))
+            using (var command = _databaseContextService.Active.CreateCommand(query))
             {
                 return sync ? command.ExecuteReader() : await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
             }
@@ -109,7 +109,7 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(query, nameof(query));
 
-            using (var command = _databaseContextService.Current.CreateCommand(query))
+            using (var command = _databaseContextService.Active.CreateCommand(query))
             {
                 return sync ? command.ExecuteNonQuery() : await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
             }
@@ -129,7 +129,7 @@ namespace Shuttle.Core.Data
         {
             Guard.AgainstNull(query, nameof(query));
 
-            using (var command = _databaseContextService.Current.CreateCommand(query))
+            using (var command = _databaseContextService.Active.CreateCommand(query))
             {
                 var scalar = sync ? command.ExecuteScalar() : await command.ExecuteScalarAsync(cancellationToken).ConfigureAwait(false);
 

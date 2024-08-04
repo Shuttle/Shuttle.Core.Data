@@ -19,13 +19,13 @@ public class DatabaseContextFactoryFixture : Fixture
     }
 
     [Test]
-    public void Should_not_not_be_able_to_create_another_context_with_the_same_name_as_an_existing_context()
+    public void Should_be_able_to_time_out_when_creating_another_context_with_the_same_name_as_an_existing_context_tha_does_not_complete()
     {
         var factory = DatabaseContextFactory;
 
         using (factory.Create(DefaultConnectionStringName))
         {
-            Assert.That(()=> factory.Create(DefaultConnectionStringName), Throws.InvalidOperationException);
+            Assert.That(() => factory.Create(DefaultConnectionStringName, TimeSpan.FromMilliseconds(20)), Throws.TypeOf<TimeoutException>());
         }
     }
 
@@ -37,8 +37,8 @@ public class DatabaseContextFactoryFixture : Fixture
         Assert.That(databaseContextFactory.Object.IsAvailable(new CancellationToken(), 0, 0), Is.True);
         Assert.That(databaseContextFactory.Object.IsAvailable("name", new CancellationToken(), 0, 0), Is.True);
 
-        databaseContextFactory.Setup(m => m.Create()).Throws(new Exception());
-        databaseContextFactory.Setup(m => m.Create(It.IsAny<string>())).Throws(new Exception());
+        databaseContextFactory.Setup(m => m.Create(null)).Throws(new Exception());
+        databaseContextFactory.Setup(m => m.Create(It.IsAny<string>(), null)).Throws(new Exception());
 
         Assert.That(databaseContextFactory.Object.IsAvailable(new CancellationToken(), 0, 0), Is.False);
         Assert.That(databaseContextFactory.Object.IsAvailable("name", new CancellationToken(), 0, 0), Is.False);

@@ -183,4 +183,8 @@
   <data name="AmbientScopeException" xml:space="preserve">
     <value>There is already a `DatabaseContextScope`.  Nested scopes are not supported.</value>
   </data>
+  <data name="DatabaseContextFactoryTimeoutException" xml:space="preserve">
+    <value>Creating DatabaseContext for connection name '{0}' timed out after '{1}'.</value>
+    <comment>{0} = connection name, {1} = timespan</comment>
+  </data>
 </root>

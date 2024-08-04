@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -49,6 +50,29 @@ from
         {
             thread.Join();
         }
+    }
+
+    [Test]
+    public void Should_be_able_to_use_the_same_connection_name_for_separate_tasks_and_have_them_block_async()
+    {
+        var tasks = new List<Task>();
+
+        using (new DatabaseContextScope())
+        {
+            for (var i = 0; i < 10; i++)
+            {
+                tasks.Add(Task.Run(() =>
+                {
+                    using (DatabaseContextFactory.Create())
+                    {
+                        Console.WriteLine($"{DateTime.Now:O}");
+                        DatabaseGateway.GetRowsAsync(_rowsQuery);
+                    }
+                }));
+            }
+        }
+
+        Task.WaitAll(tasks.ToArray());
     }
 
     [Test]

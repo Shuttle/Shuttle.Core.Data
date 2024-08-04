@@ -106,6 +106,15 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Creating DatabaseContext for connection name &apos;{0}&apos; timed out after &apos;{1}&apos;..
+        /// </summary>
+        public static string DatabaseContextFactoryTimeoutException {
+            get {
+                return ResourceManager.GetString("DatabaseContextFactoryTimeoutException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Attempt to retrieve non-existent database context with key &apos;{0}&apos; for name &apos;{1}&apos;..
         /// </summary>
         public static string DatabaseContextKeyNotFoundException {

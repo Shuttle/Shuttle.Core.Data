@@ -11,7 +11,7 @@ namespace Shuttle.Core.Data
             Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             Guard.AgainstNull(context, nameof(context));
 
-            return databaseContextService.Find(databaseContext => databaseContext.Key.Equals(context.Key)) != null;
+            return databaseContextService.Find(databaseContext => databaseContext.Name.Equals(context.Name)) != null;
         }
 
         public static bool Contains(this IDatabaseContextService databaseContextService, string name)
@@ -36,6 +36,22 @@ namespace Shuttle.Core.Data
             Guard.AgainstNullOrEmptyString(name, nameof(name));
 
             databaseContextService.Activate(databaseContextService.Get(name));
+        }
+
+        public static bool IsActive(this IDatabaseContextService databaseContextService, IDatabaseContext context)
+        {
+            Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
+            Guard.AgainstNull(context, nameof(context));
+
+            return databaseContextService.HasActive && databaseContextService.Active.Name.Equals(context.Name, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        public static bool IsActive(this IDatabaseContextService databaseContextService, string name)
+        {
+            Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
+            Guard.AgainstNullOrEmptyString(name, nameof(name));
+
+            return databaseContextService.HasActive && databaseContextService.Active.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }

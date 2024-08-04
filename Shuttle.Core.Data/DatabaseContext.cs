@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Threading;
 using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 
@@ -8,21 +9,21 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseContext : IDatabaseContext
     {
+        private readonly SemaphoreSlim _lock;
         private readonly IDatabaseContextService _databaseContextService;
         private readonly IDbCommandFactory _dbCommandFactory;
         private readonly IDbConnection _dbConnection;
         private bool _disposed;
 
-        public DatabaseContext(string name, string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory, IDatabaseContextService databaseContextService)
+        public DatabaseContext(string name, string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory, IDatabaseContextService databaseContextService, SemaphoreSlim semaphoreSlim)
         {
             Name = Guard.AgainstNullOrEmptyString(name, nameof(name));
+            ProviderName = Guard.AgainstNullOrEmptyString(providerName, "providerName");
+
             _dbCommandFactory = Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
             _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
-
-            Key = Guid.NewGuid();
-
-            ProviderName = Guard.AgainstNullOrEmptyString(providerName, "providerName");
             _dbConnection = Guard.AgainstNull(dbConnection, nameof(dbConnection));
+            _lock = Guard.AgainstNull(semaphoreSlim, nameof(semaphoreSlim));
 
             _databaseContextService.Add(this);
         }
@@ -32,7 +33,6 @@ namespace Shuttle.Core.Data
         public event EventHandler<TransactionEventArgs> TransactionRolledBack;
         public event EventHandler<EventArgs> Disposed;
 
-        public Guid Key { get; }
         public string Name { get; }
         public DbTransaction Transaction { get; private set; }
         public string ProviderName { get; }
@@ -81,6 +81,8 @@ namespace Shuttle.Core.Data
             await CommitTransactionAsync(false).ConfigureAwait(false);
         }
 
+        public bool IsActive => _databaseContextService.IsActive(this);
+
         public void Dispose()
         {
             if (_disposed)
@@ -88,17 +90,24 @@ namespace Shuttle.Core.Data
                 return;
             }
 
-            _databaseContextService.Remove(this);
-
-            if (HasTransaction)
+            try
             {
-                Transaction.Rollback();
+                _databaseContextService.Remove(this);
 
-                TransactionRolledBack?.Invoke(this, new TransactionEventArgs(Transaction));
+                if (HasTransaction)
+                {
+                    Transaction.Rollback();
+
+                    TransactionRolledBack?.Invoke(this, new TransactionEventArgs(Transaction));
+                }
+
+                _dbConnection.Dispose();
             }
-
-            _dbConnection.Dispose();
-            _disposed = true;
+            finally
+            {
+                _lock.Release();
+                _disposed = true;
+            }
 
             Disposed?.Invoke(this, EventArgs.Empty);
         }

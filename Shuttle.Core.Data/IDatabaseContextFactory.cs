@@ -6,7 +6,7 @@ namespace Shuttle.Core.Data
 	{
 		event EventHandler<DatabaseContextEventArgs> DatabaseContextCreated;
 
-        IDatabaseContext Create(string connectionStringName);
-        IDatabaseContext Create();
+        IDatabaseContext Create(string connectionStringName, TimeSpan? timeout = null);
+        IDatabaseContext Create(TimeSpan? timeout = null);
     }
 }

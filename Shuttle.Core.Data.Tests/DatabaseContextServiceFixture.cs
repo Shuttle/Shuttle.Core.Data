@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using System.Threading;
 using Moq;
 using NUnit.Framework;
 
@@ -11,28 +12,28 @@ public class DatabaseContextServiceFixture : Fixture
     {
         var service = new DatabaseContextService();
 
-        var context1 = new DatabaseContext("mock-1", "provider-name", new Mock<DbConnection>().Object, new Mock<IDbCommandFactory>().Object, service);
+        var context1 = new DatabaseContext("mock-1", "provider-name", new Mock<DbConnection>().Object, new Mock<IDbCommandFactory>().Object, service, new SemaphoreSlim(1, 1));
 
-        Assert.That(service.Current.Key, Is.EqualTo(context1.Key));
+        Assert.That(service.Active.Name, Is.EqualTo(context1.Name));
 
-        var context2 = new DatabaseContext("mock-2", "provider-name", new Mock<DbConnection>().Object, new Mock<IDbCommandFactory>().Object, service);
+        var context2 = new DatabaseContext("mock-2", "provider-name", new Mock<DbConnection>().Object, new Mock<IDbCommandFactory>().Object, service, new SemaphoreSlim(1, 1));
 
-        Assert.That(service.Current.Key, Is.EqualTo(context2.Key));
+        Assert.That(service.Active.Name, Is.EqualTo(context2.Name));
 
         service.Activate("mock-1");
 
-        Assert.That(service.Current.Key, Is.EqualTo(context1.Key));
+        Assert.That(service.Active.Name, Is.EqualTo(context1.Name));
 
         service.Activate("mock-2");
 
-        Assert.That(service.Current.Key, Is.EqualTo(context2.Key));
+        Assert.That(service.Active.Name, Is.EqualTo(context2.Name));
 
         service.Activate(context1);
 
-        Assert.That(service.Current.Key, Is.EqualTo(context1.Key));
+        Assert.That(service.Active.Name, Is.EqualTo(context1.Name));
 
         service.Activate(context2);
 
-        Assert.That(service.Current.Key, Is.EqualTo(context2.Key));
+        Assert.That(service.Active.Name, Is.EqualTo(context2.Name));
     }
 }

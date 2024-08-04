@@ -10,7 +10,7 @@ namespace Shuttle.Core.Data
         private readonly DatabaseContextCollection _databaseContextCollection = new DatabaseContextCollection();
         private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
 
-        public IDatabaseContext Current
+        public IDatabaseContext Active
         {
             get
             {
@@ -19,6 +19,23 @@ namespace Shuttle.Core.Data
                 try
                 {
                     return GetDatabaseContextCollection().ActiveDatabaseContext ?? throw new InvalidOperationException(Resources.DatabaseContextMissing);
+                }
+                finally
+                {
+                    _lock.Release();
+                }
+            }
+        }
+
+        public bool HasActive
+        {
+            get
+            {
+                _lock.Wait();
+
+                try
+                {
+                    return GetDatabaseContextCollection().ActiveDatabaseContext != null;
                 }
                 finally
                 {

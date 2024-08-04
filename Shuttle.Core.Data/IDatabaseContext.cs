@@ -13,7 +13,6 @@ namespace Shuttle.Core.Data
 	    event EventHandler<TransactionEventArgs> TransactionRolledBack;
 	    event EventHandler<EventArgs> Disposed;
 
-	    Guid Key { get; }
 		string Name { get; }
 
 		DbTransaction Transaction { get; }
@@ -27,5 +26,7 @@ namespace Shuttle.Core.Data
         Task<IDatabaseContext> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified);
         void CommitTransaction();
         Task CommitTransactionAsync();
+
+        bool IsActive { get; }
     }
 }

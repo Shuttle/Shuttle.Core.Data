@@ -28,12 +28,12 @@ namespace Shuttle.Core.Data
 
         internal void Remove(IDatabaseContext databaseContext)
         {
-            if (_databaseContexts.Find(candidate => candidate.Key.Equals(databaseContext.Key)) == null)
+            if (_databaseContexts.Find(candidate => candidate.Name.Equals(databaseContext.Name)) == null)
             {
-                throw new InvalidOperationException(string.Format(Resources.DatabaseContextKeyNotFoundException, databaseContext.Key, databaseContext.Name));
+                throw new InvalidOperationException(string.Format(Resources.DatabaseContextKeyNotFoundException, databaseContext.Name, databaseContext.Name));
             }
 
-            if (ActiveDatabaseContext != null && databaseContext.Key.Equals(ActiveDatabaseContext.Key))
+            if (ActiveDatabaseContext != null && databaseContext.Name.Equals(ActiveDatabaseContext.Name))
             {
                 ActiveDatabaseContext = null;
             }
