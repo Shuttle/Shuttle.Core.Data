@@ -9,13 +9,12 @@ namespace Shuttle.Core.Data
 {
     public class DatabaseContext : IDatabaseContext
     {
-        private readonly SemaphoreSlim _lock;
         private readonly IDatabaseContextService _databaseContextService;
         private readonly IDbCommandFactory _dbCommandFactory;
         private readonly IDbConnection _dbConnection;
         private bool _disposed;
 
-        public DatabaseContext(string name, string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory, IDatabaseContextService databaseContextService, SemaphoreSlim semaphoreSlim)
+        public DatabaseContext(string name, string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory, IDatabaseContextService databaseContextService)
         {
             Name = Guard.AgainstNullOrEmptyString(name, nameof(name));
             ProviderName = Guard.AgainstNullOrEmptyString(providerName, "providerName");
@@ -23,7 +22,6 @@ namespace Shuttle.Core.Data
             _dbCommandFactory = Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
             _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
             _dbConnection = Guard.AgainstNull(dbConnection, nameof(dbConnection));
-            _lock = Guard.AgainstNull(semaphoreSlim, nameof(semaphoreSlim));
 
             _databaseContextService.Add(this);
         }
@@ -105,7 +103,6 @@ namespace Shuttle.Core.Data
             }
             finally
             {
-                _lock.Release();
                 _disposed = true;
             }
 

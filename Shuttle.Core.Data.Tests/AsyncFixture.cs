@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Transactions;
 using NUnit.Framework;
 
 namespace Shuttle.Core.Data.Tests;
 
 public class AsyncFixture : MappingFixture
 {
-    private readonly Query _rowsQuery = new(@"
+    private readonly Query _rowsQuery = new Query(@"
 select
     Id,
     Name,
@@ -53,26 +54,61 @@ from
     }
 
     [Test]
-    public void Should_be_able_to_use_the_same_connection_name_for_separate_tasks_and_have_them_block_async()
+    public void Should_not_be_able_to_create_duplicate_database_contexts_async()
     {
-        var tasks = new List<Task>();
-
         using (new DatabaseContextScope())
+        using (DatabaseContextFactory.Create())
         {
-            for (var i = 0; i < 10; i++)
-            {
-                tasks.Add(Task.Run(() =>
-                {
-                    using (DatabaseContextFactory.Create())
-                    {
-                        Console.WriteLine($"{DateTime.Now:O}");
-                        DatabaseGateway.GetRowsAsync(_rowsQuery);
-                    }
-                }));
-            }
+            Assert.That(()=> DatabaseContextFactory.Create(), Throws.InvalidOperationException);
+        }
+    }
+
+    [Test]
+    public async Task Should_be_able_to_create_nested_database_context_scopes_async()
+    {
+        await using (DatabaseContextFactory.Create())
+        {
+            await DatabaseGateway.ExecuteAsync(new Query("DROP TABLE IF EXISTS dbo.Nested"));
+            await DatabaseGateway.ExecuteAsync(new Query("CREATE TABLE dbo.Nested (Id int)"));
         }
 
-        Task.WaitAll(tasks.ToArray());
+        using (new DatabaseContextScope())
+        await using (DatabaseContextFactory.Create())
+        {
+            var count = await DatabaseGateway.GetScalarAsync<int>(new Query("select count(*) from dbo.Nested"));
+
+            Assert.That(count, Is.Zero);
+
+            await DatabaseGateway.ExecuteAsync(new Query("INSERT INTO dbo.Nested (Id) VALUES (1)"));
+
+            count = await DatabaseGateway.GetScalarAsync<int>(new Query("select count(*) from dbo.Nested"));
+
+            Assert.That(count, Is.EqualTo(1));
+
+            using (new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled))
+            using (new DatabaseContextScope())
+            await using (DatabaseContextFactory.Create())
+            {
+                await DatabaseGateway.ExecuteAsync(new Query("INSERT INTO dbo.Nested (Id) VALUES (2)"));
+
+                count = await DatabaseGateway.GetScalarAsync<int>(new Query("select count(*) from dbo.Nested"));
+
+                Assert.That(count, Is.EqualTo(2));
+            }
+
+            count = await DatabaseGateway.GetScalarAsync<int>(new Query("select count(*) from dbo.Nested"));
+
+            Assert.That(count, Is.EqualTo(1));
+        }
+
+        await using (DatabaseContextFactory.Create())
+        {
+            var count = await DatabaseGateway.GetScalarAsync<int>(new Query("select count(*) from dbo.Nested"));
+
+            Assert.That(count, Is.EqualTo(1));
+
+            await DatabaseGateway.ExecuteAsync(new Query("DROP TABLE IF EXISTS dbo.Nested"));
+        }
     }
 
     [Test]

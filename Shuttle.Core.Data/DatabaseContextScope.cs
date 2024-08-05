@@ -1,18 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Shuttle.Core.Data
 {
     public class DatabaseContextScope : IDisposable
     {
+        private static readonly AsyncLocal<Stack<DatabaseContextCollection>> DatabaseContextCollectionStack = new AsyncLocal<Stack<DatabaseContextCollection>>();
         private static readonly AsyncLocal<DatabaseContextCollection> AmbientData = new AsyncLocal<DatabaseContextCollection>();
 
         public DatabaseContextScope()
         {
-            if (AmbientData.Value != null)
+            if (DatabaseContextCollectionStack.Value == null)
             {
-                throw new InvalidOperationException(Resources.AmbientScopeException);
+                DatabaseContextCollectionStack.Value = new Stack<DatabaseContextCollection>();
             }
+
+            DatabaseContextCollectionStack.Value.Push(AmbientData.Value);
 
             AmbientData.Value = new DatabaseContextCollection();
         }
@@ -21,7 +25,7 @@ namespace Shuttle.Core.Data
 
         public void Dispose()
         {
-            AmbientData.Value = null;
+            AmbientData.Value = DatabaseContextCollectionStack.Value.Pop();
         }
     }
 }

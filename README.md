@@ -65,9 +65,9 @@ The default JSON settings structure is as follows:
 
 # DatabaseContextScope
 
-The `DatabaseContextService` contains a collection of the `DatabaseContext` instances created by `IDatabaseContextFactory`.  However, these will not be flowed across async contexts.  
+The `DatabaseContextService` contains a collection of the `DatabaseContext` instances created by `IDatabaseContextFactory`.  However, since the `DatabaseContextService` is a singleton the same collection will be used in all thread contexts.  This includes not only the same execution context, but also "peered" execution context running in parallel.
 
-To enable async context flow wrap the initial database context creation in a `using` statement:
+To enable an individual execution/thread context-specific collection which also enables async context flow wrap the initial database context creation in a new `DatabaseContextScope()`:
 
 ``` c#
 using (new DatabaseContextScope())

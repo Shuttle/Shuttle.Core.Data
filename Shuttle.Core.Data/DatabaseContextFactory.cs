@@ -16,7 +16,6 @@ namespace Shuttle.Core.Data
 
         private readonly IDbConnectionFactory _dbConnectionFactory;
         private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
-        private readonly Dictionary<string, SemaphoreSlim> _semaphores = new Dictionary<string, SemaphoreSlim>();
 
         public DatabaseContextFactory(IOptionsMonitor<ConnectionStringOptions> connectionStringOptions, IOptions<DataAccessOptions> dataAccessOptions, IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory, IDatabaseContextService databaseContextService)
         {
@@ -32,21 +31,11 @@ namespace Shuttle.Core.Data
 
         public event EventHandler<DatabaseContextEventArgs> DatabaseContextCreated;
 
-        public IDatabaseContext Create(string connectionStringName, TimeSpan? timeout = null)
+        public IDatabaseContext Create(string connectionStringName)
         {
             Guard.AgainstNullOrEmptyString(connectionStringName, nameof(connectionStringName));
 
             _lock.Wait();
-
-            if (!_semaphores.ContainsKey(connectionStringName))
-            {
-                _semaphores.Add(connectionStringName, new SemaphoreSlim(1, 1)); 
-            }
-
-            if (!_semaphores[connectionStringName].Wait(timeout ?? _dataAccessOptions.DatabaseContextFactory.DefaultCreateTimeout))
-            {
-                throw new TimeoutException(string.Format(Resources.DatabaseContextFactoryTimeoutException, connectionStringName, timeout ?? _dataAccessOptions.DatabaseContextFactory.DefaultCreateTimeout));
-            }
 
             try
             {
@@ -62,7 +51,7 @@ namespace Shuttle.Core.Data
                     throw new InvalidOperationException(string.Format(Resources.DuplicateDatabaseContextException, connectionStringName));
                 }
 
-                var databaseContext = new DatabaseContext(connectionStringName, connectionStringOptions.ProviderName, (DbConnection)_dbConnectionFactory.Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString), _dbCommandFactory, _databaseContextService, _semaphores[connectionStringName]);
+                var databaseContext = new DatabaseContext(connectionStringName, connectionStringOptions.ProviderName, (DbConnection)_dbConnectionFactory.Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString), _dbCommandFactory, _databaseContextService);
 
                 DatabaseContextCreated?.Invoke(this, new DatabaseContextEventArgs(databaseContext));
 
@@ -74,14 +63,14 @@ namespace Shuttle.Core.Data
             }
         }
 
-        public IDatabaseContext Create(TimeSpan? timeout = null)
+        public IDatabaseContext Create()
         {
             if (string.IsNullOrEmpty(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionStringName))
             {
                 throw new InvalidOperationException(Resources.DatabaseContextFactoryOptionsException);
             }
 
-            return Create(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionStringName, timeout);
+            return Create(_dataAccessOptions.DatabaseContextFactory.DefaultConnectionStringName);
         }
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Data;
-using System.Data.Common;
 using System.Threading;
 using Shuttle.Core.Contract;
 
@@ -8,8 +6,7 @@ namespace Shuttle.Core.Data
 {
     public static class DatabaseContextFactoryExtensions
     {
-        public static bool IsAvailable(this IDatabaseContextFactory databaseContextFactory,
-            CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
+        public static bool IsAvailable(this IDatabaseContextFactory databaseContextFactory, CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
         {
             Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
 
