@@ -79,11 +79,20 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Connection settings named &apos;{0}&apos; has no connection string..
+        ///   Looks up a localized string similar to Coluld not find a connection string named &apos;{0}&apos;..
         /// </summary>
         public static string ConnectionStringMissingException {
             get {
                 return ResourceManager.GetString("ConnectionStringMissingException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection string options named &apos;{0}&apos; has no connection string..
+        /// </summary>
+        public static string ConnectionStringOptionMissingException {
+            get {
+                return ResourceManager.GetString("ConnectionStringOptionMissingException", resourceCulture);
             }
         }
         

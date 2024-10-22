@@ -152,8 +152,8 @@
   <data name="TimeoutException" xml:space="preserve">
     <value>Timeout may not be less than 0.</value>
   </data>
-  <data name="ConnectionStringMissingException" xml:space="preserve">
-    <value>Connection settings named '{0}' has no connection string.</value>
+  <data name="ConnectionStringOptionMissingException" xml:space="preserve">
+    <value>Connection string options named '{0}' has no connection string.</value>
     <comment>{0} = connection settings name</comment>
   </data>
   <data name="ProviderNameMissingException" xml:space="preserve">
@@ -186,5 +186,9 @@
   <data name="DatabaseContextFactoryTimeoutException" xml:space="preserve">
     <value>Creating DatabaseContext for connection name '{0}' timed out after '{1}'.</value>
     <comment>{0} = connection name, {1} = timespan</comment>
+  </data>
+  <data name="ConnectionStringMissingException" xml:space="preserve">
+    <value>Coluld not find a connection string named '{0}'.</value>
+    <comment>{0} = connection string name</comment>
   </data>
 </root>

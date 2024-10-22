@@ -1,7 +1,6 @@
-﻿namespace Shuttle.Core.Data
+﻿namespace Shuttle.Core.Data;
+
+public interface IScriptProvider
 {
-    public interface IScriptProvider
-    {
-        string Get(string connectionStringName, string scriptName);
-    }
+    string Get(string connectionStringName, string scriptName);
 }

@@ -4,37 +4,34 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Core.Data
+namespace Shuttle.Core.Data;
+
+public static class ServiceCollectionExtensions
 {
-    public static class ServiceCollectionExtensions
+    public static IServiceCollection AddDataAccess(this IServiceCollection services, Action<DataAccessBuilder>? builder = null)
     {
-        public static IServiceCollection AddDataAccess(this IServiceCollection services, Action<DataAccessBuilder> builder = null)
+        Guard.AgainstNull(services);
+
+        var dataAccessBuilder = new DataAccessBuilder(services);
+
+        builder?.Invoke(dataAccessBuilder);
+
+        services.TryAddSingleton<IValidateOptions<DataAccessOptions>, DataAccessOptionsValidator>();
+        services.TryAddSingleton<IValidateOptions<ConnectionStringOptions>, ConnectionStringOptionsValidator>();
+
+        services.AddOptions<DataAccessOptions>().Configure(options =>
         {
-            Guard.AgainstNull(services, nameof(services));
+            options.CommandTimeout = dataAccessBuilder.Options.CommandTimeout;
+            options.DatabaseContextFactory = dataAccessBuilder.Options.DatabaseContextFactory;
+        });
 
-            var dataAccessBuilder = new DataAccessBuilder(services);
+        services.TryAddSingleton<IDatabaseContextFactory, DatabaseContextFactory>();
+        services.TryAddSingleton<IDbConnectionFactory, DbConnectionFactory>();
+        services.TryAddSingleton<IDbCommandFactory, DbCommandFactory>();
+        services.TryAddSingleton<IDataRowMapper, DataRowMapper>();
+        services.TryAddSingleton<IQueryMapper, QueryMapper>();
+        services.TryAddSingleton(typeof(IDataRepository<>), typeof(DataRepository<>));
 
-            builder?.Invoke(dataAccessBuilder);
-
-            services.TryAddSingleton<IValidateOptions<DataAccessOptions>, DataAccessOptionsValidator>();
-            services.TryAddSingleton<IValidateOptions<ConnectionStringOptions>, ConnectionStringOptionsValidator>();
-
-            services.AddOptions<DataAccessOptions>().Configure(options =>
-            {
-                options.CommandTimeout = dataAccessBuilder.Options.CommandTimeout;
-                options.DatabaseContextFactory = dataAccessBuilder.Options.DatabaseContextFactory;
-            });
-
-            services.TryAddSingleton<IDatabaseContextService, DatabaseContextService>();
-            services.TryAddSingleton<IDatabaseContextFactory, DatabaseContextFactory>();
-            services.TryAddSingleton<IDbConnectionFactory, DbConnectionFactory>();
-            services.TryAddSingleton<IDbCommandFactory, DbCommandFactory>();
-            services.TryAddSingleton<IDatabaseGateway, DatabaseGateway>();
-            services.TryAddSingleton<IDataRowMapper, DataRowMapper>();
-            services.TryAddSingleton<IQueryMapper, QueryMapper>();
-            services.TryAddSingleton(typeof(IDataRepository<>), typeof(DataRepository<>));
-
-            return services;
-        }
+        return services;
     }
 }

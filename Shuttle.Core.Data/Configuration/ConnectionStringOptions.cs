@@ -1,9 +1,8 @@
-﻿namespace Shuttle.Core.Data
+﻿namespace Shuttle.Core.Data;
+
+public class ConnectionStringOptions
 {
-    public class ConnectionStringOptions
-    {
-        public string Name { get; set; }
-        public string ProviderName { get; set; }
-        public string ConnectionString { get; set; }
-    }
+    public string ConnectionString { get; set; } = default!;
+    public string Name { get; set; } = default!;
+    public string ProviderName { get; set; } = default!;
 }

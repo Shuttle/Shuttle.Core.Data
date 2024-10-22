@@ -15,11 +15,11 @@ public class QueryFixture : Fixture
         const string sql = "select @Id";
 
         var guid = Guid.NewGuid();
-        var mc = new Column<Guid>("Id", DbType.Guid);
+        Column<Guid> mc = new("Id", DbType.Guid);
         var query = new Query(sql).AddParameter(mc, guid);
-        var dataParameterCollection = new Mock<IDataParameterCollection>();
+        Mock<IDataParameterCollection> dataParameterCollection = new();
 
-        var command = new Mock<IDbCommand>();
+        Mock<IDbCommand> command = new();
 
         dataParameterCollection.Setup(m => m.Add(It.IsAny<IDbDataParameter>())).Verifiable();
 
@@ -51,11 +51,11 @@ public class QueryFixture : Fixture
         const string sql = "uspDoSomething";
 
         var guid = Guid.NewGuid();
-        var mc = new Column<Guid>("Id", DbType.Guid);
+        Column<Guid> mc = new("Id", DbType.Guid);
         var query = new Query(sql, CommandType.StoredProcedure).AddParameter(mc, guid);
-        var dataParameterCollection = new Mock<IDataParameterCollection>();
+        Mock<IDataParameterCollection> dataParameterCollection = new();
 
-        var command = new Mock<IDbCommand>();
+        Mock<IDbCommand> command = new();
 
         dataParameterCollection.Setup(m => m.Add(It.IsAny<IDbDataParameter>())).Verifiable();
 

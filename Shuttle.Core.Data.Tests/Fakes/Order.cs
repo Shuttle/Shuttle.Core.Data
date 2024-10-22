@@ -3,37 +3,30 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace Shuttle.Core.Data.Tests.Fakes
+namespace Shuttle.Core.Data.Tests.Fakes;
+
+public class Order
 {
-	public class Order
-	{
-		public string OrderNumber { get; private set; }
-		public DateTime OrderDate { get; private set; }
+    private readonly List<OrderLine> _lines = new();
 
-		private readonly List<OrderLine> _lines = new List<OrderLine>();
+    public Order(string orderNumber, DateTime orderDate)
+    {
+        OrderNumber = orderNumber;
+        OrderDate = orderDate;
+    }
 
-		public Order(string orderNumber, DateTime orderDate)
-		{
-			OrderNumber = orderNumber;
-			OrderDate = orderDate;
-		}
+    public IEnumerable<OrderLine> Lines => new ReadOnlyCollection<OrderLine>(_lines);
 
-		public void AddLine(OrderLine line)
-		{
-			_lines.Add(line);
-		}
+    public DateTime OrderDate { get; private set; }
+    public string OrderNumber { get; private set; }
 
-		public double Total()
-		{
-			return _lines.Sum(line => line.TotalCost());
-		}
+    public void AddLine(OrderLine line)
+    {
+        _lines.Add(line);
+    }
 
-		public IEnumerable<OrderLine> Lines
-		{
-			get
-			{
-				return new ReadOnlyCollection<OrderLine>(_lines);
-			}
-		}
-	}
+    public double Total()
+    {
+        return _lines.Sum(line => line.TotalCost());
+    }
 }

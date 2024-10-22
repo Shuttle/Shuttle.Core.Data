@@ -1,59 +1,55 @@
 ﻿using System;
-using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Core.Data
+namespace Shuttle.Core.Data;
+
+public class DataAccessBuilder
 {
-    public class DataAccessBuilder
+    private DataAccessOptions _dataAccessOptions = new();
+
+    public DataAccessBuilder(IServiceCollection services)
     {
-        private DataAccessOptions _dataAccessOptions = new DataAccessOptions();
+        Services = Guard.AgainstNull(services);
+    }
 
-        public DataAccessOptions Options
+    public DataAccessOptions Options
+    {
+        get => _dataAccessOptions;
+        set => _dataAccessOptions = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    public IServiceCollection Services { get; }
+
+    public DataAccessBuilder AddConnectionString(string name, string providerName, string connectionString)
+    {
+        Guard.AgainstNullOrEmptyString(name);
+        Guard.AgainstNullOrEmptyString(providerName);
+        Guard.AgainstNullOrEmptyString(connectionString);
+
+        Services.Configure<ConnectionStringOptions>(name, option =>
         {
-            get => _dataAccessOptions;
-            set => _dataAccessOptions = value ?? throw new ArgumentNullException(nameof(value));
-        }
+            option.ConnectionString = connectionString;
+            option.ProviderName = providerName;
+            option.Name = name;
+        });
 
-        public IServiceCollection Services { get; }
+        return this;
+    }
 
-        public DataAccessBuilder(IServiceCollection services)
+    public DataAccessBuilder AddConnectionString(string name, string providerName)
+    {
+        Guard.AgainstNullOrEmptyString(name);
+        Guard.AgainstNullOrEmptyString(providerName);
+
+        Services.AddOptions<ConnectionStringOptions>(name).Configure<IConfiguration>((option, configuration) =>
         {
-            Guard.AgainstNull(services, nameof(services));
+            option.ConnectionString = configuration.GetConnectionString(name) ?? string.Empty;
+            option.ProviderName = providerName;
+            option.Name = name;
+        });
 
-            Services = services;
-        }
-
-        public DataAccessBuilder AddConnectionString(string name, string providerName, string connectionString)
-        {
-            Guard.AgainstNullOrEmptyString(name, nameof(name));
-            Guard.AgainstNullOrEmptyString(providerName, nameof(providerName));
-            Guard.AgainstNullOrEmptyString(connectionString, nameof(connectionString));
-
-            Services.Configure<ConnectionStringOptions>(name, option =>
-            {
-                option.ConnectionString = connectionString;
-                option.ProviderName = providerName;
-                option.Name = name;
-            });
-
-            return this;
-        }
-
-        public DataAccessBuilder AddConnectionString(string name, string providerName)
-        {
-            Guard.AgainstNullOrEmptyString(name, nameof(name));
-            Guard.AgainstNullOrEmptyString(providerName, nameof(providerName));
-            
-            Services.AddOptions<ConnectionStringOptions>(name).Configure<IConfiguration>((option, configuration) =>
-            {
-                option.ConnectionString = configuration.GetConnectionString(name);
-                option.ProviderName = providerName;
-                option.Name = name;
-            });
-
-            return this;
-        }
+        return this;
     }
 }

@@ -1,188 +1,133 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Threading;
 using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Core.Data
+namespace Shuttle.Core.Data;
+
+public class DatabaseContext : IDatabaseContext
 {
-    public class DatabaseContext : IDatabaseContext
+    private readonly IDbCommandFactory _dbCommandFactory;
+    private readonly IDbConnection _dbConnection;
+    private bool _disposed;
+
+    public DatabaseContext(string name, string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory)
     {
-        private readonly IDatabaseContextService _databaseContextService;
-        private readonly IDbCommandFactory _dbCommandFactory;
-        private readonly IDbConnection _dbConnection;
-        private bool _disposed;
+        Name = Guard.AgainstNullOrEmptyString(name);
+        ProviderName = Guard.AgainstNullOrEmptyString(providerName);
 
-        public DatabaseContext(string name, string providerName, IDbConnection dbConnection, IDbCommandFactory dbCommandFactory, IDatabaseContextService databaseContextService)
+        _dbCommandFactory = Guard.AgainstNull(dbCommandFactory);
+        _dbConnection = Guard.AgainstNull(dbConnection);
+    }
+
+    public event EventHandler<TransactionEventArgs>? TransactionStarted;
+    public event EventHandler<TransactionEventArgs>? TransactionCommitted;
+    public event EventHandler<TransactionEventArgs>? TransactionRolledBack;
+    public event EventHandler<EventArgs>? Disposed;
+
+    public string Name { get; }
+    public DbTransaction? Transaction { get; private set; }
+    public string ProviderName { get; }
+
+    public async Task<DbCommand> CreateCommandAsync(IQuery query)
+    {
+        GuardDisposed();
+
+        var command = _dbCommandFactory.Create(await GetOpenConnectionAsync(), Guard.AgainstNull(query));
+
+        command.Transaction = Transaction;
+
+        return command;
+    }
+
+    public IDbConnection GetDbConnection()
+    {
+        return GetOpenConnectionAsync().GetAwaiter().GetResult();
+    }
+
+    public bool HasTransaction => Transaction != null;
+
+    public void Dispose()
+    {
+        if (_disposed)
         {
-            Name = Guard.AgainstNullOrEmptyString(name, nameof(name));
-            ProviderName = Guard.AgainstNullOrEmptyString(providerName, "providerName");
-
-            _dbCommandFactory = Guard.AgainstNull(dbCommandFactory, nameof(dbCommandFactory));
-            _databaseContextService = Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
-            _dbConnection = Guard.AgainstNull(dbConnection, nameof(dbConnection));
-
-            _databaseContextService.Add(this);
+            return;
         }
 
-        public event EventHandler<TransactionEventArgs> TransactionStarted;
-        public event EventHandler<TransactionEventArgs> TransactionCommitted;
-        public event EventHandler<TransactionEventArgs> TransactionRolledBack;
-        public event EventHandler<EventArgs> Disposed;
-
-        public string Name { get; }
-        public DbTransaction Transaction { get; private set; }
-        public string ProviderName { get; }
-
-        public DbCommand CreateCommand(IQuery query)
+        try
         {
-            GuardDisposed();
-
-            var command = _dbCommandFactory.Create(GetOpenConnectionAsync(true).GetAwaiter().GetResult(), Guard.AgainstNull(query, nameof(query)));
-
-            command.Transaction = Transaction;
-
-            return command;
-        }
-
-        public IDbConnection GetDbConnection()
-        {
-            return GetOpenConnectionAsync(true).GetAwaiter().GetResult();
-        }
-
-        public bool HasTransaction => Transaction != null;
-
-        public IDatabaseContext BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Unspecified)
-        {
-            GuardDisposed();
-
-            return BeginTransactionAsync(isolationLevel, true).GetAwaiter().GetResult();
-        }
-
-        public async Task<IDatabaseContext> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified)
-        {
-            GuardDisposed();
-
-            return await BeginTransactionAsync(isolationLevel, false).ConfigureAwait(false);
-        }
-
-        public void CommitTransaction()
-        {
-            GuardDisposed();
-
-            CommitTransactionAsync(true).GetAwaiter().GetResult();
-        }
-
-        public async Task CommitTransactionAsync()
-        {
-            await CommitTransactionAsync(false).ConfigureAwait(false);
-        }
-
-        public bool IsActive => _databaseContextService.IsActive(this);
-
-        public void Dispose()
-        {
-            if (_disposed)
+            if (Transaction != null)
             {
-                return;
+                Transaction.Rollback();
+
+                TransactionRolledBack?.Invoke(this, new(Transaction));
             }
 
-            try
-            {
-                _databaseContextService.Remove(this);
-
-                if (HasTransaction)
-                {
-                    Transaction.Rollback();
-
-                    TransactionRolledBack?.Invoke(this, new TransactionEventArgs(Transaction));
-                }
-
-                _dbConnection.Dispose();
-            }
-            finally
-            {
-                _disposed = true;
-            }
-
-            Disposed?.Invoke(this, EventArgs.Empty);
+            _dbConnection.Dispose();
+        }
+        finally
+        {
+            _disposed = true;
         }
 
-        public async ValueTask DisposeAsync()
+        Disposed?.Invoke(this, EventArgs.Empty);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        Dispose();
+
+        await new ValueTask();
+    }
+
+    public async Task<IDatabaseContext> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified)
+    {
+        GuardDisposed();
+
+        if (HasTransaction || System.Transactions.Transaction.Current != null)
         {
-            Dispose();
-
-            await new ValueTask();
-        }
-
-        private async Task<IDatabaseContext> BeginTransactionAsync(IsolationLevel isolationLevel, bool sync)
-        {
-            if (HasTransaction || System.Transactions.Transaction.Current != null)
-            {
-                return this;
-            }
-
-            if (sync)
-            {
-                Transaction = GetOpenConnectionAsync(true).GetAwaiter().GetResult().BeginTransaction(isolationLevel);
-            }
-            else
-            {
-                Transaction = await (await GetOpenConnectionAsync(false).ConfigureAwait(false)).BeginTransactionAsync(isolationLevel);
-            }
-
-            TransactionStarted?.Invoke(this, new TransactionEventArgs(Transaction));
-
             return this;
         }
 
-        private async Task CommitTransactionAsync(bool sync)
+        Transaction = await (await GetOpenConnectionAsync().ConfigureAwait(false)).BeginTransactionAsync(isolationLevel);
+
+        TransactionStarted?.Invoke(this, new(Transaction));
+
+        return this;
+    }
+
+    public async Task CommitTransactionAsync()
+    {
+        if (Transaction == null)
         {
-            if (!HasTransaction)
-            {
-                return;
-            }
-
-            if (sync)
-            {
-                Transaction.Commit();
-            }
-            else
-            {
-                await ((DbTransaction)Transaction).CommitAsync();
-            }
-
-            TransactionCommitted?.Invoke(this, new TransactionEventArgs(Transaction));
-
-            Transaction = null;
+            return;
         }
 
-        private async Task<DbConnection> GetOpenConnectionAsync(bool sync)
-        {
-            if (_dbConnection.State != ConnectionState.Open)
-            {
-                if (sync)
-                {
-                    ((DbConnection)_dbConnection).Open();
-                }
-                else
-                {
-                    await ((DbConnection)_dbConnection).OpenAsync().ConfigureAwait(false);
-                }
-            }
+        await Transaction.CommitAsync();
 
-            return (DbConnection)_dbConnection;
+        TransactionCommitted?.Invoke(this, new(Transaction));
+
+        Transaction = null;
+    }
+
+    private async Task<DbConnection> GetOpenConnectionAsync()
+    {
+        if (_dbConnection.State != ConnectionState.Open)
+        {
+            await ((DbConnection)_dbConnection).OpenAsync().ConfigureAwait(false);
         }
 
-        private void GuardDisposed()
-        {
-            if (!_disposed)
-            {
-                return;
-            }
+        return (DbConnection)_dbConnection;
+    }
 
-            throw new ObjectDisposedException(nameof(DatabaseContext));
+    private void GuardDisposed()
+    {
+        if (!_disposed)
+        {
+            return;
         }
+
+        throw new ObjectDisposedException(nameof(DatabaseContext));
     }
 }

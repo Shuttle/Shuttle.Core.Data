@@ -2,12 +2,10 @@ using System;
 using System.Data;
 using System.Data.Common;
 
-namespace Shuttle.Core.Data
-{
-	public interface IDbCommandFactory
-    {
-        event EventHandler<DbCommandCreatedEventArgs> DbCommandCreated;
+namespace Shuttle.Core.Data;
 
-        DbCommand Create(IDbConnection connection, IQuery query);
-    }
+public interface IDbCommandFactory
+{
+    DbCommand Create(IDbConnection connection, IQuery query);
+    event EventHandler<DbCommandCreatedEventArgs> DbCommandCreated;
 }
