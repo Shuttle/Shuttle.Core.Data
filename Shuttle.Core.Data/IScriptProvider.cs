@@ -1,6 +1,9 @@
-﻿namespace Shuttle.Core.Data;
+﻿using System.Threading;
+using System.Threading.Tasks;
+
+namespace Shuttle.Core.Data;
 
 public interface IScriptProvider
 {
-    string Get(string connectionStringName, string scriptName);
+    ValueTask<string> GetAsync(string connectionStringName, string scriptName, CancellationToken cancellationToken = default);
 }

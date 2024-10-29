@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 
@@ -8,7 +10,7 @@ namespace Shuttle.Core.Data;
 
 public class ScriptProvider : IScriptProvider
 {
-    private static readonly object Lock = new();
+    private static readonly SemaphoreSlim Lock = new(1, 1);
     private readonly IOptionsMonitor<ConnectionStringOptions> _connectionStringOptions;
     private readonly string[] _emptyFiles = Array.Empty<string>();
     private readonly ScriptProviderOptions _options;
@@ -21,12 +23,14 @@ public class ScriptProvider : IScriptProvider
         _options = Guard.AgainstNull(Guard.AgainstNull(options).Value);
     }
 
-    public string Get(string connectionStringName, string scriptName)
+    public async ValueTask<string> GetAsync(string connectionStringName, string scriptName, CancellationToken cancellationToken = default)
     {
         Guard.AgainstNullOrEmptyString(connectionStringName);
         Guard.AgainstNullOrEmptyString(scriptName);
 
-        lock (Lock)
+        await Lock.WaitAsync(cancellationToken);
+
+        try
         {
             var connectionStringOptions = _connectionStringOptions.Get(connectionStringName);
 
@@ -44,41 +48,41 @@ public class ScriptProvider : IScriptProvider
 
             return _scripts[key];
         }
+        finally
+        {
+            Lock.Release();
+        }
     }
 
     private void AddEmbedded(string providerName, string scriptName)
     {
         var key = Key(providerName, scriptName);
 
-        lock (Lock)
+        if (_scripts.ContainsKey(key))
         {
-            if (_scripts.ContainsKey(key))
-            {
-                return;
-            }
-
-            var files = _emptyFiles;
-
-            if (!string.IsNullOrEmpty(_options.ScriptFolder) && Directory.Exists(_options.ScriptFolder))
-            {
-                files = Directory.GetFiles(_options.ScriptFolder, FormattedFileName(providerName, scriptName), SearchOption.AllDirectories);
-            }
-
-            if (files.Length == 0)
-            {
-                AddEmbeddedScript(providerName, scriptName);
-
-                return;
-            }
-
-            if (files.Length > 1)
-            {
-                throw new InvalidOperationException(string.Format(Resources.ScriptCountException, _options.ScriptFolder,
-                    scriptName, files.Length));
-            }
-
-            _scripts.Add(key, File.ReadAllText(files[0]));
+            return;
         }
+
+        var files = _emptyFiles;
+
+        if (!string.IsNullOrEmpty(_options.ScriptFolder) && Directory.Exists(_options.ScriptFolder))
+        {
+            files = Directory.GetFiles(_options.ScriptFolder, FormattedFileName(providerName, scriptName), SearchOption.AllDirectories);
+        }
+
+        if (files.Length == 0)
+        {
+            AddEmbeddedScript(providerName, scriptName);
+
+            return;
+        }
+
+        if (files.Length > 1)
+        {
+            throw new InvalidOperationException(string.Format(Resources.ScriptCountException, _options.ScriptFolder, scriptName, files.Length));
+        }
+
+        _scripts.Add(key, File.ReadAllText(files[0]));
     }
 
     private void AddEmbeddedScript(string providerName, string scriptName)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
@@ -9,7 +10,7 @@ namespace Shuttle.Core.Data.Tests;
 public class ScriptProviderFixture : Fixture
 {
     [Test]
-    public void Should_be_able_to_retrieve_script_from_file()
+    public async Task Should_be_able_to_retrieve_script_from_file()
     {
         Mock<IOptionsMonitor<ConnectionStringOptions>> connectionStringOptions = new();
 
@@ -17,14 +18,14 @@ public class ScriptProviderFixture : Fixture
 
         ScriptProvider provider = new(connectionStringOptions.Object, Options.Create(new ScriptProviderOptions { FileNameFormat = "{ScriptName}.sql", ScriptFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @".\.scripts\") }));
 
-        var script = provider.Get("shuttle", "file-script");
+        var script = await provider.GetAsync("shuttle", "file-script");
 
         Assert.That(string.IsNullOrEmpty(script), Is.False);
         Assert.That(script, Is.EqualTo("select 'file-script'"));
     }
 
     [Test]
-    public void Should_eb_able_to_retrieve_script_from_resource()
+    public async Task Should_eb_able_to_retrieve_script_from_resource()
     {
         Mock<IOptionsMonitor<ConnectionStringOptions>> connectionStringOptions = new();
 
@@ -32,7 +33,7 @@ public class ScriptProviderFixture : Fixture
 
         ScriptProvider provider = new(connectionStringOptions.Object, Options.Create(new ScriptProviderOptions { ResourceAssembly = GetType().Assembly, ResourceNameFormat = "Shuttle.Core.Data.Tests..scripts.Microsoft.Data.SqlClient.{ScriptName}.sql" }));
 
-        var script = provider.Get("shuttle", "embedded-script");
+        var script = await provider.GetAsync("shuttle", "embedded-script");
 
         Assert.That(string.IsNullOrEmpty(script), Is.False);
         Assert.That(script, Is.EqualTo("select 'embedded-script'"));
@@ -43,12 +44,11 @@ public class ScriptProviderFixture : Fixture
     {
         Mock<IOptionsMonitor<ConnectionStringOptions>> connectionStringOptions = new();
 
-        Assert.Throws<InvalidOperationException>(
-            () => new ScriptProvider(connectionStringOptions.Object, Options.Create(new ScriptProviderOptions())).Get("missing", "throw"));
+        Assert.ThrowsAsync<InvalidOperationException>(async () => await new ScriptProvider(connectionStringOptions.Object, Options.Create(new ScriptProviderOptions())).GetAsync("missing", "throw"));
     }
 
     [Test]
-    public void Should_throw_exception_when_no_resource_or_file_found()
+    public async Task Should_throw_exception_when_no_resource_or_file_found()
     {
         Mock<IOptionsMonitor<ConnectionStringOptions>> connectionStringOptions = new();
 
@@ -56,6 +56,6 @@ public class ScriptProviderFixture : Fixture
 
         ScriptProvider provider = new(connectionStringOptions.Object, Options.Create(new ScriptProviderOptions { ResourceAssembly = GetType().Assembly }));
 
-        Assert.Throws<InvalidOperationException>(() => provider.Get("Microsoft.Data.SqlClient", "missing-script"));
+        Assert.ThrowsAsync<InvalidOperationException>(async () => await provider.GetAsync("Microsoft.Data.SqlClient", "missing-script"));
     }
 }
