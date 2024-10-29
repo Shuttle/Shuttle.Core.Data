@@ -50,35 +50,32 @@ public class ScriptProvider : IScriptProvider
     {
         var key = Key(providerName, scriptName);
 
-        lock (Lock)
+        if (_scripts.ContainsKey(key))
         {
-            if (_scripts.ContainsKey(key))
-            {
-                return;
-            }
-
-            var files = _emptyFiles;
-
-            if (!string.IsNullOrEmpty(_options.ScriptFolder) && Directory.Exists(_options.ScriptFolder))
-            {
-                files = Directory.GetFiles(_options.ScriptFolder, FormattedFileName(providerName, scriptName), SearchOption.AllDirectories);
-            }
-
-            if (files.Length == 0)
-            {
-                AddEmbeddedScript(providerName, scriptName);
-
-                return;
-            }
-
-            if (files.Length > 1)
-            {
-                throw new InvalidOperationException(string.Format(Resources.ScriptCountException, _options.ScriptFolder,
-                    scriptName, files.Length));
-            }
-
-            _scripts.Add(key, File.ReadAllText(files[0]));
+            return;
         }
+
+        var files = _emptyFiles;
+
+        if (!string.IsNullOrEmpty(_options.ScriptFolder) && Directory.Exists(_options.ScriptFolder))
+        {
+            files = Directory.GetFiles(_options.ScriptFolder, FormattedFileName(providerName, scriptName), SearchOption.AllDirectories);
+        }
+
+        if (files.Length == 0)
+        {
+            AddEmbeddedScript(providerName, scriptName);
+
+            return;
+        }
+
+        if (files.Length > 1)
+        {
+            throw new InvalidOperationException(string.Format(Resources.ScriptCountException, _options.ScriptFolder,
+                scriptName, files.Length));
+        }
+
+        _scripts.Add(key, File.ReadAllText(files[0]));
     }
 
     private void AddEmbeddedScript(string providerName, string scriptName)

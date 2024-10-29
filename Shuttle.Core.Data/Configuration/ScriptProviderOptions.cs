@@ -4,8 +4,8 @@ namespace Shuttle.Core.Data;
 
 public class ScriptProviderOptions
 {
-    public string FileNameFormat { get; set; } = default!;
-    public Assembly ResourceAssembly { get; set; } = default!;
-    public string ResourceNameFormat { get; set; } = default!;
-    public string ScriptFolder { get; set; } = default!;
+    public string FileNameFormat { get; set; } = string.Empty;
+    public Assembly? ResourceAssembly { get; set; }
+    public string ResourceNameFormat { get; set; } = string.Empty;
+    public string ScriptFolder { get; set; } = string.Empty;
 }
