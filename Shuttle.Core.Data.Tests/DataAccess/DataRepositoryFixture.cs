@@ -11,6 +11,8 @@ public class DataRepositoryFixture : DataAccessFixture
     [Test]
     public async Task Should_be_able_to_fetch_all_items_async()
     {
+        _ = new DatabaseContextScope();
+
         var repository = new DataRepository<BasicMapping>(new BasicDataRowMapper());
 
         var result = (await repository.FetchItemsAsync(DatabaseContextFactory.Create(), new Query("select * from BasicMapping"))).ToList();
@@ -22,6 +24,8 @@ public class DataRepositoryFixture : DataAccessFixture
     [Test]
     public async Task Should_be_able_to_fetch_a_single_item_async()
     {
+        _ = new DatabaseContextScope();
+
         var repository = new DataRepository<BasicMapping>(new BasicDataRowMapper());
 
         var result = (await repository.FetchItemAsync(DatabaseContextFactory.Create(), new Query("select top 1 * from BasicMapping")));
@@ -32,6 +36,8 @@ public class DataRepositoryFixture : DataAccessFixture
     [Test]
     public async Task Should_be_able_to_get_default_when_fetching_a_single_item_that_is_not_found_async()
     {
+        _ = new DatabaseContextScope();
+
         var repository = new DataRepository<BasicMapping>(new BasicDataRowMapper());
 
         var result = (await repository.FetchItemAsync(DatabaseContextFactory.Create(), new Query("select top 1 * from BasicMapping where Name = 'not-found'")));
@@ -42,6 +48,8 @@ public class DataRepositoryFixture : DataAccessFixture
     [Test]
     public async Task Should_be_able_to_call_contains_async()
     {
+        _ = new DatabaseContextScope();
+
         var repository = new DataRepository<BasicMapping>(new BasicDataRowMapper());
 
         var result = (await repository.ContainsAsync(DatabaseContextFactory.Create(), new Query("select 1")));
@@ -52,6 +60,8 @@ public class DataRepositoryFixture : DataAccessFixture
     [Test]
     public async Task Should_be_able_to_fetch_mapped_rows_async()
     {
+        _ = new DatabaseContextScope();
+
         var repository = new DataRepository<BasicMapping>(new BasicDataRowMapper());
 
         var result = (await repository.FetchMappedRowsAsync(DatabaseContextFactory.Create(), new Query("select * from BasicMapping"))).ToList();
@@ -63,6 +73,8 @@ public class DataRepositoryFixture : DataAccessFixture
     [Test]
     public async Task Should_be_able_to_fetch_a_single_row_async()
     {
+        _ = new DatabaseContextScope();
+
         var repository = new DataRepository<BasicMapping>(new BasicDataRowMapper());
 
         var result = (await repository.FetchMappedRowAsync(DatabaseContextFactory.Create(), new Query("select top 1 * from BasicMapping")));

@@ -8,6 +8,7 @@ namespace Shuttle.Core.Data;
 
 public class DatabaseContextFactory : IDatabaseContextFactory
 {
+    private readonly IDatabaseContextService _databaseContextService;
     private readonly IOptionsMonitor<ConnectionStringOptions> _connectionStringOptions;
     private readonly DataAccessOptions _dataAccessOptions;
     private readonly IDbCommandFactory _dbCommandFactory;
@@ -15,7 +16,7 @@ public class DatabaseContextFactory : IDatabaseContextFactory
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly SemaphoreSlim _lock = new(1, 1);
 
-    public DatabaseContextFactory(IOptionsMonitor<ConnectionStringOptions> connectionStringOptions, IOptions<DataAccessOptions> dataAccessOptions, IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory)
+    public DatabaseContextFactory(IOptionsMonitor<ConnectionStringOptions> connectionStringOptions, IOptions<DataAccessOptions> dataAccessOptions, IDbConnectionFactory dbConnectionFactory, IDbCommandFactory dbCommandFactory, IDatabaseContextService databaseContextService)
     {
         Guard.AgainstNull(dataAccessOptions);
 
@@ -24,6 +25,7 @@ public class DatabaseContextFactory : IDatabaseContextFactory
 
         _dbConnectionFactory = Guard.AgainstNull(dbConnectionFactory);
         _dbCommandFactory = Guard.AgainstNull(dbCommandFactory);
+        _databaseContextService = Guard.AgainstNull(databaseContextService);
     }
 
     public event EventHandler<DatabaseContextEventArgs>? DatabaseContextCreated;
@@ -43,7 +45,7 @@ public class DatabaseContextFactory : IDatabaseContextFactory
                 throw new InvalidOperationException(string.Format(Resources.ConnectionStringMissingException, connectionStringName));
             }
 
-            var databaseContext = new DatabaseContext(connectionStringName, connectionStringOptions.ProviderName, (DbConnection)_dbConnectionFactory.Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString), _dbCommandFactory);
+            var databaseContext = new DatabaseContext(connectionStringName, connectionStringOptions.ProviderName, (DbConnection)_dbConnectionFactory.Create(connectionStringOptions.ProviderName, connectionStringOptions.ConnectionString), _dbCommandFactory, _databaseContextService);
 
             DatabaseContextCreated?.Invoke(this, new(databaseContext));
 

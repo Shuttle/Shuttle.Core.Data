@@ -36,10 +36,12 @@ public abstract class Fixture
         DatabaseContextFactory = Provider.GetRequiredService<IDatabaseContextFactory>();
         QueryMapper = Provider.GetRequiredService<IQueryMapper>();
         DataRowMapper = Provider.GetRequiredService<IDataRowMapper>();
+        DatabaseContextService = Provider.GetRequiredService<IDatabaseContextService>();
     }
 
     protected IDbConnectionFactory DbConnectionFactory { get; }
     protected IDatabaseContextFactory DatabaseContextFactory { get; }
     protected IQueryMapper QueryMapper { get; }
     protected IDataRowMapper DataRowMapper { get; }
+    protected IDatabaseContextService DatabaseContextService { get; }
 }

@@ -25,6 +25,7 @@ public static class ServiceCollectionExtensions
             options.DatabaseContextFactory = dataAccessBuilder.Options.DatabaseContextFactory;
         });
 
+        services.TryAddSingleton<IDatabaseContextService, DatabaseContextService>();    
         services.TryAddSingleton<IDatabaseContextFactory, DatabaseContextFactory>();
         services.TryAddSingleton<IDbConnectionFactory, DbConnectionFactory>();
         services.TryAddSingleton<IDbCommandFactory, DbCommandFactory>();

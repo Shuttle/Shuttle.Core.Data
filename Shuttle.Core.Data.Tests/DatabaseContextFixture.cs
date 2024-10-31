@@ -15,7 +15,7 @@ public class DatabaseContextFixture : Fixture
     {
         Assert.Throws<ArgumentException>(() =>
         {
-            using (new DatabaseContext("context", "Microsoft.Data.SqlClient", new SqlConnection("```"), new Mock<IDbCommandFactory>().Object))
+            using (new DatabaseContext("context", "Microsoft.Data.SqlClient", new SqlConnection("```"), new Mock<IDbCommandFactory>().Object, DatabaseContextService))
             {
             }
         });
@@ -26,7 +26,7 @@ public class DatabaseContextFixture : Fixture
     {
         Assert.ThrowsAsync<SqlException>(async () =>
         {
-            await using (DatabaseContext databaseContext = new("context", "Microsoft.Data.SqlClient", new SqlConnection("data source=.;initial catalog=idontexist;integrated security=sspi"), new Mock<IDbCommandFactory>().Object))
+            await using (DatabaseContext databaseContext = new("context", "Microsoft.Data.SqlClient", new SqlConnection("data source=.;initial catalog=idontexist;integrated security=sspi"), new Mock<IDbCommandFactory>().Object, DatabaseContextService))
             {
                 _ = await databaseContext.CreateCommandAsync(new Query("select 1"));
             }
@@ -36,7 +36,7 @@ public class DatabaseContextFixture : Fixture
     [Test]
     public async Task Should_be_able_to_begin_and_commit_a_transaction_async()
     {
-        await using (DatabaseContext databaseContext = new("context", "Microsoft.Data.SqlClient", DbConnectionFactory.Create(DefaultProviderName, DefaultConnectionString), new Mock<IDbCommandFactory>().Object))
+        await using (DatabaseContext databaseContext = new("context", "Microsoft.Data.SqlClient", DbConnectionFactory.Create(DefaultProviderName, DefaultConnectionString), new Mock<IDbCommandFactory>().Object, DatabaseContextService))
         {
             await databaseContext.BeginTransactionAsync();
             await databaseContext.CommitTransactionAsync();
@@ -46,7 +46,7 @@ public class DatabaseContextFixture : Fixture
     [Test]
     public async Task Should_be_able_to_begin_and_rollback_a_transaction_async()
     {
-        await using (DatabaseContext databaseContext = new("context", "Microsoft.Data.SqlClient", DbConnectionFactory.Create(DefaultProviderName, DefaultConnectionString), new Mock<IDbCommandFactory>().Object))
+        await using (DatabaseContext databaseContext = new("context", "Microsoft.Data.SqlClient", DbConnectionFactory.Create(DefaultProviderName, DefaultConnectionString), new Mock<IDbCommandFactory>().Object, DatabaseContextService))
         {
             await databaseContext.BeginTransactionAsync();
         }
@@ -55,7 +55,7 @@ public class DatabaseContextFixture : Fixture
     [Test]
     public async Task Should_be_able_to_call_commit_without_a_transaction_async()
     {
-        await using (DatabaseContext databaseContext = new("context", "Microsoft.Data.SqlClient", DbConnectionFactory.Create(DefaultProviderName, DefaultConnectionString), new Mock<IDbCommandFactory>().Object))
+        await using (DatabaseContext databaseContext = new("context", "Microsoft.Data.SqlClient", DbConnectionFactory.Create(DefaultProviderName, DefaultConnectionString), new Mock<IDbCommandFactory>().Object, DatabaseContextService))
         {
             await databaseContext.CommitTransactionAsync();
         }
@@ -64,7 +64,7 @@ public class DatabaseContextFixture : Fixture
     [Test]
     public void Should_be_able_to_call_dispose_more_than_once()
     {
-        using (DatabaseContext databaseContext = new("context", "Microsoft.Data.SqlClient", DbConnectionFactory.Create(DefaultProviderName, DefaultConnectionString), new Mock<IDbCommandFactory>().Object))
+        using (DatabaseContext databaseContext = new("context", "Microsoft.Data.SqlClient", DbConnectionFactory.Create(DefaultProviderName, DefaultConnectionString), new Mock<IDbCommandFactory>().Object, DatabaseContextService))
         {
             databaseContext.Dispose();
             databaseContext.Dispose();
@@ -81,7 +81,7 @@ public class DatabaseContextFixture : Fixture
 
         dbCommandFactory.Setup(m => m.Create(dbConnection, query.Object)).Returns(dbCommand.Object);
 
-        await using (DatabaseContext databaseContext = new("context", "Microsoft.Data.SqlClient", dbConnection, dbCommandFactory.Object))
+        await using (DatabaseContext databaseContext = new("context", "Microsoft.Data.SqlClient", dbConnection, dbCommandFactory.Object, DatabaseContextService))
         {
             _ = await databaseContext.CreateCommandAsync(query.Object);
         }

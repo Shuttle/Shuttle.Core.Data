@@ -25,18 +25,19 @@ from
             await GetRowsAsync(depth + 1);
         }
 
-        _ = await DatabaseContextFactory.Create().GetRowsAsync(_rowsQuery);
+        _ = await DatabaseContextService.Active.GetRowsAsync(_rowsQuery);
     }
 
     [Test]
     public async Task Should_be_able_to_create_nested_database_context_scopes_async()
     {
-        await using (DatabaseContextFactory.Create())
+        await using (var databaseContext = DatabaseContextFactory.Create())
         {
-            await DatabaseContextFactory.Create().ExecuteAsync(new Query("DROP TABLE IF EXISTS dbo.Nested"));
-            await DatabaseContextFactory.Create().ExecuteAsync(new Query("CREATE TABLE dbo.Nested (Id int)"));
+            await databaseContext.ExecuteAsync(new Query("DROP TABLE IF EXISTS dbo.Nested"));
+            await databaseContext.ExecuteAsync(new Query("CREATE TABLE dbo.Nested (Id int)"));
         }
 
+        using (new DatabaseContextScope())
         await using (var databaseContextOuter = DatabaseContextFactory.Create())
         {
             var count = await databaseContextOuter.GetScalarAsync<int>(new Query("select count(*) from dbo.Nested"));
@@ -49,6 +50,7 @@ from
 
             Assert.That(count, Is.EqualTo(1));
 
+            using (new DatabaseContextScope())
             using (new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled))
             await using (var databaseContextInner = DatabaseContextFactory.Create())
             {
@@ -83,6 +85,7 @@ from
         {
             tasks.Add(Task.Run(async () =>
             {
+                using (new DatabaseContextScope())
                 await using (var databaseContext = DatabaseContextFactory.Create())
                 {
                     _ = await databaseContext.GetRowsAsync(_rowsQuery);
@@ -102,12 +105,16 @@ from
         {
             using (ExecutionContext.SuppressFlow())
             {
-                threads.Add(new(async () =>
+                threads.Add(new(() =>
                 {
-                    await using (var databaseContext = DatabaseContextFactory.Create())
+                    Task.Run(async () =>
                     {
-                        await databaseContext.GetRowsAsync(_rowsQuery);
-                    }
+                        using (new DatabaseContextScope())
+                        await using (var databaseContext = DatabaseContextFactory.Create())
+                        {
+                            await databaseContext.GetRowsAsync(_rowsQuery);
+                        }
+                    }).Wait();
                 }));
             }
         }

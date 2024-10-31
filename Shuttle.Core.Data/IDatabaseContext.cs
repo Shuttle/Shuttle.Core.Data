@@ -9,6 +9,7 @@ namespace Shuttle.Core.Data;
 public interface IDatabaseContext : IDisposable, IAsyncDisposable
 {
     bool HasTransaction { get; }
+    bool IsActive { get; }
     string Name { get; }
     string ProviderName { get; }
     DbTransaction? Transaction { get; }
