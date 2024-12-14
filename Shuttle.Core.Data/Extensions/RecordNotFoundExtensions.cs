@@ -4,7 +4,7 @@ namespace Shuttle.Core.Data;
 
 public static class RecordNotFoundExtensions
 {
-    public static T GuardAgainstRecordNotFound<T>(this T entity, object id) where T : class
+    public static T GuardAgainstRecordNotFound<T>(this T? entity, object id) where T : class
     {
         if (entity == null)
         {
@@ -14,7 +14,7 @@ public static class RecordNotFoundExtensions
         return entity;
     }
 
-    public static DataRow GuardAgainstRecordNotFound<T>(this DataRow row, object id) where T : class
+    public static DataRow GuardAgainstRecordNotFound<T>(this DataRow? row, object id) where T : class
     {
         if (row == null)
         {
