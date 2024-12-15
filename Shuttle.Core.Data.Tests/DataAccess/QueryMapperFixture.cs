@@ -31,18 +31,18 @@ from
     BasicMapping
 ");
 
-        await using (var databaseContext = DatabaseContextFactory.Create())
+        await using (DatabaseContextFactory.Create())
         {
-            var item = await mapper.MapObjectAsync<BasicMapping>(databaseContext, queryRow);
+            var item = await mapper.MapObjectAsync<BasicMapping>(queryRow);
 
-            var items = await mapper.MapObjectsAsync<BasicMapping>(databaseContext, queryRows);
+            var items = await mapper.MapObjectsAsync<BasicMapping>(queryRows);
 
             Assert.That(item, Is.Not.Null);
             Assert.That(items.Count(), Is.EqualTo(2));
 
-            var mappedRow = await mapper.MapRowAsync<BasicMapping>(databaseContext, queryRow);
+            var mappedRow = await mapper.MapRowAsync<BasicMapping>(queryRow);
 
-            var mappedRows = await mapper.MapRowsAsync<BasicMapping>(databaseContext, queryRows);
+            var mappedRows = await mapper.MapRowsAsync<BasicMapping>(queryRows);
 
             Assert.That(mappedRow, Is.Not.Null);
             Assert.That(mappedRows.Count(), Is.EqualTo(2));
@@ -72,16 +72,16 @@ from
     BasicMapping
 ");
 
-        await using (var databaseContext = DatabaseContextFactory.Create())
+        await using (DatabaseContextFactory.Create())
         {
-            var item = await mapper.MapObjectAsync<BasicMapping>(databaseContext, queryRow);
-            var items = await mapper.MapObjectsAsync<BasicMapping>(databaseContext, queryRows);
+            var item = await mapper.MapObjectAsync<BasicMapping>(queryRow);
+            var items = await mapper.MapObjectsAsync<BasicMapping>(queryRows);
 
             Assert.That(item, Is.Not.Null);
             Assert.That(items.Count(), Is.EqualTo(2));
 
-            var mappedRow = mapper.MapRowAsync<BasicMapping>(databaseContext, queryRow).Result;
-            var mappedRows = await mapper.MapRowsAsync<BasicMapping>(databaseContext, queryRows);
+            var mappedRow = mapper.MapRowAsync<BasicMapping>(queryRow).Result;
+            var mappedRows = await mapper.MapRowsAsync<BasicMapping>(queryRows);
 
             Assert.That(mappedRow, Is.Not.Null);
             Assert.That(mappedRows.Count(), Is.EqualTo(2));
@@ -89,18 +89,7 @@ from
     }
 
     [Test]
-    public void Should_be_able_to_perform_value_mapping()
-    {
-        Should_be_able_to_perform_value_mapping_async(true).GetAwaiter().GetResult();
-    }
-
-    [Test]
     public async Task Should_be_able_to_perform_value_mapping_async()
-    {
-        await Should_be_able_to_perform_value_mapping_async(false);
-    }
-
-    private async Task Should_be_able_to_perform_value_mapping_async(bool sync)
     {
         var mapper = QueryMapper;
 
@@ -118,11 +107,11 @@ from
     BasicMapping
 ");
 
-        await using (var databaseContext = DatabaseContextFactory.Create())
+        await using (DatabaseContextFactory.Create())
         {
-            var value =  await mapper.MapValueAsync<Guid>(databaseContext, queryRow);
+            var value =  await mapper.MapValueAsync<Guid>(queryRow);
 
-            var values = await mapper.MapValuesAsync<Guid>(databaseContext, queryRows);
+            var values = await mapper.MapValuesAsync<Guid>(queryRows);
 
             Assert.That(value, Is.Not.Null);
             Assert.That(values.Count(), Is.EqualTo(2));
@@ -152,11 +141,11 @@ from
     BasicMapping
 ");
 
-        await using (var databaseContext = DatabaseContextFactory.Create())
+        await using (DatabaseContextFactory.Create())
         {
-            var item = await queryMapper.MapItemAsync(databaseContext, queryRow);
+            var item = await queryMapper.MapItemAsync(queryRow);
 
-            var items = await queryMapper.MapItemsAsync(databaseContext, queryRows);
+            var items = await queryMapper.MapItemsAsync(queryRows);
 
             Assert.That(item, Is.Not.Null);
             Assert.That(items.Count(), Is.EqualTo(2));

@@ -6,9 +6,9 @@ namespace Shuttle.Core.Data;
 
 public interface IDataRepository<T> where T : class
 {
-    Task<bool> ContainsAsync(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
-    Task<T?> FetchItemAsync(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
-    Task<IEnumerable<T>> FetchItemsAsync(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
-    Task<MappedRow<T>?> FetchMappedRowAsync(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
-    Task<IEnumerable<MappedRow<T>>> FetchMappedRowsAsync(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default);
+    Task<bool> ContainsAsync(IQuery query, CancellationToken cancellationToken = default);
+    Task<T?> FetchItemAsync(IQuery query, CancellationToken cancellationToken = default);
+    Task<IEnumerable<T>> FetchItemsAsync(IQuery query, CancellationToken cancellationToken = default);
+    Task<MappedRow<T>?> FetchMappedRowAsync(IQuery query, CancellationToken cancellationToken = default);
+    Task<IEnumerable<MappedRow<T>>> FetchMappedRowsAsync(IQuery query, CancellationToken cancellationToken = default);
 }

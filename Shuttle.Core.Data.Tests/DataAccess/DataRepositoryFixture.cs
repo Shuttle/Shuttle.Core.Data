@@ -11,75 +11,87 @@ public class DataRepositoryFixture : DataAccessFixture
     [Test]
     public async Task Should_be_able_to_fetch_all_items_async()
     {
-        _ = new DatabaseContextScope();
+        using (new DatabaseContextScope())
+        await using (DatabaseContextFactory.Create())
+        {
+            var repository = new DataRepository<BasicMapping>(DatabaseContextService, new BasicDataRowMapper());
 
-        var repository = new DataRepository<BasicMapping>(new BasicDataRowMapper());
+            var result = (await repository.FetchItemsAsync(new Query("select * from BasicMapping"))).ToList();
 
-        var result = (await repository.FetchItemsAsync(DatabaseContextFactory.Create(), new Query("select * from BasicMapping"))).ToList();
-
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(2));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(2));
+        }
     }
 
     [Test]
     public async Task Should_be_able_to_fetch_a_single_item_async()
     {
-        _ = new DatabaseContextScope();
+        using (new DatabaseContextScope())
+        await using (DatabaseContextFactory.Create())
+        {
+            var repository = new DataRepository<BasicMapping>(DatabaseContextService, new BasicDataRowMapper());
 
-        var repository = new DataRepository<BasicMapping>(new BasicDataRowMapper());
+            var result = await repository.FetchItemAsync(new Query("select top 1 * from BasicMapping"));
 
-        var result = (await repository.FetchItemAsync(DatabaseContextFactory.Create(), new Query("select top 1 * from BasicMapping")));
-
-        Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Not.Null);
+        }
     }
 
     [Test]
     public async Task Should_be_able_to_get_default_when_fetching_a_single_item_that_is_not_found_async()
     {
-        _ = new DatabaseContextScope();
+        using (new DatabaseContextScope())
+        await using (DatabaseContextFactory.Create())
+        {
+            var repository = new DataRepository<BasicMapping>(DatabaseContextService, new BasicDataRowMapper());
 
-        var repository = new DataRepository<BasicMapping>(new BasicDataRowMapper());
+            var result = await repository.FetchItemAsync(new Query("select top 1 * from BasicMapping where Name = 'not-found'"));
 
-        var result = (await repository.FetchItemAsync(DatabaseContextFactory.Create(), new Query("select top 1 * from BasicMapping where Name = 'not-found'")));
-
-        Assert.That(result, Is.Null);
+            Assert.That(result, Is.Null);
+        }
     }
 
     [Test]
     public async Task Should_be_able_to_call_contains_async()
     {
-        _ = new DatabaseContextScope();
+        using (new DatabaseContextScope())
+        await using (DatabaseContextFactory.Create())
+        {
+            var repository = new DataRepository<BasicMapping>(DatabaseContextService, new BasicDataRowMapper());
 
-        var repository = new DataRepository<BasicMapping>(new BasicDataRowMapper());
+            var result = await repository.ContainsAsync(new Query("select 1"));
 
-        var result = (await repository.ContainsAsync(DatabaseContextFactory.Create(), new Query("select 1")));
-
-        Assert.That(result, Is.True);
+            Assert.That(result, Is.True);
+        }
     }
 
     [Test]
     public async Task Should_be_able_to_fetch_mapped_rows_async()
     {
-        _ = new DatabaseContextScope();
+        using (new DatabaseContextScope())
+        await using (DatabaseContextFactory.Create())
+        {
+            var repository = new DataRepository<BasicMapping>(DatabaseContextService, new BasicDataRowMapper());
 
-        var repository = new DataRepository<BasicMapping>(new BasicDataRowMapper());
+            var result = (await repository.FetchMappedRowsAsync(new Query("select * from BasicMapping"))).ToList();
 
-        var result = (await repository.FetchMappedRowsAsync(DatabaseContextFactory.Create(), new Query("select * from BasicMapping"))).ToList();
-
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Count, Is.EqualTo(2));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(2));
+        }
     }
 
     [Test]
     public async Task Should_be_able_to_fetch_a_single_row_async()
     {
-        _ = new DatabaseContextScope();
+        using (new DatabaseContextScope())
+        await using (DatabaseContextFactory.Create())
+        {
+            var repository = new DataRepository<BasicMapping>(DatabaseContextService, new BasicDataRowMapper());
 
-        var repository = new DataRepository<BasicMapping>(new BasicDataRowMapper());
+            var result = await repository.FetchMappedRowAsync(new Query("select top 1 * from BasicMapping"));
 
-        var result = (await repository.FetchMappedRowAsync(DatabaseContextFactory.Create(), new Query("select top 1 * from BasicMapping")));
-
-        Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.Not.Null);
+        }
     }
 }
 

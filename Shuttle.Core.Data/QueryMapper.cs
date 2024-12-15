@@ -13,30 +13,32 @@ namespace Shuttle.Core.Data;
 
 public class QueryMapper : IQueryMapper
 {
+    private readonly IDatabaseContextService _databaseContextService;
     private readonly IDataRowMapper _dataRowMapper;
     private readonly object _lock = new();
     private readonly Dictionary<Type, PropertyInfo[]> _properties = new();
 
-    public QueryMapper(IDataRowMapper dataRowMapper)
+    public QueryMapper(IDatabaseContextService databaseContextService, IDataRowMapper dataRowMapper)
     {
+        _databaseContextService = Guard.AgainstNull(databaseContextService);
         _dataRowMapper = Guard.AgainstNull(dataRowMapper);
     }
 
-    public async Task<MappedRow<T>?> MapRowAsync<T>(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default) where T : new()
+    public async Task<MappedRow<T>?> MapRowAsync<T>(IQuery query, CancellationToken cancellationToken = default) where T : new()
     {
-        var result = await Guard.AgainstNull(databaseContext).GetRowAsync(Guard.AgainstNull(query), cancellationToken);
+        var result = await _databaseContextService.Active.GetRowAsync(Guard.AgainstNull(query), cancellationToken);
 
         return result == null ? null : _dataRowMapper.MapRow<T>(result);
     }
 
-    public async Task<IEnumerable<MappedRow<T>>> MapRowsAsync<T>(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default) where T : new()
+    public async Task<IEnumerable<MappedRow<T>>> MapRowsAsync<T>(IQuery query, CancellationToken cancellationToken = default) where T : new()
     {
-        return _dataRowMapper.MapRows<T>(await Guard.AgainstNull(databaseContext).GetRowsAsync(Guard.AgainstNull(query), cancellationToken));
+        return _dataRowMapper.MapRows<T>(await _databaseContextService.Active.GetRowsAsync(Guard.AgainstNull(query), cancellationToken));
     }
 
-    public async Task<T?> MapObjectAsync<T>(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default) where T : new()
+    public async Task<T?> MapObjectAsync<T>(IQuery query, CancellationToken cancellationToken = default) where T : new()
     {
-        await using var reader = await Guard.AgainstNull(databaseContext).GetReaderAsync(Guard.AgainstNull(query), cancellationToken);
+        await using var reader = await _databaseContextService.Active.GetReaderAsync(Guard.AgainstNull(query), cancellationToken);
 
         var columns = GetColumns(reader);
 
@@ -48,13 +50,13 @@ public class QueryMapper : IQueryMapper
         return default;
     }
 
-    public async Task<IEnumerable<T>> MapObjectsAsync<T>(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default) where T : new()
+    public async Task<IEnumerable<T>> MapObjectsAsync<T>(IQuery query, CancellationToken cancellationToken = default) where T : new()
     {
         Guard.AgainstNull(query);
 
         List<T> result = new();
 
-        await using var reader = await Guard.AgainstNull(databaseContext).GetReaderAsync(Guard.AgainstNull(query), cancellationToken);
+        await using var reader = await _databaseContextService.Active.GetReaderAsync(Guard.AgainstNull(query), cancellationToken);
 
         var columns = GetColumns(reader);
 
@@ -66,9 +68,9 @@ public class QueryMapper : IQueryMapper
         return result;
     }
 
-    public async Task<T?> MapValueAsync<T>(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default)
+    public async Task<T?> MapValueAsync<T>(IQuery query, CancellationToken cancellationToken = default)
     {
-        await using var reader = await Guard.AgainstNull(databaseContext).GetReaderAsync(Guard.AgainstNull(query), cancellationToken);
+        await using var reader = await _databaseContextService.Active.GetReaderAsync(Guard.AgainstNull(query), cancellationToken);
 
         while (await reader.ReadAsync(cancellationToken))
         {
@@ -78,11 +80,11 @@ public class QueryMapper : IQueryMapper
         return default;
     }
 
-    public async Task<IEnumerable<T>> MapValuesAsync<T>(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<T>> MapValuesAsync<T>(IQuery query, CancellationToken cancellationToken = default)
     {
         List<T> result = new();
 
-        await using var reader = await Guard.AgainstNull(databaseContext).GetReaderAsync(Guard.AgainstNull(query), cancellationToken);
+        await using var reader = await _databaseContextService.Active.GetReaderAsync(Guard.AgainstNull(query), cancellationToken);
 
         while (await reader.ReadAsync(cancellationToken))
         {
@@ -97,9 +99,9 @@ public class QueryMapper : IQueryMapper
         return result;
     }
 
-    public async Task<dynamic?> MapItemAsync(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default)
+    public async Task<dynamic?> MapItemAsync(IQuery query, CancellationToken cancellationToken = default)
     {
-        await using var reader = await Guard.AgainstNull(databaseContext).GetReaderAsync(Guard.AgainstNull(query), cancellationToken);
+        await using var reader = await _databaseContextService.Active.GetReaderAsync(Guard.AgainstNull(query), cancellationToken);
 
         var columns = GetColumns(reader);
 
@@ -111,11 +113,11 @@ public class QueryMapper : IQueryMapper
         return default;
     }
 
-    public async Task<IEnumerable<dynamic>> MapItemsAsync(IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<dynamic>> MapItemsAsync(IQuery query, CancellationToken cancellationToken = default)
     {
         List<dynamic> result = new();
 
-        await using var reader = await Guard.AgainstNull(databaseContext).GetReaderAsync(Guard.AgainstNull(query), cancellationToken);
+        await using var reader = await _databaseContextService.Active.GetReaderAsync(Guard.AgainstNull(query), cancellationToken);
 
         var columns = GetColumns(reader);
 
@@ -161,7 +163,7 @@ public class QueryMapper : IQueryMapper
 
     private static T Map<T>(IEnumerable<PropertyInfo> properties, IDataRecord record, Dictionary<string, int> columns) where T : new()
     {
-        T? result = new();
+        T result = new();
 
         foreach (var pi in properties)
         {
