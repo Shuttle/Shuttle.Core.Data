@@ -97,15 +97,6 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Database context with name &apos;{0}&apos; is already active..
-        /// </summary>
-        public static string DatabaseContextAlreadyActiveException {
-            get {
-                return ResourceManager.GetString("DatabaseContextAlreadyActiveException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to DatabaseContextFactoryOptions have not been configured.  Cannot call &apos;Create()&apos; directly..
         /// </summary>
         public static string DatabaseContextFactoryOptionsException {

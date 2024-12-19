@@ -44,7 +44,7 @@ public class DatabaseContextService : IDatabaseContextService
         }
     }
 
-    public void Activate(IDatabaseContext databaseContext)
+    public bool Activate(IDatabaseContext databaseContext)
     {
         Guard.AgainstNull(databaseContext);
 
@@ -56,7 +56,7 @@ public class DatabaseContextService : IDatabaseContextService
 
             if (current != null && current.Name.Equals(databaseContext.Name))
             {
-                throw new(string.Format(Resources.DatabaseContextAlreadyActiveException, databaseContext.Name));
+                return false;
             }
 
             var activate = GetDatabaseContextCollection().DatabaseContexts.FirstOrDefault(item => item.Name.Equals(databaseContext.Name, StringComparison.InvariantCultureIgnoreCase));
@@ -67,6 +67,8 @@ public class DatabaseContextService : IDatabaseContextService
             }
 
             GetDatabaseContextCollection().Activate(activate);
+
+            return true;
         }
         finally
         {
