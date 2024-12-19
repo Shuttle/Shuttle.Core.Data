@@ -12,7 +12,6 @@ public class DatabaseContextFactory : IDatabaseContextFactory
     private readonly IOptionsMonitor<ConnectionStringOptions> _connectionStringOptions;
     private readonly DataAccessOptions _dataAccessOptions;
     private readonly IDbCommandFactory _dbCommandFactory;
-
     private readonly IDbConnectionFactory _dbConnectionFactory;
     private readonly SemaphoreSlim _lock = new(1, 1);
 

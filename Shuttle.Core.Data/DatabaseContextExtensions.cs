@@ -39,6 +39,7 @@ public static class DatabaseContextExtensions
         {
             return await command.ExecuteReaderAsync(cancellationToken).ConfigureAwait(false);
         }
+    
     }
 
     public static async Task<DataRow?> GetRowAsync(this IDatabaseContext databaseContext, IQuery query, CancellationToken cancellationToken = default)
