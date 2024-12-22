@@ -10,7 +10,7 @@ public class RecordNotFoundException : Exception
 
     public static RecordNotFoundException For(string name, object id)
     {
-        return new(string.Format(Resources.RecordNotFoundException, name ?? "(unknown)", id ?? "(null)"));
+        return new(string.Format(Resources.RecordNotFoundException, name, id));
     }
 
     public static RecordNotFoundException For<T>(object id)
