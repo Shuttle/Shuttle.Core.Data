@@ -65,9 +65,9 @@ The default JSON settings structure is as follows:
 
 # DatabaseContextScope
 
-The `DatabaseContextService` contains a collection of the `DatabaseContext` instances created by `IDatabaseContextFactory`.  However, since the `DatabaseContextService` is a singleton the same collection will be used in all thread contexts.  This includes not only the same execution context, but also "peered" execution context running in parallel.
+The `DatabaseContextService` contains a collection of the `DatabaseContext` instances created by `IDatabaseContextFactory`.  However, since the `DatabaseContextService` is a singleton the same collection will be used in all thread contexts.  This includes not only the same execution context, but also "peered" execution contexts running in parallel.
 
-To enable an individual execution/thread context-specific collection which also enables async context flow wrap the initial database context creation in a new `DatabaseContextScope()`:
+To enable an individual execution/thread context-specific collection, which also enables async context flow, wrap the initial database context creation in a new `DatabaseContextScope()`:
 
 ``` c#
 using (new DatabaseContextScope())
@@ -81,6 +81,8 @@ using (new DatabaseContextScope())
 In order to access a database we need a database connection.  A database connection is represented by an `IDatabaseContext` instance that may be obtained by using an instance of an `IDatabaseContextFactory` implementation.
 
 The `DatabaseContextFactory` implementation makes use of an `IDbConnectionFactory` implementation which creates a `System.Data.IDbConnection` by using the provider name and connection string, which is obtained from the registered connection name.  An `IDbCommandFactory` creates a `System.Data.IDbCommand` by using an `IDbConnection` instance.
+
+If the connection name is ommitted the `DefaultConnectionStringName` option will be used.
 
 ``` c#
 var databaseContextFactory = provider.GetRequiredService<IDatabaseContextFactory>();
@@ -117,7 +119,7 @@ This method is used to add a parameter to the query.  The `IColumn` instance is 
 
 ## Query
 
-The `Query` represents a `Text` command type:
+The `Query` represents a command:
 
 ``` c#
 public Query(string commandText, CommandType commandType = CommandType.Text)
@@ -142,20 +144,11 @@ namespace Shuttle.Ordering.DataAccess
 {
     public class OrderColumns
     {
-        public static readonly Column<Guid> Id =
-            new Column<Guid>("Id", DbType.Guid);
-
-        public static readonly Column<string> OrderNumber =
-            new Column<string>("OrderNumber", DbType.String, 20);
-
-        public static readonly Column<string> OrderDate =
-            new Column<string>("OrderDate", DbType.DateTime);
-
-        public static readonly Column<string> CustomerName =
-			new Column<string>("CustomerName", DbType.String, 65);
-
-        public static readonly Column<string> CustomerEMail =
-            new Column<string>("CustomerEMail", DbType.String); // size omitted
+        public static readonly Column<Guid> Id = new("Id", DbType.Guid);
+        public static readonly Column<string> OrderNumber = new("OrderNumber", DbType.String, 20);
+        public static readonly Column<string> OrderDate = new("OrderDate", DbType.DateTime);
+        public static readonly Column<string> CustomerName = new("CustomerName", DbType.String, 65);
+        public static readonly Column<string> CustomerEMail = new("CustomerEMail", DbType.String); // size omitted
     }
 }
 ```
@@ -170,11 +163,9 @@ public T Value(DataRow row)
 
 This will return the typed value of the specified column as contained in the passed-in `DataRow`.
 
-# IDatabaseGateway
+# DatabaseContextExtensions
 
-The `DatabaseGateway` is used to execute `IQuery` instances in order return data from, or make changes to, the underlying data store.  If there is no active open `IDatabaseContext` returned by the `DatabaseContextService.Current` an `InvalidOperationException` will be thrown.
-
-The following sections each describe the methods available in the `IDatabaseGateway` interface.
+The following sections each describe the extension methods available on an `IDatabaseContext` instance.
 
 ## GetReaderAsync
 
@@ -185,9 +176,9 @@ Task<IDataReader> GetReaderAsync(IQuery query, CancellationToken cancellationTok
 Returns an `IDataReader` instance for the given `query` statement:
 
 ``` c#
-using (databaseContextFactory.Create("connection-name"))
+using (var databaseContext = databaseContextFactory.Create("connection-name"))
 {
-	var reader = await gateway.GetReaderAsync(new Query("select Id, Username from dbo.Member"));
+	var reader = await databaseContext.GetReaderAsync(new Query("SELECT Id, Username FROM dbo.Member"));
 }
 ```
 
@@ -200,9 +191,9 @@ Task<int> ExecuteAsync(IQuery query, CancellationToken cancellationToken = defau
 Executes the given query and returns the number of rows affected:
 
 ``` c#
-using (databaseContextFactory.Create("connection-name"))
+using (var databaseContext = databaseContextFactory.Create("connection-name"))
 {
-	await gateway.ExecuteAsync(new Query("delete from dbo.Member where Username = 'mr.resistor'"));
+	await databaseContext.ExecuteAsync(new Query("DELETE FROM dbo.Member WHERE Username = 'mr.resistor'"));
 }
 ```
 
@@ -217,9 +208,9 @@ Get the scalar value returned by the `select` query.  The query shoud return onl
 ```c#
 using (var databaseContext = databaseContextFactory.Create("connection-name"))
 {
-	var username = await gateway.GetScalarAsync<string>(new Query("select Username from dbo.Member where Id = 10"));
+	var username = await databaseContext.GetScalarAsync<string>(new Query("SELECT Username FROM dbo.Member WHERE Id = 10"));
 	
-	var id = await gateway.GetScalarAsync<int>(new Query.Create("select Id from dbo.Member where Username = 'mr.resistor'")	);
+	var id = await databaseContext.GetScalarAsync<int>(new Query.Create("SELECT Id FROM dbo.Member WHERE Username = 'mr.resistor'"));
 }
 ```
 
@@ -232,9 +223,9 @@ Task<DataTable> GetDataTableAsync(IQuery query, CancellationToken cancellationTo
 Returns a `DataTable` containing the rows returned for the given `select` query.
 
 ``` c#
-using (databaseContextFactory.Create("connection-name"))
+using (var databaseContext = databaseContextFactory.Create("connection-name"))
 {
-	var table = await gateway.GetDataTableAsync(new Query("select Id, Username from dbo.Member"));
+	var table = await databaseContext.GetDataTableAsync(new Query("SELECT Id, Username FROM dbo.Member"));
 }
 ```
 
@@ -247,9 +238,9 @@ Task<IEnumerable<DataRow>> GetRowsAsync(IQuery query, CancellationToken cancella
 Returns an enumerable containing the `DataRow` instances returned for a `select` query:
 
 ``` c#
-using (databaseContextFactory.Create("connection-name"))
+using (var databaseContext = databaseContextFactory.Create("connection-name"))
 {
-	var rows = await gateway.GetRowsAsync(new Query("select Id, Username from dbo.Member"));
+	var rows = await databaseContext.GetRowsAsync(new Query("SELECT Id, Username FROM dbo.Member"));
 }
 ```
 
@@ -262,9 +253,9 @@ Task<DataRow> GetRowAsync(IQuery query, CancellationToken cancellationToken = de
 Returns a single `DataRow` containing the values returned for a `select` statement that returns exactly one row:
 
 ``` c#
-using (databaseContextFactory.Create("connection-name"))
+using (var databaseContext = databaseContextFactory.Create("connection-name"))
 {
-	var row = await gateway.GetRowAsync(new Query("select Id, Username, EMail, DateActivated from dbo.Member where Id = 10")	);
+	var row = await databaseContext.GetRowAsync(new Query("SELECT Id, Username, EMail, DateActivated FROM dbo.Member WHERE Id = 10"));
 }
 ```
 
@@ -389,8 +380,10 @@ Using a `MappedData` instance we can keep adding the `MappedRow` instances to th
 ``` c#
 public class OrderAssembler : IAssembler<Order>
 {
-	public IEnumerable<Order> Assemble(MappedData data)
+	public async Task<IEnumerable<Order>> AssembleAsync(MappedData data)
 	{
+        await Task.CompletedTask;
+
 		var result = new List<Order>();
 
 		foreach (var orderRow in data.MappedRows<Order>())
