@@ -4,30 +4,29 @@ using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 
-namespace Shuttle.Core.Data.Tests
+namespace Shuttle.Core.Data.Tests;
+
+[TestFixture]
+public class DbCommandFactoryFixture : Fixture
 {
-    [TestFixture]
-    public class DbCommandFactoryFixture : Fixture
+    [Test]
+    public void Should_be_able_to_create_a_command()
     {
-        [Test]
-        public void Should_be_able_to_create_a_command()
-        {
-            var factory = new DbCommandFactory(Options.Create(new DataAccessOptions { CommandTimeout = 15 }));
-            var connection = new Mock<IDbConnection>();
-            var query = new Mock<IQuery>();
-            var command = new Mock<DbCommand>();
+        DbCommandFactory factory = new(Options.Create(new DataAccessOptions { CommandTimeout = 15 }));
+        Mock<IDbConnection> connection = new();
+        Mock<IQuery> query = new();
+        Mock<DbCommand> command = new();
 
-            command.SetupSet(m => m.CommandTimeout = 15).Verifiable("CommandTimeout not set to 15");
+        command.SetupSet(m => m.CommandTimeout = 15).Verifiable("CommandTimeout not set to 15");
 
-            connection.Setup(m => m.CreateCommand()).Returns(command.Object);
-            query.Setup(m => m.Prepare(command.Object));
+        connection.Setup(m => m.CreateCommand()).Returns(command.Object);
+        query.Setup(m => m.Prepare(command.Object));
 
-            var result = factory.Create(connection.Object, query.Object);
+        var result = factory.Create(connection.Object, query.Object);
 
-            connection.VerifyAll();
-            query.VerifyAll();
+        connection.VerifyAll();
+        query.VerifyAll();
 
-            Assert.AreSame(result, command.Object);
-        }
+        Assert.That(command.Object, Is.SameAs(result));
     }
 }

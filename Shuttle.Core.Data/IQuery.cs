@@ -1,10 +1,9 @@
 ﻿using System.Data;
 
-namespace Shuttle.Core.Data
+namespace Shuttle.Core.Data;
+
+public interface IQuery
 {
-	public interface IQuery
-	{
-		void Prepare(IDbCommand command);
-		IQuery AddParameter(IColumn column, object value);
-    }
+    IQuery AddParameter(IColumn column, object? value);
+    void Prepare(IDbCommand command);
 }

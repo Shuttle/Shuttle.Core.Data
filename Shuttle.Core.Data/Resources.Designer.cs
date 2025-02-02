@@ -79,7 +79,7 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Connection settings named &apos;{0}&apos; has no connection string..
+        ///   Looks up a localized string similar to Coluld not find a connection string named &apos;{0}&apos;..
         /// </summary>
         public static string ConnectionStringMissingException {
             get {
@@ -88,11 +88,11 @@ namespace Shuttle.Core.Data {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Database context with name &apos;{0}&apos; is already active..
+        ///   Looks up a localized string similar to Connection string options named &apos;{0}&apos; has no connection string..
         /// </summary>
-        public static string DatabaseContextAlreadyActiveException {
+        public static string ConnectionStringOptionMissingException {
             get {
-                return ResourceManager.GetString("DatabaseContextAlreadyActiveException", resourceCulture);
+                return ResourceManager.GetString("ConnectionStringOptionMissingException", resourceCulture);
             }
         }
         

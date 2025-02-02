@@ -2,15 +2,14 @@
 using System.Data;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Core.Data
-{
-    public class TransactionEventArgs : EventArgs
-    {
-        public TransactionEventArgs(IDbTransaction transaction)
-        {
-            Transaction = Guard.AgainstNull(transaction, nameof(transaction));
-        }
+namespace Shuttle.Core.Data;
 
-        public IDbTransaction Transaction { get; }
+public class TransactionEventArgs : EventArgs
+{
+    public TransactionEventArgs(IDbTransaction transaction)
+    {
+        Transaction = Guard.AgainstNull(transaction);
     }
+
+    public IDbTransaction Transaction { get; }
 }

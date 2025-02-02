@@ -3,7 +3,7 @@
 <package>
 	<metadata>
 		<id>Shuttle.Core.Data</id>
-		<version>17.0.0</version>
+		<version>20.0.0</version>
 		<authors>Eben Roux</authors>
 		<owners>Eben Roux</owners>
 		<license type="expression">BSD-3-Clause</license>
@@ -13,15 +13,15 @@
 		<repository type="git" url="https://github.com/Shuttle/Shuttle.Core.Data.git" />
 		<projectUrl>https://github.com/Shuttle/Shuttle.Core.Data</projectUrl>
 		<description>Provides an abstraction over ADO.NET.</description>
-		<copyright>Copyright (c) 2024, Eben Roux</copyright>
+		<copyright>Copyright (c) 2025, Eben Roux</copyright>
 		<tags>orm micro-orm microorm data-access</tags>
 		<dependencies>
       <dependency id="Microsoft.CSharp" version="4.7.0" />
-      <dependency id="Microsoft.Extensions.Configuration" version="7.0.0" />
-      <dependency id="Microsoft.Extensions.Configuration.Binder" version="7.0.3" />
-      <dependency id="Microsoft.Extensions.DependencyInjection" version="7.0.0" />
-      <dependency id="Microsoft.Extensions.Options" version="7.0.1" />
-      <dependency id="Shuttle.Core.Contract" version="11.1.1" />
+      <dependency id="Microsoft.Extensions.Configuration" version="8.0.0" />
+      <dependency id="Microsoft.Extensions.Configuration.Binder" version="8.0.2" />
+      <dependency id="Microsoft.Extensions.DependencyInjection" version="8.0.1" />
+      <dependency id="Microsoft.Extensions.Options" version="8.0.2" />
+      <dependency id="Shuttle.Core.Contract" version="20.0.0" />
 		</dependencies>
 	</metadata>
 	<files>

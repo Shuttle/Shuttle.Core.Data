@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Data.Common;
-using System.Threading;
 using Moq;
 using NUnit.Framework;
 
@@ -14,7 +12,7 @@ public class DatabaseContextFactoryFixture : Fixture
     {
         using (var context = DatabaseContextFactory.Create(DefaultConnectionStringName))
         {
-            Assert.IsNotNull(context);
+            Assert.That(context, Is.Not.Null);
         }
     }
 
@@ -24,13 +22,13 @@ public class DatabaseContextFactoryFixture : Fixture
     {
         var databaseContextFactory = new Mock<IDatabaseContextFactory>();
 
-        Assert.That(databaseContextFactory.Object.IsAvailable(new CancellationToken(), 0, 0), Is.True);
-        Assert.That(databaseContextFactory.Object.IsAvailable("name", new CancellationToken(), 0, 0), Is.True);
+        Assert.That(databaseContextFactory.Object.IsAvailable(new(), 0, 0), Is.True);
+        Assert.That(databaseContextFactory.Object.IsAvailable("name", new(), 0, 0), Is.True);
 
         databaseContextFactory.Setup(m => m.Create()).Throws(new Exception());
         databaseContextFactory.Setup(m => m.Create(It.IsAny<string>())).Throws(new Exception());
 
-        Assert.That(databaseContextFactory.Object.IsAvailable(new CancellationToken(), 0, 0), Is.False);
-        Assert.That(databaseContextFactory.Object.IsAvailable("name", new CancellationToken(), 0, 0), Is.False);
+        Assert.That(databaseContextFactory.Object.IsAvailable(new(), 0, 0), Is.False);
+        Assert.That(databaseContextFactory.Object.IsAvailable("name", new(), 0, 0), Is.False);
     }
 }

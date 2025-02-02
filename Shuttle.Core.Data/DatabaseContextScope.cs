@@ -2,30 +2,31 @@
 using System.Collections.Generic;
 using System.Threading;
 
-namespace Shuttle.Core.Data
+namespace Shuttle.Core.Data;
+
+public class DatabaseContextScope : IDisposable
 {
-    public class DatabaseContextScope : IDisposable
+    private static readonly AsyncLocal<Stack<DatabaseContextCollection>> DatabaseContextCollectionStack = new();
+    private static readonly AsyncLocal<DatabaseContextCollection?> AmbientData = new();
+
+    public DatabaseContextScope()
     {
-        private static readonly AsyncLocal<Stack<DatabaseContextCollection>> DatabaseContextCollectionStack = new AsyncLocal<Stack<DatabaseContextCollection>>();
-        private static readonly AsyncLocal<DatabaseContextCollection> AmbientData = new AsyncLocal<DatabaseContextCollection>();
+        AmbientData.Value = new();
+        DatabaseContextCollectionStack.Value ??= new();
+        DatabaseContextCollectionStack.Value.Push(AmbientData.Value);
+    }
 
-        public DatabaseContextScope()
+    public static DatabaseContextCollection? Current => AmbientData.Value;
+
+    public void Dispose()
+    {
+        if (DatabaseContextCollectionStack.Value == null ||
+            DatabaseContextCollectionStack.Value.Count == 0)
         {
-            if (DatabaseContextCollectionStack.Value == null)
-            {
-                DatabaseContextCollectionStack.Value = new Stack<DatabaseContextCollection>();
-            }
-
-            DatabaseContextCollectionStack.Value.Push(AmbientData.Value);
-
-            AmbientData.Value = new DatabaseContextCollection();
+            AmbientData.Value = null;
+            return;
         }
 
-        public static DatabaseContextCollection Current => AmbientData.Value;
-
-        public void Dispose()
-        {
-            AmbientData.Value = DatabaseContextCollectionStack.Value.Pop();
-        }
+        AmbientData.Value = DatabaseContextCollectionStack.Value?.Pop();
     }
 }

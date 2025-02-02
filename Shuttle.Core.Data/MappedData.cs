@@ -3,66 +3,52 @@ using System.Collections.Generic;
 using System.Linq;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Core.Data
+namespace Shuttle.Core.Data;
+
+public class MappedData
 {
-    public class MappedData
+    private readonly Dictionary<string, object> _data = new();
+
+    public MappedData Add<T>(MappedRow<T> mappedRow)
     {
-        private readonly Dictionary<string, object> _data = new Dictionary<string, object>();
+        var key = Key<T>();
 
-        public MappedData Add<T>(MappedRow<T> mappedRow)
+        if (_data.ContainsKey(key))
         {
-            Guard.AgainstNull(mappedRow, nameof(mappedRow));
-
-            var key = Key<T>();
-
-            if (_data.ContainsKey(key))
-            {
-                _data.Remove(key);
-            }
-
-            _data.Add(key, new List<MappedRow<T>> {mappedRow});
-
-            return this;
+            _data.Remove(key);
         }
 
-        public MappedData Add<T>(IEnumerable<MappedRow<T>> mappedRows)
+        _data.Add(key, new List<MappedRow<T>> { Guard.AgainstNull(mappedRow) });
+
+        return this;
+    }
+
+    public MappedData Add<T>(IEnumerable<MappedRow<T>> mappedRows)
+    {
+        var key = Key<T>();
+
+        if (_data.ContainsKey(key))
         {
-            Guard.AgainstNull(mappedRows, nameof(mappedRows));
-
-            var key = Key<T>();
-
-            if (_data.ContainsKey(key))
-            {
-                _data.Remove(key);
-            }
-
-            _data.Add(key, mappedRows);
-
-            return this;
+            _data.Remove(key);
         }
 
-        public IEnumerable<MappedRow<T>> MappedRows<T>()
-        {
-            var key = Key<T>();
+        _data.Add(key, Guard.AgainstNull(mappedRows));
 
-            if (_data.ContainsKey(key))
-            {
-                return (IEnumerable<MappedRow<T>>) _data[key];
-            }
+        return this;
+    }
 
-            return new List<MappedRow<T>>();
-        }
+    private static string Key<T>()
+    {
+        return typeof(T).Name.ToLower();
+    }
 
-        private static string Key<T>()
-        {
-            return typeof (T).Name.ToLower();
-        }
+    public IEnumerable<MappedRow<T>> MappedRows<T>()
+    {
+        return _data.TryGetValue(Key<T>(), out var value) ? (IEnumerable<MappedRow<T>>)value : new List<MappedRow<T>>();
+    }
 
-        public IEnumerable<MappedRow<T>> MappedRows<T>(Func<MappedRow<T>, bool> func)
-        {
-            Guard.AgainstNull(func, nameof(func));
-
-            return MappedRows<T>().Where(func.Invoke).ToList();
-        }
+    public IEnumerable<MappedRow<T>> MappedRows<T>(Func<MappedRow<T>, bool> func)
+    {
+        return MappedRows<T>().Where(Guard.AgainstNull(func).Invoke).ToList();
     }
 }

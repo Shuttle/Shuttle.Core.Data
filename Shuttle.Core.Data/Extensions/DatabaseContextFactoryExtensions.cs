@@ -2,63 +2,58 @@
 using System.Threading;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Core.Data
+namespace Shuttle.Core.Data;
+
+public static class DatabaseContextFactoryExtensions
 {
-    public static class DatabaseContextFactoryExtensions
+    public static bool IsAvailable(this IDatabaseContextFactory databaseContextFactory, CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
     {
-        public static bool IsAvailable(this IDatabaseContextFactory databaseContextFactory, CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
+        return IsAvailable(() =>
         {
-            Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
-
-            return IsAvailable(() =>
+            using (Guard.AgainstNull(databaseContextFactory).Create())
             {
-                using (databaseContextFactory.Create())
-                {
-                }
-            }, cancellationToken, retries, secondsBetweenRetries);
-        }
+            }
+        }, cancellationToken, retries, secondsBetweenRetries);
+    }
 
-        public static bool IsAvailable(this IDatabaseContextFactory databaseContextFactory, string name, CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
+    public static bool IsAvailable(this IDatabaseContextFactory databaseContextFactory, string name, CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
+    {
+        return IsAvailable(() =>
         {
-            Guard.AgainstNull(databaseContextFactory, nameof(databaseContextFactory));
-
-            return IsAvailable(() =>
+            using (Guard.AgainstNull(databaseContextFactory).Create(name))
             {
-                using (databaseContextFactory.Create(name))
-                {
-                }
-            }, cancellationToken, retries, secondsBetweenRetries);
-        }
+            }
+        }, cancellationToken, retries, secondsBetweenRetries);
+    }
 
-        private static bool IsAvailable(Action action, CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
+    private static bool IsAvailable(Action action, CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
+    {
+        var attempt = 0;
+
+        do
         {
-            var attempt = 0;
-
-            do
+            try
             {
-                try
-                {
-                    action.Invoke();
+                action.Invoke();
 
-                    break;
-                }
-                catch
-                {
-                    attempt++;
+                break;
+            }
+            catch
+            {
+                attempt++;
 
-                    if (attempt < retries)
+                if (attempt < retries)
+                {
+                    var wait = DateTime.Now.AddSeconds(secondsBetweenRetries);
+
+                    while (!cancellationToken.IsCancellationRequested && DateTime.Now < wait)
                     {
-                        var wait = DateTime.Now.AddSeconds(secondsBetweenRetries);
-
-                        while (!cancellationToken.IsCancellationRequested && DateTime.Now < wait)
-                        {
-                            Thread.Sleep(250);
-                        }
+                        Thread.Sleep(250);
                     }
                 }
-            } while (attempt < retries);
+            }
+        } while (attempt < retries);
 
-            return attempt <= retries;
-        }
+        return attempt <= retries;
     }
 }

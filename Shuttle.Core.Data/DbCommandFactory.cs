@@ -4,32 +4,31 @@ using System.Data.Common;
 using Microsoft.Extensions.Options;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Core.Data
+namespace Shuttle.Core.Data;
+
+public class DbCommandFactory : IDbCommandFactory
 {
-    public class DbCommandFactory : IDbCommandFactory
+    private readonly int _commandTimeout;
+
+    public DbCommandFactory(IOptions<DataAccessOptions> options)
     {
-		private readonly int _commandTimeout;
+        Guard.AgainstNull(options);
 
-	    public DbCommandFactory(IOptions<DataAccessOptions> options)
-	    {
-		    Guard.AgainstNull(options, nameof(options));
+        _commandTimeout = Guard.AgainstNull(options.Value).CommandTimeout;
+    }
 
-		    _commandTimeout = Guard.AgainstNull(options.Value, nameof(options.Value)).CommandTimeout;
-	    }
+    public event EventHandler<DbCommandCreatedEventArgs>? DbCommandCreated;
 
-	    public event EventHandler<DbCommandCreatedEventArgs> DbCommandCreated;
+    public DbCommand Create(IDbConnection connection, IQuery query)
+    {
+        var command = Guard.AgainstNull(connection).CreateCommand();
 
-	    public DbCommand Create(IDbConnection connection, IQuery query)
-        {
-            var command = Guard.AgainstNull(connection, nameof(connection)).CreateCommand();
+        command.CommandTimeout = _commandTimeout;
 
-        	command.CommandTimeout = _commandTimeout;
+        Guard.AgainstNull(query).Prepare(command);
 
-            Guard.AgainstNull(query, nameof(query)).Prepare(command);
+        DbCommandCreated?.Invoke(this, new(command));
 
-            DbCommandCreated?.Invoke(this, new DbCommandCreatedEventArgs(command));
-
-            return (DbCommand)command;
-        }
+        return (DbCommand)command;
     }
 }

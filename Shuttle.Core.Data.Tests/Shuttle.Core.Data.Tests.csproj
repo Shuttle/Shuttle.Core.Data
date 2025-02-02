@@ -1,36 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <TargetFrameworks>net6.0</TargetFrameworks>
-        <ApplicationIcon />
-        <OutputType>Library</OutputType>
-        <StartupObject />
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
+  </PropertyGroup>
 
-    <ItemGroup>
-        <None Include=".scripts\file-script.sql">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <EmbeddedResource Include=".scripts\Microsoft.Data.SqlClient\embedded-script.sql">
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </EmbeddedResource>
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="NUnit" Version="4.2.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+    <PackageReference Include="Shuttle.Core.Threading" Version="20.0.0" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.4" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-        <PackageReference Include="Moq" Version="4.20.70" />
-        <PackageReference Include="NUnit" Version="3.14.0" />
-        <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
-        <PackageReference Include="Shuttle.Core.Threading" Version="13.0.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Shuttle.Core.Data\Shuttle.Core.Data.csproj" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Shuttle.Core.Data\Shuttle.Core.Data.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Compile Remove="ConnectionConfigurationProvider.cs" Condition="'$(TargetFramework)' != 'net461'" />
-        <Compile Remove="DefaultDbProviderFactories.cs" Condition="'$(TargetFramework)' != 'netcoreapp2.1'" />
-    </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="ConnectionConfigurationProvider.cs" Condition="'$(TargetFramework)' != 'net461'" />
+    <Compile Remove="DefaultDbProviderFactories.cs" Condition="'$(TargetFramework)' != 'netcoreapp2.1'" />
+  </ItemGroup>
 </Project>

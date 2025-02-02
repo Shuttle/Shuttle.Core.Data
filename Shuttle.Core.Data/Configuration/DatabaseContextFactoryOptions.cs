@@ -1,9 +1,6 @@
-using System;
+namespace Shuttle.Core.Data;
 
-namespace Shuttle.Core.Data
+public class DatabaseContextFactoryOptions
 {
-    public class DatabaseContextFactoryOptions
-    {
-        public string DefaultConnectionStringName { get; set; }
-    }
+    public string DefaultConnectionStringName { get; set; } = default!;
 }

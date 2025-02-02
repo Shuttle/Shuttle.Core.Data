@@ -4,29 +4,23 @@ using System.Data.Common;
 using System.Threading.Tasks;
 using IsolationLevel = System.Data.IsolationLevel;
 
-namespace Shuttle.Core.Data
+namespace Shuttle.Core.Data;
+
+public interface IDatabaseContext : IDisposable, IAsyncDisposable
 {
-    public interface IDatabaseContext : IDisposable, IAsyncDisposable
-    {
-	    event EventHandler<TransactionEventArgs> TransactionStarted;
-	    event EventHandler<TransactionEventArgs> TransactionCommitted;
-	    event EventHandler<TransactionEventArgs> TransactionRolledBack;
-	    event EventHandler<EventArgs> Disposed;
+    bool HasTransaction { get; }
+    bool IsActive { get; }
+    string Name { get; }
+    string ProviderName { get; }
+    DbTransaction? Transaction { get; }
+    Task<IDatabaseContext> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified);
+    Task CommitTransactionAsync();
+    Task<DbCommand> CreateCommandAsync(IQuery query);
 
-		string Name { get; }
+    event EventHandler<EventArgs> Disposed;
 
-		DbTransaction Transaction { get; }
-		DbCommand CreateCommand(IQuery query);
-		IDbConnection GetDbConnection();
-
-        bool HasTransaction { get; }
-        string ProviderName { get; }
-
-        IDatabaseContext BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.Unspecified);
-        Task<IDatabaseContext> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified);
-        void CommitTransaction();
-        Task CommitTransactionAsync();
-
-        bool IsActive { get; }
-    }
+    IDbConnection GetDbConnection();
+    event EventHandler<TransactionEventArgs> TransactionCommitted;
+    event EventHandler<TransactionEventArgs> TransactionRolledBack;
+    event EventHandler<TransactionEventArgs> TransactionStarted;
 }

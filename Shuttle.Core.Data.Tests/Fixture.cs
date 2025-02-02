@@ -5,46 +5,43 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
-namespace Shuttle.Core.Data.Tests
+namespace Shuttle.Core.Data.Tests;
+
+[TestFixture]
+public abstract class Fixture
 {
-    [TestFixture]
-    public abstract class Fixture
+    private static readonly IServiceCollection Services = new ServiceCollection();
+    protected static IServiceProvider Provider;
+
+    protected static string DefaultConnectionStringName = "Shuttle";
+    protected static string DefaultProviderName = "Microsoft.Data.SqlClient";
+    protected static string DefaultConnectionString = "Server=.;Database=Shuttle;User ID=sa;Password=Pass!000;TrustServerCertificate=true";
+
+    protected Fixture()
     {
-	    private static readonly IServiceCollection Services = new ServiceCollection();
-	    protected static IServiceProvider Provider;
+        DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
 
-	    protected static string DefaultConnectionStringName = "Shuttle";
-		protected static string DefaultProviderName = "Microsoft.Data.SqlClient";
-		protected static string DefaultConnectionString = "Server=.;Database=Shuttle;User ID=sa;Password=Pass!000;TrustServerCertificate=true";
+        Services.AddDataAccess(builder =>
+            {
+                builder.AddConnectionString(DefaultConnectionStringName, DefaultProviderName, DefaultConnectionString);
+                builder.Options.DatabaseContextFactory.DefaultConnectionStringName = DefaultConnectionStringName;
+            }
+        );
 
-        protected Fixture()
-        {
-            DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
+        Services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
 
-            Services.AddDataAccess(builder =>
-	            {
-		            builder.AddConnectionString(DefaultConnectionStringName, DefaultProviderName, DefaultConnectionString);
-		            builder.Options.DatabaseContextFactory.DefaultConnectionStringName = DefaultConnectionStringName;
-	            }
-            );
+        Provider = Services.BuildServiceProvider();
 
-            Services.AddSingleton<IConfiguration>(new ConfigurationBuilder().Build());
-
-            Provider = Services.BuildServiceProvider();
-
-            DbConnectionFactory = Provider.GetRequiredService<IDbConnectionFactory>();
-            DatabaseContextFactory = Provider.GetRequiredService<IDatabaseContextFactory>();
-            DatabaseGateway = Provider.GetRequiredService<IDatabaseGateway>();
-            QueryMapper = Provider.GetRequiredService<IQueryMapper>();
-            DataRowMapper = Provider.GetRequiredService<IDataRowMapper>();
-            DatabaseContextService = Provider.GetRequiredService<IDatabaseContextService>();
-        }
-
-        protected IDbConnectionFactory DbConnectionFactory { get; }
-        protected IDatabaseContextFactory DatabaseContextFactory { get; }
-        protected IDatabaseGateway DatabaseGateway { get; }
-        protected IQueryMapper QueryMapper { get; }
-        protected IDataRowMapper DataRowMapper { get; }
-        protected IDatabaseContextService DatabaseContextService { get; }
+        DbConnectionFactory = Provider.GetRequiredService<IDbConnectionFactory>();
+        DatabaseContextFactory = Provider.GetRequiredService<IDatabaseContextFactory>();
+        QueryMapper = Provider.GetRequiredService<IQueryMapper>();
+        DataRowMapper = Provider.GetRequiredService<IDataRowMapper>();
+        DatabaseContextService = Provider.GetRequiredService<IDatabaseContextService>();
     }
+
+    protected IDbConnectionFactory DbConnectionFactory { get; }
+    protected IDatabaseContextFactory DatabaseContextFactory { get; }
+    protected IQueryMapper QueryMapper { get; }
+    protected IDataRowMapper DataRowMapper { get; }
+    protected IDatabaseContextService DatabaseContextService { get; }
 }

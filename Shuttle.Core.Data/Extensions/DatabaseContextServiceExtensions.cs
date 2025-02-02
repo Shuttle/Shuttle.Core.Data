@@ -1,57 +1,43 @@
 ﻿using System;
-using System.Data.Common;
 using Shuttle.Core.Contract;
 
-namespace Shuttle.Core.Data
+namespace Shuttle.Core.Data;
+
+public static class DatabaseContextServiceExtensions
 {
-    public static class DatabaseContextServiceExtensions
+    public static void Activate(this IDatabaseContextService databaseContextService, string name)
     {
-        public static bool Contains(this IDatabaseContextService databaseContextService, IDatabaseContext context)
-        {
-            Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
-            Guard.AgainstNull(context, nameof(context));
+        Guard.AgainstNull(databaseContextService).Activate(databaseContextService.Get(Guard.AgainstNullOrEmptyString(name)));
+    }
 
-            return databaseContextService.Find(databaseContext => databaseContext.Name.Equals(context.Name)) != null;
-        }
+    public static bool Contains(this IDatabaseContextService databaseContextService, IDatabaseContext context)
+    {
+        Guard.AgainstNull(context);
 
-        public static bool Contains(this IDatabaseContextService databaseContextService, string name)
-        {
-            Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
-            Guard.AgainstNullOrEmptyString(name, nameof(name));
+        return Guard.AgainstNull(databaseContextService).Find(databaseContext => databaseContext.Name.Equals(context.Name)) != null;
+    }
 
-            return databaseContextService.Find(databaseContext => databaseContext.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)) != null;
-        }
+    public static bool Contains(this IDatabaseContextService databaseContextService, string name)
+    {
+        Guard.AgainstNullOrEmptyString(name);
 
-        public static IDatabaseContext Get(this IDatabaseContextService databaseContextService, string name)
-        {
-            Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
-            Guard.AgainstNullOrEmptyString(name, nameof(name));
+        return Guard.AgainstNull(databaseContextService).Find(databaseContext => databaseContext.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)) != null;
+    }
 
-            return databaseContextService.Find(databaseContext => databaseContext.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)) ?? throw new Exception(string.Format(Resources.DatabaseContextNameNotFoundException, name));
-        }
+    public static IDatabaseContext Get(this IDatabaseContextService databaseContextService, string name)
+    {
+        Guard.AgainstNullOrEmptyString(name);
 
-        public static void Activate(this IDatabaseContextService databaseContextService, string name)
-        {
-            Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
-            Guard.AgainstNullOrEmptyString(name, nameof(name));
+        return Guard.AgainstNull(databaseContextService).Find(databaseContext => databaseContext.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)) ?? throw new(string.Format(Resources.DatabaseContextNameNotFoundException, name));
+    }
 
-            databaseContextService.Activate(databaseContextService.Get(name));
-        }
+    public static bool IsActive(this IDatabaseContextService databaseContextService, IDatabaseContext context)
+    {
+        return Guard.AgainstNull(databaseContextService).HasActive && databaseContextService.Active.Name.Equals(Guard.AgainstNull(context).Name, StringComparison.InvariantCultureIgnoreCase);
+    }
 
-        public static bool IsActive(this IDatabaseContextService databaseContextService, IDatabaseContext context)
-        {
-            Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
-            Guard.AgainstNull(context, nameof(context));
-
-            return databaseContextService.HasActive && databaseContextService.Active.Name.Equals(context.Name, StringComparison.InvariantCultureIgnoreCase);
-        }
-
-        public static bool IsActive(this IDatabaseContextService databaseContextService, string name)
-        {
-            Guard.AgainstNull(databaseContextService, nameof(databaseContextService));
-            Guard.AgainstNullOrEmptyString(name, nameof(name));
-
-            return databaseContextService.HasActive && databaseContextService.Active.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase);
-        }
+    public static bool IsActive(this IDatabaseContextService databaseContextService, string name)
+    {
+        return Guard.AgainstNull(databaseContextService).HasActive && databaseContextService.Active.Name.Equals(Guard.AgainstNullOrEmptyString(name), StringComparison.InvariantCultureIgnoreCase);
     }
 }
