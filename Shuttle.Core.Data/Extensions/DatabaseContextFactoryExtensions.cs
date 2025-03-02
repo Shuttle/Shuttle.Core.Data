@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Shuttle.Core.Contract;
 
 namespace Shuttle.Core.Data;
 
 public static class DatabaseContextFactoryExtensions
 {
-    public static bool IsAvailable(this IDatabaseContextFactory databaseContextFactory, CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
+    public static async ValueTask<bool> IsAvailableAsync(this IDatabaseContextFactory databaseContextFactory, CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
     {
-        return IsAvailable(() =>
+        return await IsAvailableAsync(() =>
         {
             using (Guard.AgainstNull(databaseContextFactory).Create())
             {
@@ -16,9 +17,9 @@ public static class DatabaseContextFactoryExtensions
         }, cancellationToken, retries, secondsBetweenRetries);
     }
 
-    public static bool IsAvailable(this IDatabaseContextFactory databaseContextFactory, string name, CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
+    public static async ValueTask<bool> IsAvailableAsync(this IDatabaseContextFactory databaseContextFactory, string name, CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
     {
-        return IsAvailable(() =>
+        return await IsAvailableAsync(() =>
         {
             using (Guard.AgainstNull(databaseContextFactory).Create(name))
             {
@@ -26,7 +27,7 @@ public static class DatabaseContextFactoryExtensions
         }, cancellationToken, retries, secondsBetweenRetries);
     }
 
-    private static bool IsAvailable(Action action, CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
+    private static async ValueTask<bool> IsAvailableAsync(Action action, CancellationToken cancellationToken, int retries = 4, int secondsBetweenRetries = 15)
     {
         var attempt = 0;
 
@@ -44,12 +45,7 @@ public static class DatabaseContextFactoryExtensions
 
                 if (attempt < retries)
                 {
-                    var wait = DateTime.Now.AddSeconds(secondsBetweenRetries);
-
-                    while (!cancellationToken.IsCancellationRequested && DateTime.Now < wait)
-                    {
-                        Thread.Sleep(250);
-                    }
+                    await Task.Delay(TimeSpan.FromSeconds(secondsBetweenRetries), cancellationToken);
                 }
             }
         } while (attempt < retries);
